@@ -34,6 +34,21 @@ RSpec.describe DerivativeZoo::Generator::MonochromeGenerator do
     end
   end
 
+  context 'with pre processed color image' do
+    let(:file_path) { File.join(FIXTURE_PATH, 'files', 'ocr_color_pre.tiff') }
+    let(:result_path) do
+      File.join(FIXTURE_PATH, 'files', 'ocr_color_pre.mono.tiff')
+    end
+    let(:file_uri) { "file://#{file_path}" }
+    let(:args) { { input_uris: [file_path] } }
+
+    it 'builds a monochrome image' do
+      file = DerivativeZoo::StorageAdapter::FileAdapter.new(file_uri)
+      expect { subject.build_step(file) }.not_to raise_error
+      expect(File.exist?(result_path)).to be true
+    end
+  end
+
   context 'with monochrome image' do
     let(:file_path) { File.join(FIXTURE_PATH, 'files', 'ocr_mono.tiff') }
     let(:result_path) do

@@ -18,19 +18,25 @@ module DerivativeZoo
       end
 
       def build_step(file)
+        monochrome_file = monochrome_file(file)
+        return monochrome_file if monochrome_file.exists?
+
         file.with_existing_tmp_path do |tmp_path|
           image = DerivativeZoo::Service::ImageService.new(tmp_path)
           if image.monochrome?
             file
           else
-            monochromify(file, image)
+            monochromify(monochrome_file, image)
           end
         end
       end
 
-      def monochromify(file, image)
-        monochrome_file = file.derived_file(extension: output_extension,
-                                            adapter_name: output_adapter_name)
+      def monochrome_file(file)
+        file.derived_file(extension: output_extension,
+                          adapter_name: output_adapter_name)
+      end
+
+      def monochromify(monochrome_file, image)
         # Convert the above image to a file at the monochrome_path
         monochrome_file.with_new_tmp_path do |monochrome_path|
           image.convert(destination: monochrome_path, monochrome: true)
