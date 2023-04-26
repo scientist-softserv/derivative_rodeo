@@ -11,29 +11,15 @@ module DerivativeZoo
     class MonochromeGenerator < BaseGenerator
       self.output_extension = 'mono.tiff'
 
-      def input_files
-        @input_files ||= input_uris.map do |file_uri|
-          DerivativeZoo::StorageAdapter::Base.from_uri(file_uri)
-        end
-      end
-
-      def build_step(file)
-        monochrome_file = monochrome_file(file)
-        return monochrome_file if monochrome_file.exists?
-
-        file.with_existing_tmp_path do |tmp_path|
+      def build_step(in_file:, out_file:)
+        in_file.with_existing_tmp_path do |tmp_path|
           image = DerivativeZoo::Service::ImageService.new(tmp_path)
           if image.monochrome?
-            file
+            in_file
           else
-            monochromify(monochrome_file, image)
+            monochromify(out_file, image)
           end
         end
-      end
-
-      def monochrome_file(file)
-        file.derived_file(extension: output_extension,
-                          adapter_name: output_adapter_name)
       end
 
       def monochromify(monochrome_file, image)

@@ -27,6 +27,6 @@ RSpec.describe DerivativeZoo::Generator::BaseGenerator do
   end
 
   it 'requires build_step to be defined by a child class' do
-    expect { subject.build_step(nil) }.to raise_error(NotImplementedError)
+    expect { subject.build_step(in_file: nil, out_file: nil) }.to raise_error(NotImplementedError)
   end
 end

@@ -20,12 +20,11 @@ RSpec.describe DerivativeZoo::Generator::MonochromeGenerator do
       File.join(FIXTURE_PATH, 'files', 'ocr_color.mono.tiff')
     end
     let(:file_uri) { "file://#{file_path}" }
-    let(:args) { { input_uris: [file_path] } }
+    let(:args) { { input_uris: [file_uri] } }
 
     it 'builds a monochrome image' do
       FileUtils.rm_f(result_path)
-      file = DerivativeZoo::StorageAdapter::FileAdapter.new(file_uri)
-      expect { subject.build_step(file) }.not_to raise_error
+      expect { subject.build }.not_to raise_error
       expect(File.exist?(result_path)).to be true
     end
 
@@ -40,11 +39,10 @@ RSpec.describe DerivativeZoo::Generator::MonochromeGenerator do
       File.join(FIXTURE_PATH, 'files', 'ocr_color_pre.mono.tiff')
     end
     let(:file_uri) { "file://#{file_path}" }
-    let(:args) { { input_uris: [file_path] } }
+    let(:args) { { input_uris: [file_uri] } }
 
     it 'builds a monochrome image' do
-      file = DerivativeZoo::StorageAdapter::FileAdapter.new(file_uri)
-      expect { subject.build_step(file) }.not_to raise_error
+      expect { subject.build }.not_to raise_error
       expect(File.exist?(result_path)).to be true
     end
   end
@@ -55,12 +53,11 @@ RSpec.describe DerivativeZoo::Generator::MonochromeGenerator do
       File.join(FIXTURE_PATH, 'files', 'ocr_mono.tiff')
     end
     let(:file_uri) { "file://#{file_path}" }
-    let(:args) { { input_uris: [file_path] } }
+    let(:args) { { input_uris: [file_uri] } }
 
     it 'builds a monochrome image' do
       # do not delete result path, the file should stay put
-      file = DerivativeZoo::StorageAdapter::FileAdapter.new(file_uri)
-      expect { subject.build_step(file) }.not_to raise_error
+      expect { subject.build }.not_to raise_error
       expect(File.exist?(result_path)).to be true
       expect(File.exist?(result_path.sub('.tiff', '.mono.tiff'))).to be_falsey
     end

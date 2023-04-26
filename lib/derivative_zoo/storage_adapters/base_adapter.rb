@@ -20,7 +20,7 @@ module DerivativeZoo
       end
 
       def self.load_adapter(adapter_name)
-        raise DerivativeZoo::StorageAdapterNotFound.new(adapter_name: adapter_name) unless adapters.include?(adapter_name)
+        raise DerivativeZoo::StorageAdapterNotFoundError.new(adapter_name: adapter_name) unless adapters.include?(adapter_name)
 
         "DerivativeZoo::StorageAdapter::#{adapter_name.classify}Adapter".constantize
       end
@@ -29,7 +29,7 @@ module DerivativeZoo
         adapter_name = file_uri.split('://').first
         raise DerivativeZoo::StorageAdapterMissing.new(file_uri: file_uri) if adapter_name.blank?
 
-        load_adapter(adapter_name)
+        load_adapter(adapter_name).new(file_uri)
       end
 
       # Registers the adapter with the main StorageAdapter class to it can be used

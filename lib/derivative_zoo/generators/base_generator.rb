@@ -22,15 +22,27 @@ module DerivativeZoo
         raise DerivativeZoo::ExtensionMissingError.new(klass: self.class)
       end
 
+      def build_step(in_file:, out_file:)
+        raise NotImplementedError
+      end
+
       def build
         self.generated_files = input_files.map do |file|
-          new_file = build_step(file)
-          new_file.file_uri
+          output_file = destination(file)
+          new_file = output_file.exists? ? output_file : build_step(in_file: file, out_file: output_file)
+          new_file&.file_uri
         end
       end
 
-      def build_step(file)
-        raise NotImplementedError
+      def input_files
+        @input_files ||= input_uris.map do |file_uri|
+          DerivativeZoo::StorageAdapter::BaseAdapter.from_uri(file_uri)
+        end
+      end
+
+      def destination(file)
+        file.derived_file(extension: output_extension,
+                          adapter_name: output_adapter_name)
       end
     end
   end
