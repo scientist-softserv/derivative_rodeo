@@ -8,8 +8,8 @@ module DerivativeZoo
   module Generator
     ##
     # Take images an insure we have a monochrome derivative of them
-    class MonochromeImages < BaseGenerator
-      self.output_extension = 'mono.tif'
+    class MonochromeGenerator < BaseGenerator
+      self.output_extension = 'mono.tiff'
 
       def input_files
         @input_files ||= input_uris.map do |file_uri|
@@ -18,9 +18,8 @@ module DerivativeZoo
       end
 
       def build_step(file)
-        file.with_tmp_path do |_tmo_path|
-          # TODO: move this
-          image = Derivative::Rodeo::Utilities::Image.new(tmp_path)
+        file.with_existing_tmp_path do |tmp_path|
+          image = DerivativeZoo::Service::ImageService.new(tmp_path)
           if image.monochrome?
             file
           else
@@ -28,17 +27,17 @@ module DerivativeZoo
           end
         end
       end
-    end
 
-    def monochromify(file, image)
-      monochrome_file = file.derived_file(extension: output_extension,
-                                          adapter_name: output_adapter_name)
-      # Convert the above image to a file at the monochrome_path
-      monochrome_file.with_tmp_path do |monochrome_path|
-        image.convert(monochrome_path, true)
-        monochrome_file.write
+      def monochromify(file, image)
+        monochrome_file = file.derived_file(extension: output_extension,
+                                            adapter_name: output_adapter_name)
+        # Convert the above image to a file at the monochrome_path
+        monochrome_file.with_new_tmp_path do |monochrome_path|
+          image.convert(destination: monochrome_path, monochrome: true)
+          monochrome_file.write
+        end
+        monochrome_file
       end
-      monochrome_file
     end
   end
 end

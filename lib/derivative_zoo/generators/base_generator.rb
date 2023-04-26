@@ -11,12 +11,15 @@ module DerivativeZoo
     class BaseGenerator
       class_attribute :output_extension
 
-      attr_accessor :input_uris, :output_adapter_name, :output_extension, :generated_files
+      attr_accessor :input_uris, :output_adapter_name, :output_extension, :generated_files, :exception
 
       def initialize(input_uris:, output_adapter_name: 'same')
         @input_uris = input_uris
         @output_adapter_name = output_adapter_name
-        raise MissingOutputExtension, self.class unless output_extension
+        @output_extension = self.class.output_extension
+        return if instance_of?(DerivativeZoo::Generator::BaseGenerator) || output_extension
+
+        raise DerivativeZoo::ExtensionMissingError.new(klass: self.class)
       end
 
       def build

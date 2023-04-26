@@ -1,0 +1,5 @@
+page  num  step     width height color comp bpc  enc    interp  object ID x-ppi y-ppi size  ratio
+-------------------------------------------------------------------------------------------------
+1     0    image    2     30     gray  3    8    jpeg   no      10     0  300   300   21.8K 0.7%
+2     0    image    1     20     gray  3    8    jpeg   no      10     0  200   300   21.8K 0.7%
+3     0    image    3     10     rgb   3    8    jpeg   no      10     0  400   300   21.8K 0.7%

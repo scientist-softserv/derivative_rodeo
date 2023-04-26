@@ -20,9 +20,7 @@ module DerivativeZoo
       end
 
       def self.load_adapter(adapter_name)
-        unless adapters.include?(adapter_name)
-          raise DerivativeZoo::StorageAdapterNotFound.new(adapter_name: adapter_name)
-        end
+        raise DerivativeZoo::StorageAdapterNotFound.new(adapter_name: adapter_name) unless adapters.include?(adapter_name)
 
         "DerivativeZoo::StorageAdapter::#{adapter_name.classify}Adapter".constantize
       end
@@ -49,7 +47,11 @@ module DerivativeZoo
         @file_uri = file_uri
       end
 
-      def with_tmp_path
+      def with_new_tmp_path
+        raise NotImplementedError
+      end
+
+      def with_existing_tmp_path
         raise NotImplementedError
       end
 
@@ -58,15 +60,23 @@ module DerivativeZoo
         raise NotImplementedError
       end
 
+      def exists?
+        raise NotImplementedError
+      end
+
       def derived_file(extension:, adapter_name: 'same')
         klass = self.class if adapter_name == 'same'
         klass ||= DerivativeZoo::StorageAdapter::BaseAdapter.load_adapter(adapter_name)
-        new_uri = klass.create_uri("#{file_path}.#{extension}")
+        new_uri = klass.create_uri(with_new_extension(extension))
         klass.new(new_uri)
       end
 
+      def with_new_extension(extension)
+        "#{file_path.split('.')[0..-2].join('.')}.#{extension}"
+      end
+
       def file_path
-        @file_path ||= @file_uri.sub(%r{.+://})
+        @file_path ||= @file_uri.sub(%r{.+://}, '')
       end
 
       def file_dir
@@ -78,12 +88,14 @@ module DerivativeZoo
       end
 
       def tmp_file_dir(&block)
-        Dir.mktmpdir(file_name, &block)
+        raise ArgumentError, 'Expected a block' unless block_given?
+
+        Dir.mktmpdir(&block)
       end
     end
   end
 end
 
 Dir.glob(File.join(__dir__, '**')).sort.each do |adapter|
-  require adapter unless adapter.match('base_adapter')
+  require adapter unless adapter.match?('base_adapter')
 end

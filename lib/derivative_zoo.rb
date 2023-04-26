@@ -2,16 +2,25 @@
 
 require 'active_support'
 require 'active_support/core_ext'
+require 'open3'
+require 'securerandom'
+require 'tmpdir'
+
 require 'byebug' if ENV['DEBUG']
 
 require 'derivative_zoo/configuration'
+require 'derivative_zoo/technical_metadata'
 require 'derivative_zoo/version'
 # Base Adapter loads the other adapters
 require 'derivative_zoo/storage_adapters/base_adapter'
 require 'derivative_zoo/generators/base_generator'
 
-Dir.glob(File.join(__dir__, 'derivative_zoo', 'generators', '**')).sort.each do |adapter|
-  require adapter
+Dir.glob(File.join(__dir__, 'derivative_zoo', 'generators', '**/*')).sort.each do |file|
+  require file unless File.directory?(file)
+end
+
+Dir.glob(File.join(__dir__, 'derivative_zoo', 'services', '**/*')).sort.each do |file|
+  require file unless File.directory?(file)
 end
 
 # TODO: preprocess short circut
@@ -40,7 +49,7 @@ module DerivativeZoo
   ##
   # Raised when a file uri is passed in that does not contain a storage adapter part before the ://
   class StorageAdapterMissing < Error
-    def initialize(file_uri:)
+    def initialize(file_uri: '')
       super("#{file_uri} does not contain an adapter. Should look like file:///my_dir/myfile or s3://bucket_name/location/file_name. The part before the :// is used to select the storage adapter.") # rubocop:disable Layout/LineLength
     end
   end
@@ -48,7 +57,7 @@ module DerivativeZoo
   ##
   # Raised when a storage adapter is called for but does not exist in the registered adapter list
   class StorageAdapterNotFoundError < Error
-    def initialize(adapter_name:)
+    def initialize(adapter_name: '')
       super("Could not find the adapter #{adapter_name}. Make sure it is required and registerd properly.")
     end
   end
@@ -69,7 +78,7 @@ module DerivativeZoo
   ##
   # Raised because the Generator class must declare an extension for the output file extension
   class ExtensionMissingError < Error
-    def initialize(klass)
+    def initialize(klass: '')
       super("Extension must be declared in the Generator class #{klass}")
     end
   end

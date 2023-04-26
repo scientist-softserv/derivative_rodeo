@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fits xmlns="http://hul.harvard.edu/ois/xml/ns/fits/fits_output" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://hul.harvard.edu/ois/xml/ns/fits/fits_output http://hul.harvard.edu/ois/xml/xsd/fits/fits_output.xsd" version="1.5.5" timestamp="4/7/23, 8:35 PM">
+  <identification>
+    <identity format="TIFF EXIF" mimestep="image/tiff" toolname="FITS" toolversion="1.5.5">
+      <tool toolname="Exiftool" toolversion="11.54" />
+      <tool toolname="Jhove" toolversion="1.20.1" />
+      <version toolname="Jhove" toolversion="1.20.1">6.0</version>
+    </identity>
+  </identification>
+  <fileinfo>
+    <size toolname="Jhove" toolversion="1.20.1">1753248</size>
+    <filepath toolname="OIS File Information" toolversion="1.0" status="SINGLE_RESULT">/app/samvera/hyrax-webapp/ocr_color.tiff</filepath>
+    <filename toolname="OIS File Information" toolversion="1.0" status="SINGLE_RESULT">ocr_color.tiff</filename>
+    <md5checksum toolname="OIS File Information" toolversion="1.0" status="SINGLE_RESULT">3c48e0b86b706e182040510fcc8bac3f</md5checksum>
+    <fslastmodified toolname="OIS File Information" toolversion="1.0" status="SINGLE_RESULT">1680899588734</fslastmodified>
+  </fileinfo>
+  <filestatus>
+    <well-formed toolname="Jhove" toolversion="1.20.1" status="SINGLE_RESULT">true</well-formed>
+    <valid toolname="Jhove" toolversion="1.20.1" status="SINGLE_RESULT">true</valid>
+  </filestatus>
+  <metadata>
+    <image>
+      <compressionScheme toolname="Exiftool" toolversion="11.54">Uncompressed</compressionScheme>
+      <imageWidth toolname="Exiftool" toolversion="11.54">418</imageWidth>
+      <imageHeight toolname="Exiftool" toolversion="11.54">1046</imageHeight>
+      <colorSpace toolname="Exiftool" toolversion="11.54">RGB</colorSpace>
+      <referenceBlackWhite toolname="Jhove" toolversion="1.20.1" status="SINGLE_RESULT">0 255 0 255 0 255</referenceBlackWhite>
+      <iccProfileName toolname="Exiftool" toolversion="11.54">Display</iccProfileName>
+      <iccProfileVersion toolname="Exiftool" toolversion="11.54" status="SINGLE_RESULT">2.1.0</iccProfileVersion>
+      <orientation toolname="Exiftool" toolversion="11.54">normal*</orientation>
+      <samplingFrequencyUnit toolname="Exiftool" toolversion="11.54">in.</samplingFrequencyUnit>
+      <xSamplingFrequency toolname="Exiftool" toolversion="11.54" status="SINGLE_RESULT">144</xSamplingFrequency>
+      <ySamplingFrequency toolname="Exiftool" toolversion="11.54" status="SINGLE_RESULT">144</ySamplingFrequency>
+      <bitsPerSample toolname="Exiftool" toolversion="11.54">8 8 8 8</bitsPerSample>
+      <samplesPerPixel toolname="Exiftool" toolversion="11.54">4</samplesPerPixel>
+      <extraSamples toolname="Exiftool" toolversion="11.54" status="CONFLICT">Associated Alpha</extraSamples>
+      <extraSamples toolname="Jhove" toolversion="1.20.1" status="CONFLICT">associated alpha data (with pre-multiplied color)</extraSamples>
+      <byteOrder toolname="Jhove" toolversion="1.20.1" status="SINGLE_RESULT">big endian</byteOrder>
+    </image>
+  </metadata>
+  <statistics fitsExecutionTime="388">
+    <tool toolname="OIS Audio Information" toolversion="0.1" status="did not run" />
+    <tool toolname="ADL Tool" toolversion="0.1" status="did not run" />
+    <tool toolname="VTT Tool" toolversion="0.1" status="did not run" />
+    <tool toolname="Exiftool" toolversion="11.54" executionTime="362" />
+    <tool toolname="Jhove" toolversion="1.20.1" executionTime="365" />
+    <tool toolname="file utility" toolversion="5.41" executionTime="335" />
+    <tool toolname="NLNZ Metadata Extractor" toolversion="3.6GA" status="did not run" />
+    <tool toolname="OIS File Information" toolversion="1.0" executionTime="37" />
+    <tool toolname="OIS XML Metadata" toolversion="0.2" status="did not run" />
+    <tool toolname="ffident" toolversion="0.2" executionTime="301" />
+  </statistics>
+</fits>
+

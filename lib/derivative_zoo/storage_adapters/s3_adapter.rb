@@ -8,6 +8,10 @@ module DerivativeZoo
     # Adapter to download and upload files to S3
     #
     class S3Adapter < BaseAdapter
+      def self.create_uri(file_path)
+        "s3://#{DerivativeZoo.aws_s3_bucket_name}.s3.#{DerivativeZoo.aws_s3_region}.amazonaws.com/#{file_path}"
+      end
+
       ##
       # @api public
       # download or copy the file to a tmp path

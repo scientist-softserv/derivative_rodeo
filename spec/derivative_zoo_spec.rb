@@ -5,7 +5,18 @@ RSpec.describe DerivativeZoo do
     expect(DerivativeZoo::VERSION).not_to be nil
   end
 
-  it 'does something useful' do
-    expect(false).to eq(true)
+  it 'loads a configuration object' do
+    expect(subject.config).to be_a DerivativeZoo::Configuration
+  end
+
+  [
+    DerivativeZoo::ExtensionMissingError,
+    DerivativeZoo::FileMissingError,
+    DerivativeZoo::StorageAdapterMissing,
+    DerivativeZoo::StorageAdapterNotFoundError
+  ].each do |klass|
+    it "raise raise #{klass} when needed" do
+      expect { raise klass }.to raise_error(klass)
+    end
   end
 end

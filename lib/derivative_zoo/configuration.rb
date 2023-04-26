@@ -90,6 +90,7 @@ module DerivativeZoo
     # @return [String]
 
     aws_config prefix: 's3', name: 'region', default: 'us-east-1'
+    aws_config prefix: 's3', name: 'bucket'
     aws_config prefix: 's3', name: 'access_key_id'
     aws_config prefix: 's3', name: 'secret_access_key'
     # @!endgroup AWS S3 Configurations
