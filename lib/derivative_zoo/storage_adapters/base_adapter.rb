@@ -39,20 +39,48 @@ module DerivativeZoo
         DerivativeZoo::StorageAdapter::BaseAdapter.adapters << adapter_name
       end
 
-      def self.create_uri(file_path)
+      ##
+      # Create a new uri of the classes type. Parts argument should have a default in
+      # implementing classes. Must support a number or the symbol :all
+      #
+      # @api public
+      #
+      # @param path [String]
+      # @param parts [Integer, :all]
+      # @return [String]
+      def self.create_uri(path:, parts:)
         raise NotImplementedError
+      end
+
+      def self.file_path_from_parts(path:, parts:)
+        parts = - parts unless parts == :all || parts.negative?
+        parts == :all ? path : path.split('/')[parts..-1].join('/')
       end
 
       def initialize(file_uri)
         @file_uri = file_uri
       end
 
-      def with_new_tmp_path
-        raise NotImplementedError
+      def with_new_tmp_path(&block)
+        with_tmp_path(lambda { |_file_path, tmp_file_path, exist|
+                        FileUtils.rm_rf(tmp_file_path) if exist
+                        FileUtils.touch(tmp_file_path)
+                      }, &block)
       end
 
       def with_existing_tmp_path
         raise NotImplementedError
+      end
+
+      def with_tmp_path(lambda)
+        raise ArgumentError, 'Expected a block' unless block_given?
+
+        tmp_file_dir do |tmpdir|
+          self.tmp_file_path = File.join(tmpdir, file_name)
+          lambda.call(file_path, tmp_file_path, exist?)
+          yield tmp_file_path
+        end
+        self.tmp_file_path = nil
       end
 
       # write the tmp file to the file_uri
@@ -60,14 +88,15 @@ module DerivativeZoo
         raise NotImplementedError
       end
 
-      def exists?
+      def exist?
         raise NotImplementedError
       end
+      alias exists? exist?
 
       def derived_file(extension:, adapter_name: 'same')
         klass = self.class if adapter_name == 'same'
         klass ||= DerivativeZoo::StorageAdapter::BaseAdapter.load_adapter(adapter_name)
-        new_uri = klass.create_uri(with_new_extension(extension))
+        new_uri = klass.create_uri(path: with_new_extension(extension))
         klass.new(new_uri)
       end
 

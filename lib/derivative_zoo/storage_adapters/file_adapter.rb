@@ -6,46 +6,29 @@ module DerivativeZoo
     # Adapter for files found on a local disk
     #
     class FileAdapter < BaseAdapter
-      def self.create_uri(file_path)
+      def self.create_uri(path:, parts: :all)
+        file_path = file_path_from_parts(path: path, parts: parts)
         "file://#{file_path}"
       end
 
       def with_existing_tmp_path(&block)
-        with_tmp_path(lambda { |file_path, tmp_file_path, exists|
-          raise DerivativeZoo::FileMissingError unless exists
+        with_tmp_path(lambda { |file_path, tmp_file_path, exist|
+          raise DerivativeZoo::FileMissingError unless exist
 
           FileUtils.cp(file_path, tmp_file_path)
         }, &block)
       end
 
-      def with_new_tmp_path(&block)
-        with_tmp_path(lambda { |_file_path, tmp_file_path, exists|
-                        FileUtils.rm_rf(tmp_file_path) if exists
-                        FileUtils.touch(tmp_file_path)
-                      }, &block)
-      end
-
-      def with_tmp_path(lambda)
-        raise ArgumentError, 'Expected a block' unless block_given?
-
-        tmp_file_dir do |tmpdir|
-          self.tmp_file_path = File.join(tmpdir, file_name)
-          lambda.call(file_path, tmp_file_path, exists?)
-          yield tmp_file_path
-        end
-        self.tmp_file_path = nil
-      end
-
-      def exists?
+      def exist?
         File.exist?(file_path)
       end
 
       # write the file to the file_uri
       def write
-        raise DerivativeZoo::FileMissingError unless File.exist?(tmp_file_path)
+        raise DerivativeZoo::FileMissingError("Use write within a with__new_tmp_path block and fille the mp file with data before writing") unless File.exist?(tmp_file_path)
 
         FileUtils.mkdir_p(file_dir)
-        FileUtils.mv(tmp_file_path, file_path)
+        FileUtils.cp_r(tmp_file_path, file_path)
         file_uri
       end
     end

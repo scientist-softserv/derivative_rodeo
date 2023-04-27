@@ -8,8 +8,19 @@ module DerivativeZoo
     # Adapter to download and upload files to S3
     #
     class S3Adapter < BaseAdapter
-      def self.create_uri(file_path)
-        "s3://#{DerivativeZoo.aws_s3_bucket_name}.s3.#{DerivativeZoo.aws_s3_region}.amazonaws.com/#{file_path}"
+      attr_writer :bucket
+      ##
+      # Create a new uri of the classes type. Parts argument should have a default in
+      # implementing classes. Must support a number or the symbol :all
+      #
+      # @api public
+      #
+      # @param path [String]
+      # @param parts [Integer, :all], defaults to 2 for S3 which is parent_dir/file_name.ext
+      # @return [String]
+      def self.create_uri(path:, parts: 2)
+        file_path = file_path_from_parts(path: path, parts: parts)
+        "s3://#{DerivativeZoo.config.aws_s3_bucket}.s3.#{DerivativeZoo.config.aws_s3_region}.amazonaws.com/#{file_path}"
       end
 
       ##
@@ -18,14 +29,16 @@ module DerivativeZoo
       # deletes the tmp file after the block is executed
       #
       # @return [String] the path to the tmp file
-      def with_tmp_path
-        tmp_file_dir do |dir|
-          tmp_file_path = File.join(dir, file_name)
-          obj = bucket.object(file_path)
-          obj.download_file(tmp_file_path)
-          yield tmp_file_path
-        end
-        self.tmp_file_path = nil
+      def with_existing_tmp_path(&block)
+        with_tmp_path(lambda { |file_path, tmp_file_path, exist|
+                        raise DerivativeZoo::FileMissingError unless exist
+                        obj = bucket.object(file_path)
+                        obj.download_file(tmp_file_path)
+                      }, &block)
+      end
+
+      def exist?
+        bucket.objects(prefix: file_path).count.positive?
       end
 
       ##
@@ -34,7 +47,7 @@ module DerivativeZoo
       #
       # @return [String] the file_uri
       def write
-        raise DerivativeZoo::FileMissingError unless File.exist?(tmp_file_path)
+        raise DerivativeZoo::FileMissingError("Use write within a with__new_tmp_path block and fille the mp file with data before writing") unless File.exist?(tmp_file_path)
 
         obj = bucket.object(file_path)
         obj.upload_file(tmp_file_path)
@@ -46,11 +59,11 @@ module DerivativeZoo
       #
       # @reutnr [Aws::S3::Resource]
       def resource
-        @resource ||= if DerivativeZoo.aws_s3_access_key_id
-                        Aws::S3::Resource.new(region: DerivativeZoo.aws_s3_region,
+        @resource ||= if DerivativeZoo.config.aws_s3_access_key_id
+                        Aws::S3::Resource.new(region: DerivativeZoo.config.aws_s3_region,
                                               credentials: Aws::Credentials.new(
-                                                DerivativeZoo.aws_s3_access_key_id,
-                                                DerivativeZoo.aws_s3_secret_access_key
+                                                DerivativeZoo.config.aws_s3_access_key_id,
+                                                DerivativeZoo.config.aws_s3_secret_access_key
                                               ))
                       else
                         Aws::S3::Resource.new
@@ -68,6 +81,10 @@ module DerivativeZoo
 
       def bucket
         @bucket ||= resource.bucket(bucket_name)
+      end
+
+      def file_path
+        @file_path ||= @file_uri.sub(%r{.+://.+?/}, '')
       end
     end
   end

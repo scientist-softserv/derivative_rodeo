@@ -1,3 +1,16 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [DerivativeZoo](#derivativezoo)
+  - [Installation](#installation)
+  - [Usage](#usage)
+  - [Interface](#interface)
+  - [Development](#development)
+  - [Contributing](#contributing)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # DerivativeZoo
 
 Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/derivative_zoo`. To experiment with that code, run `bin/console` for an interactive prompt.

@@ -29,7 +29,7 @@ module DerivativeZoo
       def build
         self.generated_files = input_files.map do |file|
           output_file = destination(file)
-          new_file = output_file.exists? ? output_file : build_step(in_file: file, out_file: output_file)
+          new_file = output_file.exist? ? output_file : build_step(in_file: file, out_file: output_file)
           new_file&.file_uri
         end
       end
