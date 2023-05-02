@@ -2,9 +2,6 @@
 
 require 'active_support'
 require 'active_support/core_ext'
-require 'open3'
-require 'securerandom'
-require 'tmpdir'
 
 require 'byebug' if ENV['DEBUG']
 
@@ -14,16 +11,7 @@ require 'derivative_zoo/version'
 # Base Adapter loads the other adapters
 require 'derivative_zoo/storage_adapters/base_adapter'
 require 'derivative_zoo/generators/base_generator'
-
-Dir.glob(File.join(__dir__, 'derivative_zoo', 'generators', '**/*')).sort.each do |file|
-  require file unless File.directory?(file)
-end
-
-Dir.glob(File.join(__dir__, 'derivative_zoo', 'services', '**/*')).sort.each do |file|
-  require file unless File.directory?(file)
-end
-
-# TODO: preprocess short circut
+require 'derivative_zoo/services/base_service'
 
 ##
 # DerivativeZoo is a gem that allows you to generate derivative files from source files
@@ -59,6 +47,14 @@ module DerivativeZoo
   class StorageAdapterNotFoundError < Error
     def initialize(adapter_name: '')
       super("Could not find the adapter #{adapter_name}. Make sure it is required and registerd properly.")
+    end
+  end
+
+  ##
+  # Raised when a storage adapter is called for but does not exist in the registered adapter list
+  class MaxQueueSize < Error
+    def initialize(batch_size:)
+      super("Batch size #{batch_size} is larger than the max queue size #{DerivativeZoo.config.aws_sqs_max_batch_size}")
     end
   end
 

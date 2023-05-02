@@ -93,6 +93,12 @@ module DerivativeZoo
     aws_config prefix: 's3', name: 'bucket'
     aws_config prefix: 's3', name: 'access_key_id'
     aws_config prefix: 's3', name: 'secret_access_key'
-    # @!endgroup AWS S3 Configurations
+
+    aws_config prefix: 'sqs', name: 'region', default: 'us-east-1'
+    aws_config prefix: 'sqs', name: 'queue'
+    aws_config prefix: 'sqs', name: 'access_key_id'
+    aws_config prefix: 'sqs', name: 'secret_access_key'
+    aws_config prefix: 'sqs', name: 'max_batch_size', default: 10
+    # @!endgroup AWS SQS Configurations
   end
 end

@@ -37,6 +37,11 @@ module DerivativeZoo
                       }, &block)
       end
 
+      ##
+      # @api public
+      #
+      # Existance is futile
+      # @return [Boolean]
       def exist?
         bucket.objects(prefix: file_path).count.positive?
       end

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'tmpdir'
+
 module DerivativeZoo
   module Service
     ##
@@ -7,10 +9,11 @@ module DerivativeZoo
     #
     # @see .technical_metadata
     # @see .convert
-    class ImageService
+    class ImageService < BaseService
       attr_accessor :path
 
       def initialize(path)
+        super()
         @path = path
         # The first 23 characters of a file contains the magic.
         @initial_file_contents = File.read(@path, 23, 0)

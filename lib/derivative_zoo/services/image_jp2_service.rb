@@ -7,7 +7,7 @@ module DerivativeZoo
     # A utility class for extracting technical metadata from a JP2.
     #
     # @see .technical_metadata_for
-    class ImageJp2Service
+    class ImageJp2Service < BaseService
       TOKEN_MARKER_START = "\xFF".force_encoding('BINARY')
       TOKEN_MARKER_SIZ = "\x51".force_encoding('BINARY')
       TOKEN_IHDR = 'ihdr'.freeze
@@ -25,6 +25,7 @@ module DerivativeZoo
       attr_reader :path
 
       def initialize(path)
+        super()
         @path = path
       end
 

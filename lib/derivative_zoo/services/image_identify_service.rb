@@ -6,7 +6,7 @@ module DerivativeZoo
     # This module is responsible for extracting technical_metadata for a given path.
     #
     # @see .technical_metadata_for
-    class ImageIdentifyService
+    class ImageIdentifyService < BaseService
       class_attribute :identify_format_option,
                       default: %(Geometry: %G\nDepth: %[bit-depth]\nColorspace: %[colorspace]\nAlpha: %A\nMIME Step: %m\n) # rubocop:disable Layout/LineLength
 
@@ -19,6 +19,7 @@ module DerivativeZoo
       end
 
       def initialize(path)
+        super()
         @path = path
         # The first 23 characters of a file contains the magic.
         @initial_file_contents = File.read(@path, 23, 0)

@@ -6,6 +6,8 @@
   - [Installation](#installation)
   - [Usage](#usage)
   - [Interface](#interface)
+  - [Supported Generators](#supported-generators)
+  - [Supported Storage Adapters](#supported-storage-adapters)
   - [Development](#development)
   - [Contributing](#contributing)
 
@@ -35,8 +37,21 @@ TODO: Write usage instructions here
 
 ## Interface
 Generators must have an initializer and build command
- -> new(array_of_file_urls, output_url_type)
- -> build (executes the generators actions) and returns array of output urls
+ -> new(array_of_file_urls, output_url_type, preprocessor url_type)
+ -> generated_files (executes the generators actions) and returns array of files
+ -> generated_uris (executes the generators actions) and returns array of output uris
+
+## Supported Generators
+
+- HorcGenerator - generated tesseract files from images, also creates monocrhome files as a prestep
+- MonochromeGenerator - converts images to monochrome
+- MoveGenerator - sends a set of uris to another location. For example from S3 to SQS or from filesystem to S3.
+
+## Supported Storage Adapters
+
+- file://
+- s3://
+- sqs://
 
 ## Development
 

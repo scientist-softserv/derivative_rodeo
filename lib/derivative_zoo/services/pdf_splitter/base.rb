@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'open3'
+require 'securerandom'
+require 'tmpdir'
+
 module DerivativeZoo
   module Service
     module PdfSplitter

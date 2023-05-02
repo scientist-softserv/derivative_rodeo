@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'tmpdir'
+
 module DerivativeZoo
   module StorageAdapter
     # dir is the directory path
@@ -101,7 +103,7 @@ module DerivativeZoo
       end
 
       def with_new_extension(extension)
-        "#{file_path.split('.')[0..-2].join('.')}.#{extension}"
+        "#{file_path.split('.')[0]}.#{extension}"
       end
 
       def file_path
@@ -125,6 +127,6 @@ module DerivativeZoo
   end
 end
 
-Dir.glob(File.join(__dir__, '**')).sort.each do |adapter|
+Dir.glob(File.join(__dir__, '**/*')).sort.each do |adapter|
   require adapter unless adapter.match?('base_adapter')
 end
