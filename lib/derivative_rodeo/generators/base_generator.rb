@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module DerivativeZoo
+module DerivativeRedeo
   ##
   # Generators execute a transofrmatoin on files and return new files
   # A generator class must set an output extention and must implement
@@ -18,14 +18,15 @@ module DerivativeZoo
         :preprocess_adapter_name
       attr_writer :generated_files
 
+      # TODO: rename preprocess adapter because it is the same as the preprocess method, but does something else
       def initialize(input_uris:, output_adapter_name: 'same', preprocess_adapter_name: nil)
         @input_uris = input_uris
         @output_adapter_name = output_adapter_name
         @output_extension = self.class.output_extension
         @preprocess_adapter_name = preprocess_adapter_name
-        return if instance_of?(DerivativeZoo::Generator::BaseGenerator) || output_extension
+        return if instance_of?(DerivativeRedeo::Generator::BaseGenerator) || output_extension
 
-        raise DerivativeZoo::ExtensionMissingError.new(klass: self.class)
+        raise DerivativeRedeo::ExtensionMissingError.new(klass: self.class)
       end
 
       def build_step(in_file:, out_file:)
@@ -33,7 +34,7 @@ module DerivativeZoo
       end
 
       def generated_files
-        @generated_files ||= preprocess.map do |file|
+        @generated_files ||= requisite_files.map do |file|
           output_file = destination(file)
           new_file = output_file.exist? ? output_file : build_step(in_file: file, out_file: output_file)
           new_file
@@ -45,31 +46,34 @@ module DerivativeZoo
       end
 
       ##
-      # Preprocess is run before the build step. It allows child classes to modify the file_uirs
+      # requisite_files is run before the build step. It allows child classes to modify the file_uirs
       # for example, to filter out files that are not of the correct type or to depend on another
-      # generator. See DerivativeZoo::Generator::HocrGenerator for an example
+      # generator. See DerivativeRedeo::Generator::HocrGenerator for an example
       #
       # @api public
       #
       # @return [Array<String>] the file_uris
-      def preprocess
+      def requisite_files
         input_files
       end
 
       def input_files
         @input_files ||= input_uris.map do |file_uri|
-          DerivativeZoo::StorageAdapter::BaseAdapter.from_uri(file_uri)
+          DerivativeRedeo::StorageAdapter::BaseAdapter.from_uri(file_uri)
         end
       end
 
+      # checks for file at destination and checks in prefetch location if not
       def destination(file)
-        dest = if preprocess_adapter_name
-                 file.derived_file(extension: output_extension,
-                                   adapter_name: preprocess_adapter_name)
-               end
-        return dest if dest&.exist?
-        file.derived_file(extension: output_extension,
-                          adapter_name: output_adapter_name)
+        dest = file.derived_file(extension: output_extension,
+                                 adapter_name: output_adapter_name)
+
+        pre_dest = if !dest.exist? && preprocess_adapter_name
+                     file.derived_file(extension: output_extension,
+                                       adapter_name: preprocess_adapter_name)
+                   end
+        dest = pre_dest if pre_dest&.exist?
+        dest
       end
 
       ##
@@ -81,10 +85,10 @@ module DerivativeZoo
       # @note
       #
       def run(command)
-        DerivativeZoo.config.logger.debug "* Start command: #{command}"
+        DerivativeRedeo.config.logger.debug "* Start command: #{command}"
         result = `#{command}`
-        DerivativeZoo.config.logger.debug "* Result: \n*  #{result.gsub("\n", "\n*  ")}"
-        DerivativeZoo.config.logger.debug "* End  command: #{command}"
+        DerivativeRedeo.config.logger.debug "* Result: \n*  #{result.gsub("\n", "\n*  ")}"
+        DerivativeRedeo.config.logger.debug "* End  command: #{command}"
         result
       end
     end

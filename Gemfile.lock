@@ -1,10 +1,11 @@
 PATH
   remote: .
   specs:
-    derivative_zoo (0.1.0)
+    derivative_rodeo (0.1.0)
       activesupport (>= 5)
       aws-sdk-s3
       aws-sdk-sqs
+      faraday
       httparty
       marcel
       mime-types
@@ -52,6 +53,10 @@ GEM
     diff-lcs (1.5.0)
     docile (1.4.0)
     e2mmap (0.1.0)
+    faraday (2.7.4)
+      faraday-net_http (>= 2.0, < 3.1)
+      ruby2_keywords (>= 0.0.4)
+    faraday-net_http (3.0.2)
     httparty (0.21.0)
       mini_mime (>= 1.0.0)
       multi_xml (>= 0.5.2)
@@ -122,6 +127,7 @@ GEM
     rubocop-rspec (2.11.1)
       rubocop (~> 1.19)
     ruby-progressbar (1.13.0)
+    ruby2_keywords (0.0.5)
     shoulda-matchers (5.3.0)
       activesupport (>= 5.2.0)
     simplecov (0.22.0)
@@ -160,7 +166,7 @@ PLATFORMS
 DEPENDENCIES
   bixby
   byebug
-  derivative_zoo!
+  derivative_rodeo!
   hydra-file_characterization
   rake (~> 13.0)
   rspec (~> 3.0)

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe DerivativeZoo::StorageAdapter::FileAdapter do
+RSpec.describe DerivativeRedeo::StorageAdapter::FileAdapter do
   let(:file_path) { File.expand_path(File.join(FIXTURE_PATH, 'files', 'ocr_color.tiff')) }
   let(:new_path) { File.expand_path(File.join(FIXTURE_PATH, 'tmp', 'ocr_color.tiff')) }
   let(:short_path) { file_path.split('/')[-2..-1].join('/') }

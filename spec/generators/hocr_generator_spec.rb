@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe DerivativeZoo::Generator::HocrGenerator do
+RSpec.describe DerivativeRedeo::Generator::HocrGenerator do
   let(:args) { { input_uris: [] } }
   let(:result_path) { nil }
   subject { described_class.new(args) }

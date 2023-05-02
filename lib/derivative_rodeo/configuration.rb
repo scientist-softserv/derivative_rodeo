@@ -2,12 +2,12 @@
 
 require 'mime/types'
 require 'logger'
-module DerivativeZoo
+module DerivativeRedeo
   ##
   # @api public
   #
   # This class is responsible for the consistent configuration of the "application" that leverages
-  # the {DerivativeZoo}.
+  # the {DerivativeRedeo}.
   #
   # This configuration helps set defaults for storage adapters and generators.
   class Configuration

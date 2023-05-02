@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative 'lib/derivative_zoo/version'
+require_relative 'lib/derivative_rodeo/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'derivative_zoo'
-  spec.version       = DerivativeZoo::VERSION
+  spec.name          = 'derivative_rodeo'
+  spec.version       = DerivativeRedeo::VERSION
   spec.authors       = ['Rob Kaufman', 'Jeremy Friesen']
   spec.email         = ['rob@notch8.com', 'jeremy.n.friesen@gmail.com']
 
@@ -28,11 +28,10 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  # NOTE: aws-sdk-s3 could be a rodeo plugin, but for now, it's part of the main show
-  spec.add_dependency 'aws-sdk-s3'
-  # NOTE: aws-sdk-sqs could be a rodeo plugin, but for now, it's part of the main show
   spec.add_dependency 'activesupport', '>= 5'
+  spec.add_dependency 'aws-sdk-s3'
   spec.add_dependency 'aws-sdk-sqs'
+  spec.add_dependency 'faraday'
   spec.add_dependency 'httparty'
   spec.add_dependency 'marcel'
   spec.add_dependency 'mime-types'

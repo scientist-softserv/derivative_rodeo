@@ -1,7 +1,7 @@
 # rubocop:disable Style/FrozenStringLiteralComment
 # TODO freeze them literals
 
-module DerivativeZoo
+module DerivativeRedeo
   module Service
     ##
     # A utility class for extracting technical metadata from a JP2.

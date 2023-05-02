@@ -4,7 +4,7 @@ require 'open3'
 require 'securerandom'
 require 'tmpdir'
 
-module DerivativeZoo
+module DerivativeRedeo
   module Service
     module PdfSplitter
       ##

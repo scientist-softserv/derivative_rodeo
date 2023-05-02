@@ -2,7 +2,7 @@
 
 require 'aws-sdk-s3'
 
-module DerivativeZoo
+module DerivativeRedeo
   module StorageAdapter
     ##
     # Adapter to download and upload files to S3
@@ -20,7 +20,7 @@ module DerivativeZoo
       # @return [String]
       def self.create_uri(path:, parts: 2)
         file_path = file_path_from_parts(path: path, parts: parts)
-        "s3://#{DerivativeZoo.config.aws_s3_bucket}.s3.#{DerivativeZoo.config.aws_s3_region}.amazonaws.com/#{file_path}"
+        "s3://#{DerivativeRedeo.config.aws_s3_bucket}.s3.#{DerivativeRedeo.config.aws_s3_region}.amazonaws.com/#{file_path}"
       end
 
       ##
@@ -31,7 +31,7 @@ module DerivativeZoo
       # @return [String] the path to the tmp file
       def with_existing_tmp_path(&block)
         with_tmp_path(lambda { |file_path, tmp_file_path, exist|
-                        raise DerivativeZoo::FileMissingError unless exist
+                        raise DerivativeRedeo::FileMissingError unless exist
                         obj = bucket.object(file_path)
                         obj.download_file(tmp_file_path)
                       }, &block)
@@ -52,7 +52,7 @@ module DerivativeZoo
       #
       # @return [String] the file_uri
       def write
-        raise DerivativeZoo::FileMissingError("Use write within a with__new_tmp_path block and fille the mp file with data before writing") unless File.exist?(tmp_file_path)
+        raise DerivativeRedeo::FileMissingError("Use write within a with__new_tmp_path block and fille the mp file with data before writing") unless File.exist?(tmp_file_path)
 
         obj = bucket.object(file_path)
         obj.upload_file(tmp_file_path)
@@ -64,11 +64,11 @@ module DerivativeZoo
       #
       # @reutnr [Aws::S3::Resource]
       def resource
-        @resource ||= if DerivativeZoo.config.aws_s3_access_key_id
-                        Aws::S3::Resource.new(region: DerivativeZoo.config.aws_s3_region,
+        @resource ||= if DerivativeRedeo.config.aws_s3_access_key_id
+                        Aws::S3::Resource.new(region: DerivativeRedeo.config.aws_s3_region,
                                               credentials: Aws::Credentials.new(
-                                                DerivativeZoo.config.aws_s3_access_key_id,
-                                                DerivativeZoo.config.aws_s3_secret_access_key
+                                                DerivativeRedeo.config.aws_s3_access_key_id,
+                                                DerivativeRedeo.config.aws_s3_secret_access_key
                                               ))
                       else
                         Aws::S3::Resource.new
@@ -81,7 +81,7 @@ module DerivativeZoo
       def bucket_name
         @bucket_name ||= file_uri.match(%r{s3://(.+)\.s3})&.[](1)
       rescue StandardError
-        raise DerivativeZoo::BucketMissingError
+        raise DerivativeRedeo::BucketMissingError
       end
 
       def bucket

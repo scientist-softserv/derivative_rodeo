@@ -10,7 +10,7 @@ SimpleCov.start do
   track_files 'lib/**/*.rb'
 end
 
-require 'derivative_zoo'
+require 'derivative_rodeo'
 
 Shoulda::Matchers.configure do |config|
   config.integrate do |with|
@@ -119,7 +119,7 @@ RSpec.configure do |config|
 
   config.before(:suite) do
     if ENV['DEBUG']
-      DerivativeZoo.config do |c|
+      DerivativeRedeo.config do |c|
         c.logger = Logger.new($stderr, level: Logger::DEBUG)
       end
     end

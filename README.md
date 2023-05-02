@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [DerivativeZoo](#derivativezoo)
+- [DerivativeRedeo](#derivativeredeo)
   - [Installation](#installation)
   - [Usage](#usage)
   - [Interface](#interface)
@@ -13,9 +13,9 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# DerivativeZoo
+# DerivativeRedeo
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/derivative_zoo`. To experiment with that code, run `bin/console` for an interactive prompt.
+Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/derivative_rodeo`. To experiment with that code, run `bin/console` for an interactive prompt.
 
 TODO: Delete this and the text above, and describe your gem
 
@@ -24,7 +24,7 @@ TODO: Delete this and the text above, and describe your gem
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'derivative_zoo'
+gem 'derivative_rodeo'
 ```
 
 And then execute:
@@ -61,4 +61,4 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/derivative_zoo.
+Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/derivative_rodeo.

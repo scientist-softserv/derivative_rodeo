@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module DerivativeZoo
+module DerivativeRedeo
   ##
   # Responsible for finding or creating a hocr file (or configured :output_suffix) using
   # tesseract. Will create and store a monochrome derivative if one is not found.
@@ -57,8 +57,8 @@ module DerivativeZoo
 
       ##
       #  @return [Array<String>] file_uris of the monochrome derivatives
-      def preprocess
-        @preprocess ||= MonochromeGenerator.new(input_uris: input_uris).generated_files
+      def requisite_files
+        @requisite_files ||= MonochromeGenerator.new(input_uris: input_uris).generated_files
       end
 
       ##
@@ -67,6 +67,7 @@ module DerivativeZoo
       def tesseractify(tmp_path, out_file)
         out_file.with_new_tmp_path do |out_path|
           run_tesseract(tmp_path, out_path)
+          # TODO: do we always write? is it always last?
           out_file.write
         end
         out_file

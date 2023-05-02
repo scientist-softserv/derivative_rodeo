@@ -2,7 +2,7 @@
 
 require 'httparty'
 
-module DerivativeZoo
+module DerivativeRedeo
   module Service
     ##
     # A utility class for handling general URLs.  Provided as a means of easing the implementation
@@ -19,7 +19,7 @@ module DerivativeZoo
       #
       # @return [String]
       def self.read(url)
-        HTTParty.get(url, logger: DerivativeZoo.config.logger).body
+        HTTParty.get(url, logger: DerivativeRedeo.config.logger).body
       rescue StandardError => e
         config.logger.error(%(#{e.message}\n#{e.backtrace.join("\n")}))
         raise e
@@ -32,9 +32,9 @@ module DerivativeZoo
       # @return [FalseClass] when the URL's head request is not successful or we've exhausted our
       #         remaining redirects.
       def self.exists?(url)
-        HTTParty.head(url, logger: DerivativeZoo.config.logger)
+        HTTParty.head(url, logger: DerivativeRedeo.config.logger)
       rescue StandardError => e
-        DerivativeZoo.config.logger.error(%(#{e.message}\n#{e.backtrace.join("\n")}))
+        DerivativeRedeo.config.logger.error(%(#{e.message}\n#{e.backtrace.join("\n")}))
         false
       end
     end
