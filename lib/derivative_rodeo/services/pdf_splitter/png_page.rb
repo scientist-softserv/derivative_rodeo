@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module DerivativeRedeo
+module DerivativeRodeo
   module Service
     module PdfSplitter
       # The purpose of this class is to split the PDF into constituent png files.

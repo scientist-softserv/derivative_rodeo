@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module DerivativeRedeo
+module DerivativeRodeo
   TechnicalMetadata = Struct.new(:color, :num_components, :bits_per_component, :width, :height, :content_type,
                                  keyword_init: true) do
     alias_method :number_of_components, :num_components

@@ -2,7 +2,7 @@
 
 require 'aws-sdk-sqs'
 
-module DerivativeRedeo
+module DerivativeRodeo
   module StorageAdapters
     ##
     # Adapter to download and upload files to Sqs
@@ -23,7 +23,7 @@ module DerivativeRedeo
       # @return [String]
       def self.create_uri(path:, parts: 1)
         file_path = file_path_from_parts(path: path, parts: parts)
-        "sqs://#{DerivativeRedeo.config.aws_sqs_queue}.sqs.#{DerivativeRedeo.config.aws_sqs_region}.amazonaws.com/#{file_path}"
+        "sqs://#{DerivativeRodeo.config.aws_sqs_queue}.sqs.#{DerivativeRodeo.config.aws_sqs_region}.amazonaws.com/#{file_path}"
       end
 
       ##
@@ -34,7 +34,7 @@ module DerivativeRedeo
       # @return [String] the path to the tmp file
       def with_existing_tmp_path(&block)
         with_tmp_path(lambda { |_file_path, tmp_file_path, exist|
-                        raise DerivativeRedeo::FileMissingError unless exist
+                        raise DerivativeRodeo::FileMissingError unless exist
                         File.open(tmp_file_path, 'w') do |file|
                           read_batch.each do |message|
                             file.write(message)
@@ -58,8 +58,8 @@ module DerivativeRedeo
       #
       # @return [String] the file_uri
       def write
-        raise DerivativeRedeo::FileMissingError("Use write within a with__new_tmp_path block and fille the mp file with data before writing") unless File.exist?(tmp_file_path)
-        raise DerivativeRedeo::MaxQqueueSize(batch_size: batch_size) if batch_size > DerivativeRedeo.config.aws_sqs_max_batch_size
+        raise DerivativeRodeo::FileMissingError("Use write within a with__new_tmp_path block and fille the mp file with data before writing") unless File.exist?(tmp_file_path)
+        raise DerivativeRodeo::MaxQqueueSize(batch_size: batch_size) if batch_size > DerivativeRodeo.config.aws_sqs_max_batch_size
         batch = []
         File.foreach(tmp_file_path).with_index do |line, i|
           batch << { id: i.to_s, message_body: [line].to_json }
@@ -72,16 +72,16 @@ module DerivativeRedeo
       end
 
       def client
-        @client ||= if DerivativeRedeo.config.aws_sqs_access_key_id && DerivativeRedeo.config.aws_sqs_secret_access_key
+        @client ||= if DerivativeRodeo.config.aws_sqs_access_key_id && DerivativeRodeo.config.aws_sqs_secret_access_key
                       Aws::SQS::Client.new(
-                        region: DerivativeRedeo.config.aws_sqs_region,
+                        region: DerivativeRodeo.config.aws_sqs_region,
                         credentials: Aws::Credentials.new(
-                          DerivativeRedeo.config.aws_sqs_access_key_id,
-                          DerivativeRedeo.config.aws_sqs_secret_access_key
+                          DerivativeRodeo.config.aws_sqs_access_key_id,
+                          DerivativeRodeo.config.aws_sqs_secret_access_key
                         )
                       )
                     else
-                      Aws::SQS::Client.new(region: DerivativeRedeo.config.aws_sqs_region)
+                      Aws::SQS::Client.new(region: DerivativeRodeo.config.aws_sqs_region)
                     end
       end
 
@@ -93,7 +93,7 @@ module DerivativeRedeo
       end
 
       def read_batch
-        raise DerivativeRedeo::MaxQqueueSize(batch_size: batch_size) if batch_size > DerivativeRedeo.config.aws_sqs_max_batch_size
+        raise DerivativeRodeo::MaxQqueueSize(batch_size: batch_size) if batch_size > DerivativeRodeo.config.aws_sqs_max_batch_size
 
         response = client.receive_message({
                                             queue_url: queue_url,
@@ -114,7 +114,7 @@ module DerivativeRedeo
       def queue_name
         @queue_name ||= file_uri.match(%r{sqs://(.+)\.sqs})&.[](1)
       rescue StandardError
-        raise DerivativeRedeo::QueueMissingError
+        raise DerivativeRodeo::QueueMissingError
       end
     end
   end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe DerivativeRedeo::StorageAdapters::BaseAdapter do
+RSpec.describe DerivativeRodeo::StorageAdapters::BaseAdapter do
   let(:args) { "fake://nothing" }
 
   subject { described_class.new(args) }

@@ -37,7 +37,7 @@ class AwsS3FauxBucket
         if File.file?(storage_path)
           f.puts File.read(storage_path)
         else
-          f.puts DerivativeRedeo::Servce::UrlService.read(storage_path)
+          f.puts DerivativeRodeo::Servce::UrlService.read(storage_path)
         end
       end
     end

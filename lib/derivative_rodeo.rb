@@ -14,11 +14,11 @@ require 'derivative_rodeo/generators/base_generator'
 require 'derivative_rodeo/services/base_service'
 
 ##
-# DerivativeRedeo is a gem that allows you to generate derivative files from source files
+# DerivativeRodeo is a gem that allows you to generate derivative files from source files
 # It is storage location agnostic, relying on {StorageAdapters}. Files can be stored locally or in the cloud.
 # {Generators} are designed to be simple to create and to short circut logic if a
 # pre processed version exists
-module DerivativeRedeo
+module DerivativeRodeo
   ##
   # The {Configuration} that the various processes in your implementation will use.
   #
@@ -54,7 +54,7 @@ module DerivativeRedeo
   # Raised when a storage adapter is called for but does not exist in the registered adapter list
   class MaxQueueSize < Error
     def initialize(batch_size:)
-      super("Batch size #{batch_size} is larger than the max queue size #{DerivativeRedeo.config.aws_sqs_max_batch_size}")
+      super("Batch size #{batch_size} is larger than the max queue size #{DerivativeRodeo.config.aws_sqs_max_batch_size}")
     end
   end
 

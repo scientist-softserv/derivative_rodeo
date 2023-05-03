@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe DerivativeRedeo::Generator::MonochromeGenerator do
+RSpec.describe DerivativeRodeo::Generator::MonochromeGenerator do
   let(:kwargs) { { input_uris: [] } }
   subject { described_class.new(**kwargs) }
 

@@ -2,7 +2,7 @@
 
 require 'tmpdir'
 
-module DerivativeRedeo
+module DerivativeRodeo
   module StorageAdapters
     # dir is the directory path
     # path is the full file path
@@ -22,23 +22,23 @@ module DerivativeRedeo
       end
 
       def self.load_adapter(adapter_name)
-        raise DerivativeRedeo::StorageAdapterNotFoundError.new(adapter_name: adapter_name) unless adapters.include?(adapter_name)
+        raise DerivativeRodeo::StorageAdapterNotFoundError.new(adapter_name: adapter_name) unless adapters.include?(adapter_name)
 
-        "DerivativeRedeo::StorageAdapters::#{adapter_name.classify}Adapter".constantize
+        "DerivativeRodeo::StorageAdapters::#{adapter_name.classify}Adapter".constantize
       end
 
       def self.from_uri(file_uri)
         adapter_name = file_uri.split('://').first
-        raise DerivativeRedeo::StorageAdapterMissing.new(file_uri: file_uri) if adapter_name.blank?
+        raise DerivativeRodeo::StorageAdapterMissing.new(file_uri: file_uri) if adapter_name.blank?
 
         load_adapter(adapter_name).new(file_uri)
       end
 
       # Registers the adapter with the main StorageAdapter class to it can be used
       def self.register_adapter(adapter_name)
-        return if DerivativeRedeo::StorageAdapters::BaseAdapter.adapters.include?(adapter_name)
+        return if DerivativeRodeo::StorageAdapters::BaseAdapter.adapters.include?(adapter_name)
 
-        DerivativeRedeo::StorageAdapters::BaseAdapter.adapters << adapter_name
+        DerivativeRodeo::StorageAdapters::BaseAdapter.adapters << adapter_name
       end
 
       ##
@@ -97,7 +97,7 @@ module DerivativeRedeo
 
       def derived_file(extension:, adapter_name: 'same')
         klass = self.class if adapter_name == 'same'
-        klass ||= DerivativeRedeo::StorageAdapters::BaseAdapter.load_adapter(adapter_name)
+        klass ||= DerivativeRodeo::StorageAdapters::BaseAdapter.load_adapter(adapter_name)
         new_uri = klass.create_uri(path: with_new_extension(extension))
         klass.new(new_uri)
       end

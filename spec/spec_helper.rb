@@ -119,7 +119,7 @@ RSpec.configure do |config|
 
   config.before(:suite) do
     if ENV['DEBUG']
-      DerivativeRedeo.config do |c|
+      DerivativeRodeo.config do |c|
         c.logger = Logger.new($stderr, level: Logger::DEBUG)
       end
     end

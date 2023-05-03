@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module DerivativeRedeo
+module DerivativeRodeo
   ##
   # Responsible for simply moving files from one storage adapter to another
   module Generator

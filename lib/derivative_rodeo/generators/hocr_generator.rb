@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module DerivativeRedeo
+module DerivativeRodeo
   ##
   # Responsible for finding or creating a hocr file (or configured :output_suffix) using
   # tesseract. Will create and store a monochrome derivative if one is not found.

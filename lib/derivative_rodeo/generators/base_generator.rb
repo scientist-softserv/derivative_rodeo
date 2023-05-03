@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module DerivativeRedeo
+module DerivativeRodeo
   ##
   # Generators execute a transofrmatoin on files and return new files
   # A generator class must set an output extention and must implement
@@ -27,9 +27,9 @@ module DerivativeRedeo
         @output_adapter_name = output_adapter_name
         @output_extension = self.class.output_extension
         @preprocess_adapter_name = preprocess_adapter_name
-        return if instance_of?(DerivativeRedeo::Generator::BaseGenerator) || output_extension
+        return if instance_of?(DerivativeRodeo::Generator::BaseGenerator) || output_extension
 
-        raise DerivativeRedeo::ExtensionMissingError.new(klass: self.class)
+        raise DerivativeRodeo::ExtensionMissingError.new(klass: self.class)
       end
 
       def build_step(in_file:, out_file:)
@@ -51,7 +51,7 @@ module DerivativeRedeo
       ##
       # requisite_files is run before the build step. It allows child classes to modify the file_uirs
       # for example, to filter out files that are not of the correct type or to depend on another
-      # generator. See DerivativeRedeo::Generator::HocrGenerator for an example
+      # generator. See DerivativeRodeo::Generator::HocrGenerator for an example
       #
       # @api public
       #
@@ -62,7 +62,7 @@ module DerivativeRedeo
 
       def input_files
         @input_files ||= input_uris.map do |file_uri|
-          DerivativeRedeo::StorageAdapters::BaseAdapter.from_uri(file_uri)
+          DerivativeRodeo::StorageAdapters::BaseAdapter.from_uri(file_uri)
         end
       end
 
@@ -88,10 +88,10 @@ module DerivativeRedeo
       # @note
       #
       def run(command)
-        DerivativeRedeo.config.logger.debug "* Start command: #{command}"
+        DerivativeRodeo.config.logger.debug "* Start command: #{command}"
         result = `#{command}`
-        DerivativeRedeo.config.logger.debug "* Result: \n*  #{result.gsub("\n", "\n*  ")}"
-        DerivativeRedeo.config.logger.debug "* End  command: #{command}"
+        DerivativeRodeo.config.logger.debug "* Result: \n*  #{result.gsub("\n", "\n*  ")}"
+        DerivativeRodeo.config.logger.debug "* End  command: #{command}"
         result
       end
     end

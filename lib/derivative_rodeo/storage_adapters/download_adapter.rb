@@ -2,7 +2,7 @@
 
 require 'faraday'
 
-module DerivativeRedeo
+module DerivativeRodeo
   module StorageAdapters
     ##
     # Adapter for files from the web. Download only, can not write!
@@ -16,7 +16,7 @@ module DerivativeRedeo
 
       def with_existing_tmp_path(&block)
         with_tmp_path(lambda { |_file_path, tmp_file_path, exist|
-                        raise DerivativeRedeo::FileMissingError unless exist
+                        raise DerivativeRodeo::FileMissingError unless exist
 
                         response = http_conn.get file_uri
                         File.open(tmp_file_path, 'wb') { |fp| fp.write(response.body) }

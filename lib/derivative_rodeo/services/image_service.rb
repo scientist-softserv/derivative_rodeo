@@ -2,7 +2,7 @@
 
 require 'tmpdir'
 
-module DerivativeRedeo
+module DerivativeRodeo
   module Service
     ##
     # @api private

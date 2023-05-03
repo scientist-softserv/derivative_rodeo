@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [DerivativeRedeo](#derivativeredeo)
+- [DerivativeRodeo](#derivativerodeo)
   - [Concepts](#concepts)
     - [Common Storage](#common-storage)
     - [Related Files](#related-files)
@@ -20,7 +20,7 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# DerivativeRedeo
+# DerivativeRodeo
 
 “This ain’t my first rodeo.” (an idiomatic American slang for “I’m prepared for what comes next.”)
 
@@ -139,9 +139,9 @@ TODO: We want to expose a list of registered generators
 
 ### Storage Adapters
 
-Storage adapters are where we put things.  Each adapter has a specific implementation but is expected to inherit from the  [DerivativeRedeo::StorageAdapter::BaseAdapter](./lib/derivative_rodeo/storage_adapters/base_adapter.rb).
+Storage adapters are where we put things.  Each adapter has a specific implementation but is expected to inherit from the  [DerivativeRodeo::StorageAdapter::BaseAdapter](./lib/derivative_rodeo/storage_adapters/base_adapter.rb).
 
-`DerivativeRedeo::StorageAdapter::BaseAdapter.adapters` method tracks the registered adapters.
+`DerivativeRodeo::StorageAdapter::BaseAdapter.adapters` method tracks the registered adapters.
 
 #### Supported Storage Adapters
 

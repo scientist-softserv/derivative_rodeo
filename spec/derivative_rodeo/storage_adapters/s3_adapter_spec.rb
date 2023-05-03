@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe DerivativeRedeo::StorageAdapters::S3Adapter do
+RSpec.describe DerivativeRodeo::StorageAdapters::S3Adapter do
   let(:file_path) { File.expand_path(File.join(FIXTURE_PATH, 'files', 'ocr_color.tiff')) }
   let(:short_path) { file_path.split('/')[-2..-1].join('/') }
   let(:args) { "s3://fake-bucket.s3.eu-west-1.amazonaws.com/#{short_path}" }
@@ -13,7 +13,7 @@ RSpec.describe DerivativeRedeo::StorageAdapters::S3Adapter do
   subject { described_class.new(args) }
 
   before do
-    DerivativeRedeo.config do |config|
+    DerivativeRodeo.config do |config|
       config.aws_s3_bucket = 'fake-bucket'
       config.aws_s3_access_key_id = "FAKEFAKEFAKE"
       config.aws_s3_secret_access_key = "FAKEFAKEFAKEFAKER"

@@ -2,12 +2,12 @@
 
 require 'mime/types'
 require 'logger'
-module DerivativeRedeo
+module DerivativeRodeo
   ##
   # @api public
   #
   # This class is responsible for the consistent configuration of the "application" that leverages
-  # the {DerivativeRedeo}.
+  # the {DerivativeRodeo}.
   #
   # This configuration helps set defaults for storage adapters and generators.
   class Configuration
@@ -22,8 +22,6 @@ module DerivativeRedeo
     # @param prefix [String]
     # @param name [String]
     # @param default [String] (optional)
-    #
-    # @return [getter and setter for the variable]
     def self.aws_config(prefix:, name:, default: nil)
       aws_config_getter(prefix: prefix, name: name, default: default)
       aws_config_setter(prefix: prefix, name: name)
@@ -41,12 +39,14 @@ module DerivativeRedeo
         instance_variable_set("@aws_#{prefix}_#{name}", val)
       end
     end
+    private_class_method :aws_config_getter
 
     def self.aws_config_setter(prefix:, name:)
       define_method "aws_#{prefix}_#{name}=" do |val|
         instance_variable_set("@aws_#{prefix}_#{name}", val)
       end
     end
+    private_class_method :aws_config_setter
 
     def initialize
       # By default, minimize the chatter of the specs; we may want to consider piggybacking on

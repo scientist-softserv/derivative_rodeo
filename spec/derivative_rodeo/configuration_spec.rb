@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe DerivativeRedeo::Configuration do
+RSpec.describe DerivativeRodeo::Configuration do
   subject(:instance) { described_class.new }
   context '#logger' do
     subject(:logger) { instance.logger }
