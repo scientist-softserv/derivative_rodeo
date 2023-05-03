@@ -3,7 +3,7 @@
 require 'aws-sdk-s3'
 
 module DerivativeRedeo
-  module StorageAdapter
+  module StorageAdapters
     ##
     # Adapter to download and upload files to S3
     #

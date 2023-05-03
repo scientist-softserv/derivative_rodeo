@@ -15,8 +15,8 @@ require 'derivative_rodeo/services/base_service'
 
 ##
 # DerivativeRedeo is a gem that allows you to generate derivative files from source files
-# It is storage location agnostic. Files can be stored locally or in the cloud.
-# Generators are designed to be simple to create and to short circut logic if a
+# It is storage location agnostic, relying on {StorageAdapters}. Files can be stored locally or in the cloud.
+# {Generators} are designed to be simple to create and to short circut logic if a
 # pre processed version exists
 module DerivativeRedeo
   ##

@@ -3,7 +3,7 @@
 require 'faraday'
 
 module DerivativeRedeo
-  module StorageAdapter
+  module StorageAdapters
     ##
     # Adapter for files from the web. Download only, can not write!
     #

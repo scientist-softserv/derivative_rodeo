@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DerivativeRedeo
-  module StorageAdapter
+  module StorageAdapters
     ##
     # Adapter for files found on a local disk
     #

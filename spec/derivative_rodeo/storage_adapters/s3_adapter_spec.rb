@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe DerivativeRedeo::StorageAdapter::S3Adapter do
+RSpec.describe DerivativeRedeo::StorageAdapters::S3Adapter do
   let(:file_path) { File.expand_path(File.join(FIXTURE_PATH, 'files', 'ocr_color.tiff')) }
   let(:short_path) { file_path.split('/')[-2..-1].join('/') }
   let(:args) { "s3://fake-bucket.s3.eu-west-1.amazonaws.com/#{short_path}" }

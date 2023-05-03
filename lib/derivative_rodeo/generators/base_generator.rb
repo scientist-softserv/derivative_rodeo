@@ -62,7 +62,7 @@ module DerivativeRedeo
 
       def input_files
         @input_files ||= input_uris.map do |file_uri|
-          DerivativeRedeo::StorageAdapter::BaseAdapter.from_uri(file_uri)
+          DerivativeRedeo::StorageAdapters::BaseAdapter.from_uri(file_uri)
         end
       end
 
