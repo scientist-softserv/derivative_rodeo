@@ -83,7 +83,7 @@ I1 -down-> FileSet2
 
 ```
 
-</summary>
+</details>
 
 ### Common Storage
 
