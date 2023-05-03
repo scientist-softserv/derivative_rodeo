@@ -51,7 +51,7 @@ module DerivativeRedeo
       # @param parts [Integer, :all]
       # @return [String]
       def self.create_uri(path:, parts:)
-        raise NotImplementedError
+        raise NotImplementedError, "#{self.class}.create_uri"
       end
 
       def self.file_path_from_parts(path:, parts:)
@@ -71,7 +71,7 @@ module DerivativeRedeo
       end
 
       def with_existing_tmp_path
-        raise NotImplementedError
+        raise NotImplementedError, "#{self.class}#with_existing_tmp_path"
       end
 
       def with_tmp_path(lambda)
@@ -87,11 +87,11 @@ module DerivativeRedeo
 
       # write the tmp file to the file_uri
       def write
-        raise NotImplementedError
+        raise NotImplementedError, "#{self.class}#write"
       end
 
       def exist?
-        raise NotImplementedError
+        raise NotImplementedError, "#{self.class}#exist?"
       end
       alias exists? exist?
 

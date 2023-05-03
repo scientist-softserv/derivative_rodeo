@@ -11,6 +11,9 @@ module DerivativeRedeo
     class BaseGenerator
       class_attribute :output_extension
 
+      # TODO: Add the registered generators?  This seems like a nice pattern to carry forward from
+      # the BaseAdapter
+
       attr_accessor :exception,
         :input_uris,
         :output_adapter_name,
