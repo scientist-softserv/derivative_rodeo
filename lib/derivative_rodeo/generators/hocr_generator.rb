@@ -1,21 +1,19 @@
 # frozen_string_literal: true
 
 module DerivativeRodeo
-  ##
-  # Responsible for finding or creating a hocr file (or configured :output_suffix) using
-  # tesseract. Will create and store a monochrome derivative if one is not found.
-  #
-  # @see http://tesseract-ocr.github.io
-  #
-  # From `tesseract -h`
-  #
-  #   Usage:
-  #     tesseract --help | --help-extra | --version
-  #     tesseract --list-langs
-  #     tesseract imagename outputbase [options...] [configfile...]
   module Generators
     ##
-    # Take images and creates an horc file from them
+    # Responsible for finding or creating a hocr file (or configured :output_suffix) using
+    # tesseract. Will create and store a monochrome derivative if one is not found.
+    #
+    # @see http://tesseract-ocr.github.io
+    #
+    # From `tesseract -h`
+    #
+    #   Usage:
+    #     tesseract --help | --help-extra | --version
+    #     tesseract --list-langs
+    #     tesseract imagename outputbase [options...] [configfile...]
     class HocrGenerator < BaseGenerator
       ##
       # @!group Class Attributes
@@ -81,7 +79,7 @@ module DerivativeRodeo
         cmd += " #{additional_tessearct_options}" if additional_tessearct_options.present?
         cmd += " #{output_suffix}"
 
-        # TODO: capture output in case of exceptions
+        # TODO: capture output in case of exceptions; perhaps delegate that to the #run method.
         run(cmd)
       end
     end

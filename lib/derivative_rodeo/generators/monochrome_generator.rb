@@ -1,13 +1,9 @@
 # frozen_string_literal: true
 
 module DerivativeRodeo
-  ##
-  # Generators execute a transofrmatoin on files and return new files
-  # A generator class must set an output extention and must implment
-  # a build_step method
   module Generators
     ##
-    # Take images an insure we have a monochrome derivative of them
+    # Take images an ensures that we have a monochrome derivative of those images.
     class MonochromeGenerator < BaseGenerator
       self.output_extension = 'mono.tiff'
 

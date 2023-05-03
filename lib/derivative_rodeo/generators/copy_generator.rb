@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
 module DerivativeRodeo
-  ##
-  # Responsible for simply moving files from one storage adapter to another
   module Generators
     ##
-    # Take images an insure we have a monochrome derivative of them
+    # Responsible for moving files from one storage adapter to another.
     class CopyGenerator < BaseGenerator
       ##
       # will copy files from one adapter to another

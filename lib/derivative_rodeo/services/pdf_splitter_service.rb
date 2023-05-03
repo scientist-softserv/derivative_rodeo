@@ -12,7 +12,7 @@ module DerivativeRodeo
       # @return [PdfSplitter::Base]
       def self.for(name)
         klass_name = "#{name.to_s.classify}_page".classify
-        "DerivativeRodeo::Services::PdfSplitter::#{klass_name}".constantize
+        "DerivativeRodeo::xServices::PdfSplitter::#{klass_name}".constantize
       end
     end
   end

@@ -2,12 +2,18 @@
 
 module DerivativeRodeo
   ##
-  # Generators execute a transofrmatoin on files and return new files
-  # A generator class must set an output extention and must implement
-  # a build_step method
+  # Generators execute a transformation on files and return new files.
+  #
+  # A new generator should inherit from {BaseGenerator}.
+  #
+  # @see BaseGenerator
   module Generators
     ##
-    # Base Generator, defines interface and common methods
+    # The Base Generator defines the interface and common methods.
+    #
+    # In extending a BaseGenerator you:
+    # - must an {.output_extension=}
+    # - must impliment a {#build_step} method
     class BaseGenerator
       class_attribute :output_extension
 
@@ -21,16 +27,24 @@ module DerivativeRodeo
         :preprocess_adapter_name
       attr_writer :generated_files
 
-      # TODO: rename preprocess adapter because it is the same as the preprocess method, but does something else
-      def initialize(input_uris:, output_adapter_name: 'same', preprocess_adapter_name: nil)
+      ##
+      # TODO: rename preprocess adapter because it is the same as the preprocess method, but does
+      # something else
+      #
+      # TODO: Remove magic 'same' and document it's purpose
+      def initialize(input_uris:, output_adapter_name: 'same', preprocess_adapter_name: nil, logger: DerivativeRodeo.config.logger)
         @input_uris = input_uris
         @output_adapter_name = output_adapter_name
         @output_extension = self.class.output_extension
         @preprocess_adapter_name = preprocess_adapter_name
+        @logger = logger
+
         return if instance_of?(DerivativeRodeo::Generators::BaseGenerator) || output_extension
 
         raise Errors::ExtensionMissingError.new(klass: self.class)
       end
+
+      attr_reader :logger
 
       def build_step(in_file:, out_file:)
         raise NotImplementedError, "#{self.class}#build_step"
@@ -80,18 +94,14 @@ module DerivativeRodeo
       end
 
       ##
-      # A bit of indirection to create a common interface for running a shell command; and thus
-      # allowing for introducing a dry-run to help in debugging/logging.
+      # A bit of indirection to create a common interface for running a shell command.
       #
       # @param command [String]
-      #
-      # @note
-      #
       def run(command)
-        DerivativeRodeo.config.logger.debug "* Start command: #{command}"
+        logger.debug "* Start command: #{command}"
         result = `#{command}`
-        DerivativeRodeo.config.logger.debug "* Result: \n*  #{result.gsub("\n", "\n*  ")}"
-        DerivativeRodeo.config.logger.debug "* End  command: #{command}"
+        logger.debug "* Result: \n*  #{result.gsub("\n", "\n*  ")}"
+        logger.debug "* End  command: #{command}"
         result
       end
     end
