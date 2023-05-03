@@ -62,7 +62,7 @@ module DerivativeRedeo
       ##
       # @api private
       #
-      # @reutnr [Aws::S3::Resource]
+      # @return [Aws::S3::Resource]
       def resource
         @resource ||= if DerivativeRedeo.config.aws_s3_access_key_id
                         Aws::S3::Resource.new(region: DerivativeRedeo.config.aws_s3_region,

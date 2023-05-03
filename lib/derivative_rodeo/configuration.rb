@@ -62,15 +62,16 @@ module DerivativeRedeo
     ##
     # @!group AWS S3 Configuration
     #
-    # Various AWS items for S3 Adapter. These can be set from the ENV or the configuration block
+    # Various AWS items for {StorageAdapters::S3Adapter}. These can be set from the ENV or the configuration block
     #
-    # @example
-    # The order we use is:
-    # * config.aws_s3_#{variable_name} = value
-    # * AWS_S3_#{variable_name}
-    # * AWS_#{variable_name}
-    # * AWS_DEFAULT_#{variable_name}
-    # * default
+    # @note
+    #
+    #   The order we use is:
+    #   * `config.aws_s3_<variable_name> = value`
+    #   * `AWS_S3_<variable_name>`
+    #   * `AWS_<variable_name>`
+    #   * `AWS_DEFAULT_<variable_name>`
+    #   * default
     #
     # @return [String]
 
