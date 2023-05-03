@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DerivativeRodeo
-  module Service
+  module Services
     ##
     # @api private
     #

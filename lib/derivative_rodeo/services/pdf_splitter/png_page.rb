@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DerivativeRodeo
-  module Service
+  module Services
     module PdfSplitter
       # The purpose of this class is to split the PDF into constituent png files.
       class PngPage < PdfSplitter::Base

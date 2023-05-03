@@ -3,7 +3,7 @@
 require 'httparty'
 
 module DerivativeRodeo
-  module Service
+  module Services
     ##
     # A utility class for handling general URLs.  Provided as a means of easing the implementation
     # logic of those that use this class.

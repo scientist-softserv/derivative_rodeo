@@ -3,7 +3,7 @@
 module DerivativeRodeo
   ##
   # Responsible for simply moving files from one storage adapter to another
-  module Generator
+  module Generators
     ##
     # Take images an insure we have a monochrome derivative of them
     class CopyGenerator < BaseGenerator

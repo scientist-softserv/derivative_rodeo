@@ -5,7 +5,7 @@ require 'securerandom'
 require 'tmpdir'
 
 module DerivativeRodeo
-  module Service
+  module Services
     module PdfSplitter
       ##
       # @abstract
@@ -74,7 +74,7 @@ module DerivativeRodeo
         def gsdevice
           return self.class.gsdevice if self.class.gsdevice
 
-          raise NotImplementedError
+          raise NotImplementedError, "#{self.class}#gsdevice"
         end
 
         private

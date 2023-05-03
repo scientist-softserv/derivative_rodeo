@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DerivativeRodeo
-  module Service
+  module Services
     module PdfSplitterService
       ##
       # @api public
@@ -12,7 +12,7 @@ module DerivativeRodeo
       # @return [PdfSplitter::Base]
       def self.for(name)
         klass_name = "#{name.to_s.classify}_page".classify
-        "DerivativeRodeo::Service::PdfSplitter::#{klass_name}".constantize
+        "DerivativeRodeo::Services::PdfSplitter::#{klass_name}".constantize
       end
     end
   end

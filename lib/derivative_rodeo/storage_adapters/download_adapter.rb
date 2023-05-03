@@ -16,7 +16,7 @@ module DerivativeRodeo
 
       def with_existing_tmp_path(&block)
         with_tmp_path(lambda { |_file_path, tmp_file_path, exist|
-                        raise DerivativeRodeo::FileMissingError unless exist
+                        raise Errors::FileMissingError unless exist
 
                         response = http_conn.get file_uri
                         File.open(tmp_file_path, 'wb') { |fp| fp.write(response.body) }
@@ -29,7 +29,7 @@ module DerivativeRodeo
 
       # write the file to the file_uri
       def write
-        raise NotImplmentedError
+        raise NotImplmentedError, "#{self.class}#write"
       end
 
       def connection(faraday_adapter: 'default_adapter')

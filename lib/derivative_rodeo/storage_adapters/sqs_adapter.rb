@@ -34,7 +34,7 @@ module DerivativeRodeo
       # @return [String] the path to the tmp file
       def with_existing_tmp_path(&block)
         with_tmp_path(lambda { |_file_path, tmp_file_path, exist|
-                        raise DerivativeRodeo::FileMissingError unless exist
+                        raise Errors::FileMissingError unless exist
                         File.open(tmp_file_path, 'w') do |file|
                           read_batch.each do |message|
                             file.write(message)
@@ -58,8 +58,8 @@ module DerivativeRodeo
       #
       # @return [String] the file_uri
       def write
-        raise DerivativeRodeo::FileMissingError("Use write within a with__new_tmp_path block and fille the mp file with data before writing") unless File.exist?(tmp_file_path)
-        raise DerivativeRodeo::MaxQqueueSize(batch_size: batch_size) if batch_size > DerivativeRodeo.config.aws_sqs_max_batch_size
+        raise Errors::FileMissingError("Use write within a with__new_tmp_path block and fille the mp file with data before writing") unless File.exist?(tmp_file_path)
+        raise Errors::MaxQqueueSize(batch_size: batch_size) if batch_size > DerivativeRodeo.config.aws_sqs_max_batch_size
         batch = []
         File.foreach(tmp_file_path).with_index do |line, i|
           batch << { id: i.to_s, message_body: [line].to_json }
@@ -93,7 +93,7 @@ module DerivativeRodeo
       end
 
       def read_batch
-        raise DerivativeRodeo::MaxQqueueSize(batch_size: batch_size) if batch_size > DerivativeRodeo.config.aws_sqs_max_batch_size
+        raise Errors::MaxQqueueSize(batch_size: batch_size) if batch_size > DerivativeRodeo.config.aws_sqs_max_batch_size
 
         response = client.receive_message({
                                             queue_url: queue_url,
@@ -114,7 +114,7 @@ module DerivativeRodeo
       def queue_name
         @queue_name ||= file_uri.match(%r{sqs://(.+)\.sqs})&.[](1)
       rescue StandardError
-        raise DerivativeRodeo::QueueMissingError
+        raise Errors::QueueMissingError
       end
     end
   end

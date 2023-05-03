@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DerivativeRodeo
-  module Service
+  module Services
     module PdfSplitter
       # The purpose of this class is to split the PDF into constituent jpg files.
       class JpgPage < PdfSplitter::Base

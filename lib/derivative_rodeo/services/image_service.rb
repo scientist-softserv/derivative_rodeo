@@ -3,7 +3,7 @@
 require 'tmpdir'
 
 module DerivativeRodeo
-  module Service
+  module Services
     ##
     # @api private
     #

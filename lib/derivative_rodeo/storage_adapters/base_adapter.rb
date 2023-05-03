@@ -22,14 +22,14 @@ module DerivativeRodeo
       end
 
       def self.load_adapter(adapter_name)
-        raise DerivativeRodeo::StorageAdapterNotFoundError.new(adapter_name: adapter_name) unless adapters.include?(adapter_name)
+        raise Errors::StorageAdapterNotFoundError.new(adapter_name: adapter_name) unless adapters.include?(adapter_name)
 
         "DerivativeRodeo::StorageAdapters::#{adapter_name.classify}Adapter".constantize
       end
 
       def self.from_uri(file_uri)
         adapter_name = file_uri.split('://').first
-        raise DerivativeRodeo::StorageAdapterMissing.new(file_uri: file_uri) if adapter_name.blank?
+        raise Errors::StorageAdapterMissing.new(file_uri: file_uri) if adapter_name.blank?
 
         load_adapter(adapter_name).new(file_uri)
       end

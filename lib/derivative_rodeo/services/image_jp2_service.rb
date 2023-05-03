@@ -2,7 +2,7 @@
 # TODO freeze them literals
 
 module DerivativeRodeo
-  module Service
+  module Services
     ##
     # A utility class for extracting technical metadata from a JP2.
     #

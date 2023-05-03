@@ -5,7 +5,7 @@ module DerivativeRodeo
   # Generators execute a transofrmatoin on files and return new files
   # A generator class must set an output extention and must implment
   # a build_step method
-  module Generator
+  module Generators
     ##
     # Take images an insure we have a monochrome derivative of them
     class MonochromeGenerator < BaseGenerator
@@ -14,7 +14,7 @@ module DerivativeRodeo
       def build_step(in_file:, out_file:)
         @result = nil
         in_file.with_existing_tmp_path do |tmp_path|
-          image = DerivativeRodeo::Service::ImageService.new(tmp_path)
+          image = DerivativeRodeo::Services::ImageService.new(tmp_path)
           @result = if image.monochrome?
                       in_file
                     else

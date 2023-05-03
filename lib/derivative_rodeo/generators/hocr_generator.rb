@@ -13,7 +13,7 @@ module DerivativeRodeo
   #     tesseract --help | --help-extra | --version
   #     tesseract --list-langs
   #     tesseract imagename outputbase [options...] [configfile...]
-  module Generator
+  module Generators
     ##
     # Take images and creates an horc file from them
     class HocrGenerator < BaseGenerator

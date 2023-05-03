@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DerivativeRodeo
-  module Service
+  module Services
     ##
     # This module is responsible for extracting technical_metadata for a given path.
     #

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe DerivativeRodeo::Generator::HocrGenerator do
+RSpec.describe DerivativeRodeo::Generators::HocrGenerator do
   let(:kwargs) { { input_uris: [] } }
   let(:result_path) { nil }
   subject { described_class.new(**kwargs) }

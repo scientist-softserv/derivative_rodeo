@@ -31,7 +31,7 @@ module DerivativeRodeo
       # @return [String] the path to the tmp file
       def with_existing_tmp_path(&block)
         with_tmp_path(lambda { |file_path, tmp_file_path, exist|
-                        raise DerivativeRodeo::FileMissingError unless exist
+                        raise Errors::FileMissingError unless exist
                         obj = bucket.object(file_path)
                         obj.download_file(tmp_file_path)
                       }, &block)
@@ -52,7 +52,7 @@ module DerivativeRodeo
       #
       # @return [String] the file_uri
       def write
-        raise DerivativeRodeo::FileMissingError("Use write within a with__new_tmp_path block and fille the mp file with data before writing") unless File.exist?(tmp_file_path)
+        raise Errors::FileMissingError("Use write within a with__new_tmp_path block and fill the tmp file with data before writing") unless File.exist?(tmp_file_path)
 
         obj = bucket.object(file_path)
         obj.upload_file(tmp_file_path)
@@ -81,7 +81,7 @@ module DerivativeRodeo
       def bucket_name
         @bucket_name ||= file_uri.match(%r{s3://(.+)\.s3})&.[](1)
       rescue StandardError
-        raise DerivativeRodeo::BucketMissingError
+        raise Errors::BucketMissingError
       end
 
       def bucket

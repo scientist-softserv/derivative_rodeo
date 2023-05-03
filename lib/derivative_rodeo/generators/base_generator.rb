@@ -5,7 +5,7 @@ module DerivativeRodeo
   # Generators execute a transofrmatoin on files and return new files
   # A generator class must set an output extention and must implement
   # a build_step method
-  module Generator
+  module Generators
     ##
     # Base Generator, defines interface and common methods
     class BaseGenerator
@@ -27,13 +27,13 @@ module DerivativeRodeo
         @output_adapter_name = output_adapter_name
         @output_extension = self.class.output_extension
         @preprocess_adapter_name = preprocess_adapter_name
-        return if instance_of?(DerivativeRodeo::Generator::BaseGenerator) || output_extension
+        return if instance_of?(DerivativeRodeo::Generators::BaseGenerator) || output_extension
 
-        raise DerivativeRodeo::ExtensionMissingError.new(klass: self.class)
+        raise Errors::ExtensionMissingError.new(klass: self.class)
       end
 
       def build_step(in_file:, out_file:)
-        raise NotImplementedError
+        raise NotImplementedError, "#{self.class}#build_step"
       end
 
       def generated_files
