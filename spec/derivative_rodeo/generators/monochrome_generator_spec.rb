@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 RSpec.describe DerivativeRedeo::Generator::MonochromeGenerator do
-  let(:args) { { input_uris: [] } }
-  subject { described_class.new(args) }
+  let(:kwargs) { { input_uris: [] } }
+  subject { described_class.new(**kwargs) }
 
   %i[input_uris output_adapter_name output_extension generated_files].each do |method|
+    # it { is_expected.to respond_to method }
+    # it { is_expected.to respond_to "#{method}=" }
     it "responds to #{method}" do
       expect(subject).to respond_to(method)
     end
@@ -20,7 +22,7 @@ RSpec.describe DerivativeRedeo::Generator::MonochromeGenerator do
       File.join(FIXTURE_PATH, 'files', 'ocr_color.mono.tiff')
     end
     let(:file_uri) { "file://#{file_path}" }
-    let(:args) { { input_uris: [file_uri] } }
+    let(:kwargs) { { input_uris: [file_uri] } }
 
     it 'builds a monochrome image' do
       FileUtils.rm_f(result_path)
@@ -39,7 +41,7 @@ RSpec.describe DerivativeRedeo::Generator::MonochromeGenerator do
       File.join(FIXTURE_PATH, 'files', 'ocr_color_pre.mono.tiff')
     end
     let(:file_uri) { "file://#{file_path}" }
-    let(:args) { { input_uris: [file_uri] } }
+    let(:kwargs) { { input_uris: [file_uri] } }
 
     it 'builds a monochrome image' do
       expect { subject.generated_files }.not_to raise_error
@@ -53,7 +55,7 @@ RSpec.describe DerivativeRedeo::Generator::MonochromeGenerator do
       File.join(FIXTURE_PATH, 'files', 'ocr_mono.tiff')
     end
     let(:file_uri) { "file://#{file_path}" }
-    let(:args) { { input_uris: [file_uri] } }
+    let(:kwargs) { { input_uris: [file_uri] } }
 
     it 'builds a monochrome image' do
       # do not delete result path, the file should stay put

@@ -3,11 +3,18 @@
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 - [DerivativeRedeo](#derivativeredeo)
+  - [Concepts](#concepts)
+    - [Common Storage](#common-storage)
+    - [Related Files](#related-files)
   - [Installation](#installation)
   - [Usage](#usage)
-  - [Interface](#interface)
-  - [Supported Generators](#supported-generators)
-  - [Supported Storage Adapters](#supported-storage-adapters)
+  - [Technical Overview of the DerivativeRodeo](#technical-overview-of-the-derivativerodeo)
+    - [Generators](#generators)
+      - [Interface(s)](#interfaces)
+      - [Supported Generators](#supported-generators)
+      - [Registered Generators](#registered-generators)
+    - [Storage Adapters](#storage-adapters)
+      - [Supported Storage Adapters](#supported-storage-adapters)
   - [Development](#development)
   - [Contributing](#contributing)
 

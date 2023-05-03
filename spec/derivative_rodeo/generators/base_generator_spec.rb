@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 RSpec.describe DerivativeRedeo::Generator::BaseGenerator do
-  let(:args) { { input_uris: [] } }
-  subject { described_class.new(args) }
+  let(:kwargs) { { input_uris: [] } }
+  subject { described_class.new(**kwargs) }
 
   it 'set the output adapter to same unless specified' do
     expect(subject.output_adapter_name).to eq('same')
   end
 
   context 'with a specified output adapter' do
-    let(:args) { { input_uris: [], output_adapter_name: 's3' } }
+    let(:kwargs) { { input_uris: [], output_adapter_name: 's3' } }
 
     it 'set the output adapter to same unless specified' do
       expect(subject.output_adapter_name).to eq('s3')

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 RSpec.describe DerivativeRedeo::Generator::HocrGenerator do
-  let(:args) { { input_uris: [] } }
+  let(:kwargs) { { input_uris: [] } }
   let(:result_path) { nil }
-  subject { described_class.new(args) }
+  subject { described_class.new(**kwargs) }
 
   %i[input_uris output_adapter_name output_extension generated_files].each do |method|
     it "responds to #{method}" do
@@ -29,7 +29,7 @@ RSpec.describe DerivativeRedeo::Generator::HocrGenerator do
       File.join(FIXTURE_PATH, 'files', 'ocr_color.hocr')
     end
     let(:file_uri) { "file://#{file_path}" }
-    let(:args) { { input_uris: [file_uri] } }
+    let(:kwargs) { { input_uris: [file_uri] } }
 
     it 'builds a hocr file' do
       expect { subject.generated_files }.not_to raise_error
@@ -44,7 +44,7 @@ RSpec.describe DerivativeRedeo::Generator::HocrGenerator do
       File.join(FIXTURE_PATH, 'files', 'ocr_color_pre.hocr')
     end
     let(:file_uri) { "file://#{file_path}" }
-    let(:args) { { input_uris: [file_uri] } }
+    let(:kwargs) { { input_uris: [file_uri] } }
 
     it 'builds a hocr file' do
       expect { subject.generated_files }.not_to raise_error
@@ -59,7 +59,7 @@ RSpec.describe DerivativeRedeo::Generator::HocrGenerator do
       File.join(FIXTURE_PATH, 'files', 'ocr_mono.hocr')
     end
     let(:file_uri) { "file://#{file_path}" }
-    let(:args) { { input_uris: [file_uri] } }
+    let(:kwargs) { { input_uris: [file_uri] } }
 
     it 'builds a hocr file' do
       # do not delete result path, the file should stay put

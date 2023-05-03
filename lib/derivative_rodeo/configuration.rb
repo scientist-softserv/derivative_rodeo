@@ -14,6 +14,9 @@ module DerivativeRedeo
     ##
     # Allows AWS configuration to be set via environment variables by declairing them in the configuration
     # class as follows:
+    #
+    # @example
+    #
     #  aws_config prefix: 's3', name: 'region', default: 'us-east-1'
     #
     # @param prefix [String]
@@ -46,33 +49,15 @@ module DerivativeRedeo
     end
 
     def initialize
+      # By default, minimize the chatter of the specs; we may want to consider piggybacking on
+      # whether Rails is defined or not.
       @logger = Logger.new($stderr, level: Logger::FATAL)
-      # Note the log level synchronization.
-      @dry_run_reporter = ->(string) { logger.info("\n#{string}\n") }
       yield self if block_given?
     end
 
-    attr_accessor :logger
-
-    # TODO: implement dry_run?
     ##
-    # @!group Dry Run Configurations
-    #
-    # The desired mechanism for reporting on the {DryRun} activity.
-    #
-    # @example
-    #   ##
-    #   # Send the dry notices to STDERR
-    #   Derivative::Rodeo.config do |cfg|
-    #     cfg.dry_run_reporter = ->(text) { $stderr.puts text }
-    #   end
-    # @return [#call]
-    attr_accessor :dry_run_reporter
-
-    # @!attribute [rw]
-    # @return [Boolean]
-    class_attribute :dry_run, default: false
-    # @!endgroup Dry Run Configurations
+    # @return [Logger]
+    attr_accessor :logger
 
     ##
     # @!group AWS S3 Configuration
