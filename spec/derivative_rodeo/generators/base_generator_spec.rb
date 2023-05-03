@@ -5,7 +5,7 @@ RSpec.describe DerivativeRodeo::Generators::BaseGenerator do
   subject { described_class.new(**kwargs) }
 
   it 'set the output adapter to same unless specified' do
-    expect(subject.output_adapter_name).to eq('same')
+    expect(subject.output_adapter_name).to eq(described_class::SAME)
   end
 
   context 'with a specified output adapter' do
