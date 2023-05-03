@@ -15,6 +15,8 @@ module DerivativeRodeo
         @result
       end
 
+      ##
+      # @api private
       def copy(_tmp_path, out_file)
         out_file.with_new_tmp_path do |_out_path|
           out_file.write

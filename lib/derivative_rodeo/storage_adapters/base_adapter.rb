@@ -4,14 +4,19 @@ require 'tmpdir'
 
 module DerivativeRodeo
   module StorageAdapters
-    # dir is the directory path
-    # path is the full file path
-    # uri is the full file path plus the uri prefix parts
+    ##
+    # The base adapter for storing files.
+    #
+    # - dir :: is the directory path
+    # - path :: is the full file path
+    # - uri :: is the full file path plus the uri prefix parts
     class BaseAdapter
       attr_accessor :file_uri, :tmp_file_path
 
       @adapters = []
 
+      ##
+      # @return [Array<String>]
       def self.adapters
         @adapters ||= []
       end
@@ -21,12 +26,20 @@ module DerivativeRodeo
         super
       end
 
+      ##
+      # @param adapter_name [String]
+      #
+      # @return [Class]
       def self.load_adapter(adapter_name)
-        raise Errors::StorageAdapterNotFoundError.new(adapter_name: adapter_name) unless adapters.include?(adapter_name)
+        raise Errors::StorageAdapterNotFoundError.new(adapter_name: adapter_name) unless adapters.include?(adapter_name.to_s)
 
-        "DerivativeRodeo::StorageAdapters::#{adapter_name.classify}Adapter".constantize
+        "DerivativeRodeo::StorageAdapters::#{adapter_name.to_s.classify}Adapter".constantize
       end
 
+      ##
+      # @param file_uri [String] of the form scheme://arbitrary-stuff
+      #
+      # @return [BaseAdapter]
       def self.from_uri(file_uri)
         adapter_name = file_uri.split('://').first
         raise Errors::StorageAdapterMissing.new(file_uri: file_uri) if adapter_name.blank?
@@ -34,11 +47,14 @@ module DerivativeRodeo
         load_adapter(adapter_name).new(file_uri)
       end
 
+      ##
       # Registers the adapter with the main StorageAdapter class to it can be used
+      #
+      # @param adapter_name [String]
       def self.register_adapter(adapter_name)
-        return if DerivativeRodeo::StorageAdapters::BaseAdapter.adapters.include?(adapter_name)
+        return if DerivativeRodeo::StorageAdapters::BaseAdapter.adapters.include?(adapter_name.to_s)
 
-        DerivativeRodeo::StorageAdapters::BaseAdapter.adapters << adapter_name
+        DerivativeRodeo::StorageAdapters::BaseAdapter.adapters << adapter_name.to_s
       end
 
       ##
@@ -50,10 +66,17 @@ module DerivativeRodeo
       # @param path [String]
       # @param parts [Integer, :all]
       # @return [String]
+      #
+      # @see .file_path_from_parts
       def self.create_uri(path:, parts:)
         raise NotImplementedError, "#{self.class}.create_uri"
       end
 
+      ##
+      # @param path [String]
+      # @param parts [Integer, :all]
+      #
+      # @return [String]
       def self.file_path_from_parts(path:, parts:)
         parts = - parts unless parts == :all || parts.negative?
         parts == :all ? path : path.split('/')[parts..-1].join('/')
@@ -63,6 +86,9 @@ module DerivativeRodeo
         @file_uri = file_uri
       end
 
+      ##
+      # @yieldparam tmp_file_path [String]
+      # @see with_tmp_path
       def with_new_tmp_path(&block)
         with_tmp_path(lambda { |_file_path, tmp_file_path, exist|
                         FileUtils.rm_rf(tmp_file_path) if exist
@@ -74,30 +100,49 @@ module DerivativeRodeo
         raise NotImplementedError, "#{self.class}#with_existing_tmp_path"
       end
 
-      def with_tmp_path(lambda)
+      ##
+      # @param preamble_lambda [Lambda, #call] the "function" we should call to prepare the
+      #        temporary space before we yield it.
+      # @yieldparam tmp_file_path [String]
+      def with_tmp_path(preamble_lambda)
         raise ArgumentError, 'Expected a block' unless block_given?
 
         tmp_file_dir do |tmpdir|
           self.tmp_file_path = File.join(tmpdir, file_name)
-          lambda.call(file_path, tmp_file_path, exist?)
+          preamble_lambda.call(file_path, tmp_file_path, exist?)
           yield tmp_file_path
         end
+        # TODO: Do we need to ensure this?
         self.tmp_file_path = nil
       end
 
-      # write the tmp file to the file_uri
+      ##
+      # Write the tmp file to the file_uri
       def write
         raise NotImplementedError, "#{self.class}#write"
       end
 
+      ##
+      # @return [TrueClass] when the file exists in this storage
+      # @return [FalseClass] when the file does not exist in this storage
       def exist?
         raise NotImplementedError, "#{self.class}#exist?"
       end
       alias exists? exist?
 
+      ##
+      # @param extension [String]
+      # @param adapter_name [String]
+      #
+      # @see #with_new_extension
       def derived_file(extension:, adapter_name: 'same')
-        klass = self.class if adapter_name == 'same'
-        klass ||= DerivativeRodeo::StorageAdapters::BaseAdapter.load_adapter(adapter_name)
+        klass = if adapter_name == 'same'
+                  self.class
+                else
+                  DerivativeRodeo::StorageAdapters::BaseAdapter.load_adapter(adapter_name)
+                end
+        # TODO: Would this be easier to conceptualize if we had klass.build_from_path as a class
+        # method?
         new_uri = klass.create_uri(path: with_new_extension(extension))
         klass.new(new_uri)
       end
