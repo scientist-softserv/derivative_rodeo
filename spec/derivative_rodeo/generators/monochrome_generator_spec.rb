@@ -47,7 +47,7 @@ RSpec.describe DerivativeRodeo::Generators::MonochromeGenerator do
       let(:file_path) { File.join(FIXTURE_PATH, 'files', 'ocr_mono.tiff') }
       let(:result_path) { file_path }
 
-      it 'repurposes the monochrome image' do
+      it 'uses the existing monochrome image' do
         # do not delete result path, the file should stay put
         expect { generated_files }.not_to raise_error
         expect(File.exist?(result_path)).to be true
