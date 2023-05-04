@@ -32,11 +32,11 @@ module DerivativeRodeo
       # Additional options to send to tesseract command; default `nil`.
       class_attribute :additional_tessearct_options, default: nil
 
-      self.output_extension = 'hocr'
-
       # @!attribute [rw]
       # The tesseract command's output base; default `:hocr`.
       class_attribute :output_suffix, default: :hocr
+
+      self.output_extension = 'hocr'
       # @!endgroup Class Attributes
 
       ##

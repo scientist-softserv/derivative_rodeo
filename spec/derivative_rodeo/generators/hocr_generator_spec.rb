@@ -10,6 +10,8 @@ RSpec.describe DerivativeRodeo::Generators::HocrGenerator do
     it { is_expected.to respond_to("#{method}=") }
   end
 
+  its(:output_extension) { is_expected.to eq('hocr') }
+
   describe '#generated_files' do
     let(:file_uri) { "file://#{file_path}" }
     let(:kwargs) { { input_uris: [file_uri] } }
