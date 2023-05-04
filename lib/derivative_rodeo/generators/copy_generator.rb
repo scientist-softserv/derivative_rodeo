@@ -6,7 +6,14 @@ module DerivativeRodeo
     # Responsible for moving files from one storage adapter to another.
     class CopyGenerator < BaseGenerator
       ##
-      # Copy files from one adapter to another
+      # @return [TrueClass] Because we don't want to for the requirement of an {.output_extension}.
+      def valid_instantiation?
+        true
+      end
+
+      ##
+      # Copy files from one adapter to another.
+      #
       # @param in_file [StorageAdapters::BaseAdapter]
       # @param out_file [StorageAdapters::BaseAdapter]
       # @return [StorageAdapters::BaseAdapter]
@@ -16,6 +23,12 @@ module DerivativeRodeo
           @result = copy(from_path, out_file)
         end
         @result
+      end
+
+      ##
+      # @param _file [StorageAdapters::BaseAdapter]
+      def extension_for(_file)
+        raise NotImplementedError
       end
 
       ##

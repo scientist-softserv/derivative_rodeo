@@ -17,7 +17,14 @@ module DerivativeRodeo
     # - must impliment a {#build_step} method
     # - may override {#requisite_files}
     class BaseGenerator
+      ##
+      # @!group Class Attributes
+      # @!attribute [rw]
+      #
+      # @return [String] of the form that starts with a string and may contain periods (though
+      #         likely not as the first character).
       class_attribute :output_extension
+      # @!endgroup Class Attributes
 
       # TODO: Add the registered generators?  This seems like a nice pattern to carry forward from
       # the BaseAdapter
@@ -50,11 +57,19 @@ module DerivativeRodeo
         @preprocess_adapter_name = preprocess_adapter_name
         @logger = logger
 
-        # When we have a BaseGenerator and not one of it's children or when we've assigned the
-        # output_extension.  instance_of? is more specific than is_a?
-        return if instance_of?(DerivativeRodeo::Generators::BaseGenerator) || output_extension
+        return if valid_instantiation?
 
         raise Errors::ExtensionMissingError.new(klass: self.class)
+      end
+
+      ##
+      # @api private
+      #
+      # @return [Boolean]
+      def valid_instantiation?
+        # When we have a BaseGenerator and not one of it's children or when we've assigned the
+        # output_extension.  instance_of? is more specific than is_a?
+        instance_of?(DerivativeRodeo::Generators::BaseGenerator) || output_extension
       end
 
       ##
@@ -112,19 +127,34 @@ module DerivativeRodeo
       # Checks for file at destination and checks in prefetch location if not
       #
       # @param file [StorageAdapters::BaseAdapter]
+      # @param extension [String] the target extension for the given :file.
       # @return [StorageAdapters::BaseAdapter] the derivative of the given :file with the configured
       #         :output_extension
       # @see .output_extension
-      def destination(file)
-        dest = file.derived_file(extension: output_extension,
+      def destination(file, extension: extension_for(file))
+        dest = file.derived_file(extension: extension,
                                  adapter_name: output_adapter_name)
 
         pre_dest = if !dest.exist? && preprocess_adapter_name
-                     file.derived_file(extension: output_extension,
+                     file.derived_file(extension: extension,
                                        adapter_name: preprocess_adapter_name)
                    end
         dest = pre_dest if pre_dest&.exist?
         dest
+      end
+
+      ##
+      # By default return {.output_extension}; this is provided to account for the antics of the
+      # {StorageAdapters::CopyGenerator}.  How can one know what the extension is, because we are
+      # likely not going to copy `file://path/to/file.txt` to
+      # `file://elsewhere/path/to/file.txt.copy`
+      #
+      # @param [StorageAdapters::BaseAdapter]
+      # @return [String]
+      #
+      # @see output_extension
+      def extension_for(_file)
+        output_extension
       end
 
       ##

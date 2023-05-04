@@ -32,15 +32,12 @@ module DerivativeRodeo
       # Additional options to send to tesseract command; default `nil`.
       class_attribute :additional_tessearct_options, default: nil
 
-      ##
-      # @!attribute [rw]
-      # file tld for output, default `:hocr`.
-      class_attribute :output_extension, default: 'hocr'
+      self.output_extension = 'hocr'
 
       # @!attribute [rw]
       # The tesseract command's output base; default `:hocr`.
       class_attribute :output_suffix, default: :hocr
-      # @!endgroup
+      # @!endgroup Class Attributes
 
       ##
       # Run tesseract on monocrhome file and store the resulting output in the configured
