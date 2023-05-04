@@ -60,6 +60,8 @@ module DerivativeRodeo
       ##
       # @param in_file [StorageAdapters::BaseAdapter]
       # @param out_file [StorageAdapters::BaseAdapter]
+      #
+      # @return [StorageAdapters::BaseAdapter]
       def build_step(in_file:, out_file:)
         raise NotImplementedError, "#{self.class}#build_step"
       end

@@ -6,20 +6,23 @@ module DerivativeRodeo
     # Responsible for moving files from one storage adapter to another.
     class CopyGenerator < BaseGenerator
       ##
-      # will copy files from one adapter to another
+      # Copy files from one adapter to another
+      # @param in_file [StorageAdapters::BaseAdapter]
+      # @param out_file [StorageAdapters::BaseAdapter]
+      # @return [StorageAdapters::BaseAdapter]
       def build_step(in_file:, out_file:)
         @result = nil
-        in_file.with_existing_tmp_path do |tmp_path|
-          @result = copy(tmp_path, out_file)
+        in_file.with_existing_tmp_path do |from_path|
+          @result = copy(from_path, out_file)
         end
         @result
       end
 
       ##
       # @api private
-      def copy(_tmp_path, out_file)
+      def copy(_from_path, out_file)
         out_file.with_new_tmp_path do |_out_path|
-          out_file.write
+          # This space deliberately left blank
         end
         out_file
       end

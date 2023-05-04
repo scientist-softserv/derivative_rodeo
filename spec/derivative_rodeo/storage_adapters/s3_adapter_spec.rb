@@ -53,7 +53,7 @@ RSpec.describe DerivativeRodeo::StorageAdapters::S3Adapter do
     @tmp_path = nil
     file = subject
     file.bucket = bucket
-    file.with_new_tmp_path do |tmp_path|
+    file.with_new_tmp_path(auto_write_file: false) do |tmp_path|
       @tmp_path = tmp_path
       # copy a file in so we can test that its uploaded
       FileUtils.cp(file_path, @tmp_path)

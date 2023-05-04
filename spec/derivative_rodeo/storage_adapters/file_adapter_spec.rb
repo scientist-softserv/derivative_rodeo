@@ -44,7 +44,7 @@ RSpec.describe DerivativeRodeo::StorageAdapters::FileAdapter do
 
     it "writes a file to the bucket" do
       @tmp_path = nil
-      subject.with_new_tmp_path do |tmp_path|
+      subject.with_new_tmp_path(auto_write_file: false) do |tmp_path|
         @tmp_path = tmp_path
         # copy a file in so we can test that its uploaded
         FileUtils.cp(file_path, @tmp_path)

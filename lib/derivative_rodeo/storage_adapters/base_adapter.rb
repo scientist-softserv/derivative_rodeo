@@ -87,13 +87,15 @@ module DerivativeRodeo
       end
 
       ##
+      # @param auto_write_file [Boolean] Provided as a testing helper method.
+      #
       # @yieldparam tmp_file_path [String]
       # @see with_tmp_path
-      def with_new_tmp_path(&block)
+      def with_new_tmp_path(auto_write_file: true, &block)
         with_tmp_path(lambda { |_file_path, tmp_file_path, exist|
                         FileUtils.rm_rf(tmp_file_path) if exist
                         FileUtils.touch(tmp_file_path)
-                      }, &block)
+                      }, auto_write_file: auto_write_file, &block)
       end
 
       def with_existing_tmp_path
@@ -102,15 +104,22 @@ module DerivativeRodeo
 
       ##
       # @param preamble_lambda [Lambda, #call] the "function" we should call to prepare the
-      #        temporary space before we yield it.
+      #        temporary location before we yield it's location.
+      #
+      # @param auto_write_file [Boolean] Provided as a testing helper method.  Given that we have
+      #        both {#with_new_tmp_path} and {#with_existing_tmp_path}, we want the default to not
+      #        automatically perform the write.  But this is something we can easily forget when
+      #        working with the {#with_new_tmp_path}
+      #
       # @yieldparam tmp_file_path [String]
-      def with_tmp_path(preamble_lambda)
+      def with_tmp_path(preamble_lambda, auto_write_file: false)
         raise ArgumentError, 'Expected a block' unless block_given?
 
         tmp_file_dir do |tmpdir|
           self.tmp_file_path = File.join(tmpdir, file_name)
           preamble_lambda.call(file_path, tmp_file_path, exist?)
           yield tmp_file_path
+          write if auto_write_file
         end
         # TODO: Do we need to ensure this?
         self.tmp_file_path = nil

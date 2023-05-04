@@ -43,8 +43,16 @@ module DerivativeRodeo
       # @!endgroup
 
       ##
-      # in_file here should be a monochrome file due to preprocess
-      # will run tesseract on the file and store the resulting hocr
+      # Run tesseract on monocrhome file and store the resulting output in the configured
+      # {.output_extension} (default 'hocr')
+      #
+      # @param in_file [StorageAdapters::BaseAdapter] the results of
+      #        {MonochromeGenerator#generate_files}
+      # @param out_file [StorageAdapters::BaseAdapter]
+      #
+      # @return [StorageAdapters::BaseAdapter]
+      #
+      # @see #requisite_files
       def build_step(in_file:, out_file:)
         @result = nil
         in_file.with_existing_tmp_path do |tmp_path|
@@ -54,28 +62,40 @@ module DerivativeRodeo
       end
 
       ##
-      #  @return [Array<String>] file_uris of the monochrome derivatives
-      def requisite_files
-        @requisite_files ||= MonochromeGenerator.new(input_uris: input_uris).generated_files
+      # @param builder [Class, #generate_files]
+      # @return [Array<StorageAdapters::BaseAdapter>] file_uris of the monochrome derivatives
+      def requisite_files(builder: MonochromeGenerator)
+        @requisite_files ||= builder.new(input_uris: input_uris).generated_files
       end
 
       ##
-      # call tesseract on the monochrome file and store the resulting hocr
+      # @api private
+      #
+      # Call `tesseract` on the monochrome file and store the resulting hocr
       # in the tmp_path
+      #
+      # @param tmp_path [String].
+      # @param out_file [StorageAdapters::BaseAdapter]
       def tesseractify(tmp_path, out_file)
         out_file.with_new_tmp_path do |out_path|
           run_tesseract(tmp_path, out_path)
-          # TODO: do we always write? is it always last?
-          out_file.write
         end
         out_file
       end
 
+      ##
+      # @param tmp_path [String] the source of the file
+      # @param out_path [String]
       def run_tesseract(tmp_path, out_path)
         # we pull the extension off the output path, because tesseract will add it back
         cmd = ""
         cmd += command_environment_variables + " " if command_environment_variables.present?
-        cmd += "tesseract #{tmp_path} #{out_path.sub('.' + output_extension, '')}"
+        # TODO: The line of code could mean we had a file with multiple periods and we'd just
+        # replace the first one.  Should we instead prefer the following:
+        #
+        # `out_path.split(".")[0..-2].join('.') + ".#{output_extension}"`
+        output_to_path = out_path.sub('.' + output_extension, '')
+        cmd += "tesseract #{tmp_path} #{output_to_path}"
         cmd += " #{additional_tessearct_options}" if additional_tessearct_options.present?
         cmd += " #{output_suffix}"
 
