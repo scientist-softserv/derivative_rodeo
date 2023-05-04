@@ -13,15 +13,11 @@ RSpec.describe DerivativeRodeo::Generators::CopyGenerator do
   subject { described_class.new(**kwargs) }
 
   %i[input_uris output_adapter_name output_extension generated_files].each do |method|
-    it "responds to #{method}" do
-      expect(subject).to respond_to(method)
-    end
-
-    it "responds to #{method}=" do
-      expect(subject).to respond_to("#{method}=")
-    end
+    it { is_expected.to respond_to(method) }
+    it { is_expected.to respond_to("#{method}=") }
   end
 
+  it { is_expected.to be_a(DerivativeRodeo::Generators::CopyFileConcern) }
   its(:output_extension) { is_expected.to eq(DerivativeRodeo::StorageAdapters::SAME) }
 
   describe '#generated_files' do

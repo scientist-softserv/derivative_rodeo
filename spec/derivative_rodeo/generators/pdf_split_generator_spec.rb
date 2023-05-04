@@ -11,6 +11,8 @@ RSpec.describe DerivativeRodeo::Generators::PdfSplitGenerator do
     it { is_expected.to respond_to "#{method}=" }
   end
 
+  it { is_expected.to be_a(DerivativeRodeo::Generators::CopyFileConcern) }
+
   context 'by default' do
     its(:output_extension) { is_expected.to eq('tiff') }
     its(:pdf_splitter_name) { is_expected.to eq(:tiff) }

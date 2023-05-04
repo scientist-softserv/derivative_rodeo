@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'derivative_rodeo/generators/concerns/copy_file_concern'
 
 module DerivativeRodeo
   module Generators
@@ -7,24 +8,7 @@ module DerivativeRodeo
     class CopyGenerator < BaseGenerator
       self.output_extension = StorageAdapters::SAME
 
-      ##
-      # Copy files from one adapter to another.
-      #
-      # @param out_file [StorageAdapters::BaseAdapter]
-      # @param in_tmp_path [String]
-      # @return [StorageAdapters::BaseAdapter]
-      def build_step(out_file:, in_tmp_path:, **)
-        copy(in_tmp_path, out_file)
-      end
-
-      ##
-      # @api private
-      def copy(_from_path, out_file)
-        out_file.with_new_tmp_path do |_out_path|
-          # This space deliberately left blank
-        end
-        out_file
-      end
+      include CopyFileConcern
     end
   end
 end
