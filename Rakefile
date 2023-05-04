@@ -20,6 +20,11 @@ task :install_hooks do
   end
 end
 
+require 'yard'
+YARD::Rake::YardocTask.new do |t|
+  t.options = ['--fail-on-warning']
+end
+
 RSpec::Core::RakeTask.new(:spec)
 
 desc 'Generate table of contents for README.md'
@@ -32,6 +37,6 @@ task :doctoc do
   end
 end
 
-task ci: %i[rubocop spec doctoc]
+task ci: %i[doctoc rubocop yard spec]
 
 task default: %i[ci]

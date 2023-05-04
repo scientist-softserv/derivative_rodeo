@@ -173,6 +173,7 @@ DEPENDENCIES
   shoulda-matchers
   simplecov
   solargraph
+  yard
   yard-activerecord
 
 BUNDLED WITH
