@@ -6,20 +6,13 @@ RSpec.describe DerivativeRodeo::Generators::HocrGenerator do
   subject { described_class.new(**kwargs) }
 
   %i[input_uris output_adapter_name output_extension generated_files].each do |method|
-    it "responds to #{method}" do
-      expect(subject).to respond_to(method)
-    end
-
-    it "responds to #{method}=" do
-      expect(subject).to respond_to("#{method}=")
-    end
+    it { is_expected.to respond_to(method) }
+    it { is_expected.to respond_to("#{method}=") }
   end
 
-  before do
+  around do |spec|
     FileUtils.rm_f(result_path) if result_path
-  end
-
-  after do
+    spec.run
     FileUtils.rm_f(result_path) if result_path
   end
 
