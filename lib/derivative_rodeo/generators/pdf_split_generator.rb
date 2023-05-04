@@ -4,8 +4,8 @@ module DerivativeRodeo
   module Generators
     ##
     # This class is responsible for splitting each given PDF (e.g. {#input_files}) into one image
-    # per page (e.g. {#requisite_files}).  We need to ensure that we have each of those image files
-    # in S3/file storage then enqueue those files for processing.
+    # per page (e.g. {#with_each_requisite_file_and_tmp_path}).  We need to ensure that we have each
+    # of those image files in S3/file storage then enqueue those files for processing.
     class PdfSplitGenerator < BaseGenerator
       ##
       # There is a duplication  of the splitter name.
@@ -30,15 +30,6 @@ module DerivativeRodeo
       end
 
       ##
-      # @return [Array<StorageAdapters::BaseAdapter>]
-      def generated_files
-        @generated_files ||= with_requisite_files do |image_file|
-          output_file = destination(image_file)
-          output_file.exist? ? output_file : build_step(in_file: image_file, out_file: output_file)
-        end
-      end
-
-      ##
       # @param in_tmp_path [String] the path to an image split off from one of the given PDFs.
       # @param out_file [StorageAdapters::BaseAdapter]
       # @return [StorageAdapters::BaseAdapter]
@@ -56,18 +47,25 @@ module DerivativeRodeo
       # When we have two PDFs (10 pages and 20 pages respectively), we will have 30 requisite files;
       # the files must have URLs that associate with their respective parent PDFs.
       #
+      # @yieldparam image_file [StorageAdapters::FileAdapters] the file and adapter logic.
+      # @yieldparam image_path [String] where to find this file in the tmp space
+      #
       # @return [Array<StorageAdapters::BaseAdapter>]
-      def with_requisite_files
-        input_files.map do |input_file|
-          input_file.with_existing_tmp_path do |tmp_path|
-            image_paths = split_pdf(tmp_path)
-            image_paths.map do |image_path|
+      def with_each_requisite_file_and_tmp_path
+        files = []
+        input_files.each do |input_file|
+          input_file.with_existing_tmp_path do |_tmp_path|
+            # TODO
+            # alto_pdf(tmp_path)
+            # image_paths = split_pdf(tmp_path)
+            image_paths.each do |image_path|
               image_file = StorageAdapters::FileAdapters.new("file://#{image_path}")
               yield(image_file, image_path)
-              image_file
+              files << image_file
             end
           end
-        end.flatten
+        end
+        files
       end
     end
   end

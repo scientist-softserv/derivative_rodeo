@@ -15,7 +15,7 @@ module DerivativeRodeo
     #
     # - must assign an {.output_extension}
     # - must impliment a {#build_step} method
-    # - may override {#requisite_files}
+    # - may override {#with_each_requisite_file_and_tmp_path}
     class BaseGenerator
       ##
       # @!group Class Attributes
@@ -79,27 +79,52 @@ module DerivativeRodeo
       end
 
       ##
-      # @param in_file [StorageAdapters::BaseAdapter]
-      # @param out_file [StorageAdapters::BaseAdapter]
+      # @api public
+      #
+      # @param in_file [StorageAdapters::BaseAdapter] the input source of the generation
+      # @param out_file [StorageAdapters::BaseAdapter] the output target of the generation
+      # @param in_tmp_path [String] the temporary path to the location of the given :in_file to
+      #        enable further processing on the file.
       #
       # @return [StorageAdapters::BaseAdapter]
-      def build_step(in_file:, out_file:)
+      # @see #generated_files
+      def build_step(in_file:, out_file:, in_tmp_path:)
         raise NotImplementedError, "#{self.class}#build_step"
       end
 
       ##
+      # @api public
+      #
       # @return [Array<StorageAdapters::BaseAdapter>]
+      #
+      # @see #build_step
+      # @see #with_each_requisite_file_and_tmp_path
       def generated_files
-        @generated_files ||= with_requisite_files do |file, tmp_path|
-          output_file = destination(file)
-          new_file = output_file.exist? ? output_file : build_step(in_file: file, out_file: output_file, in_tmp_path: tmp_path)
-          new_file
+        return @generated_files if defined?(@generated_files)
+
+        # As much as I would like to use map or returned values; given the implementations it's
+        # better to explicitly require that; reducing downstream implementation headaches.
+        #
+        # In other words, this little bit of ugly in a method that has yet to change in a subclass
+        # helps ease subclass implementations of the #with_each_requisite_file_and_tmp_path or
+        # #build_step
+        @generated_files = []
+        with_each_requisite_file_and_tmp_path do |file, tmp_path|
+          generated_file = destination(file)
+          @generated_files << if generated_file.exist?
+                                generated_file
+                              else
+                                build_step(in_file: file, out_file: generated_file, in_tmp_path: tmp_path)
+                              end
         end
+        @generated_files
       end
 
       ##
       # @return [Array<String>]
+      # @see #generated_files
       def generated_uris
+        # TODO: what do we do about nils?
         generated_files.map { |file| file&.file_uri }
       end
 
@@ -109,24 +134,26 @@ module DerivativeRodeo
       # The files that are required as part of the {#generated_files} (though more precisely the
       # {#build_step}.)
       #
+      # This method is responsible for two things:
+      #
+      # - returning an array of {StorageAdapters::BaseAdapter} objects
+      # - yielding a {#StorageAdapters::BaseAdapter} and the path (as String) to the files
+      #   location in the temporary working space.
+      #
       # This method allows child classes to modify the file_uris for example, to filter out files
       # that are not of the correct type or as a means of having "this" generator depend on another
       # generator.
       #
-      # @return [Array<StorageAdapters::BaseAdapter>]
+      # @yieldparam file [StorageAdapters::BaseAdapters] the file and adapter logic.
+      # @yieldparam tmp_path [String] where to find this file in the tmp space
       #
-      # @see HocrGenerator
-      # @see #generated_files
-      def requisite_files
-        input_files
-      end
-
-      def with_requisite_files
-        input_files.map do |input_file|
+      # @see Generators::HocrGenerator
+      # @see Generators::PdfSplitGenerator
+      def with_each_requisite_file_and_tmp_path
+        input_files.each do |input_file|
           input_file.with_existing_tmp_path do |tmp_path|
             yield(input_file, tmp_path)
           end
-          input_file
         end
       end
 
@@ -142,34 +169,20 @@ module DerivativeRodeo
       # Checks for file at destination and checks in prefetch location if not
       #
       # @param file [StorageAdapters::BaseAdapter]
-      # @param extension [String] the target extension for the given :file.
+      #
       # @return [StorageAdapters::BaseAdapter] the derivative of the given :file with the configured
-      #         :output_extension
+      #         {.output_extension}
       # @see .output_extension
-      def destination(file, extension: extension_for(file))
-        dest = file.derived_file(extension: extension,
+      def destination(file)
+        dest = file.derived_file(extension: output_extension,
                                  adapter_name: output_adapter_name)
 
         pre_dest = if !dest.exist? && preprocess_adapter_name
-                     file.derived_file(extension: extension,
+                     file.derived_file(extension: output_extension,
                                        adapter_name: preprocess_adapter_name)
                    end
         dest = pre_dest if pre_dest&.exist?
         dest
-      end
-
-      ##
-      # By default return {.output_extension}; this is provided to account for the antics of the
-      # {Generators::CopyGenerator}.  How can one know what the extension is, because we are
-      # likely not going to copy `file://path/to/file.txt` to
-      # `file://elsewhere/path/to/file.txt.copy`
-      #
-      # @param _file [StorageAdapters::BaseAdapter]
-      # @return [String]
-      #
-      # @see output_extension
-      def extension_for(_file)
-        output_extension
       end
 
       ##

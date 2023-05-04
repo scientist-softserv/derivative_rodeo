@@ -55,16 +55,15 @@ module DerivativeRodeo
 
       ##
       # @param builder [Class, #generate_files]
-      # @return [Array<StorageAdapters::BaseAdapter>] the monochrome derivatives
+      #
       # @yieldparam file [StorageAdapters::BaseAdapter]
       # @yieldparam tmp_path [String]
-      def with_requisite_files(builder: MonochromeGenerator)
+      def with_each_requisite_file_and_tmp_path(builder: MonochromeGenerator)
         @requisite_files ||= builder.new(input_uris: input_uris).generated_files
-        @requisite_files.map do |input_file|
+        @requisite_files.each do |input_file|
           input_file.with_existing_tmp_path do |tmp_path|
             yield(input_file, tmp_path)
           end
-          input_file
         end
       end
 
