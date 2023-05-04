@@ -43,26 +43,29 @@ module DerivativeRodeo
       # Run tesseract on monocrhome file and store the resulting output in the configured
       # {.output_extension} (default 'hocr')
       #
-      # @param in_file [StorageAdapters::BaseAdapter] the results of
-      #        {Generators::MonochromeGenerator#build_step}
       # @param out_file [StorageAdapters::BaseAdapter]
+      # @param in_tmp_path [String]
       #
       # @return [StorageAdapters::BaseAdapter]
       #
       # @see #requisite_files
-      def build_step(in_file:, out_file:)
-        @result = nil
-        in_file.with_existing_tmp_path do |tmp_path|
-          @result = tesseractify(tmp_path, out_file)
-        end
-        @result
+      def build_step(out_file:, in_tmp_path:, **)
+        tesseractify(in_tmp_path, out_file)
       end
 
       ##
       # @param builder [Class, #generate_files]
-      # @return [Array<StorageAdapters::BaseAdapter>] file_uris of the monochrome derivatives
-      def requisite_files(builder: MonochromeGenerator)
+      # @return [Array<StorageAdapters::BaseAdapter>] the monochrome derivatives
+      # @yieldparam file [StorageAdapters::BaseAdapter]
+      # @yieldparam tmp_path [String]
+      def with_requisite_files(builder: MonochromeGenerator)
         @requisite_files ||= builder.new(input_uris: input_uris).generated_files
+        @requisite_files.map do |input_file|
+          input_file.with_existing_tmp_path do |tmp_path|
+            yield(input_file, tmp_path)
+          end
+          input_file
+        end
       end
 
       ##
@@ -71,19 +74,19 @@ module DerivativeRodeo
       # Call `tesseract` on the monochrome file and store the resulting hocr
       # in the tmp_path
       #
-      # @param tmp_path [String].
+      # @param in_tmp_path [String].
       # @param out_file [StorageAdapters::BaseAdapter]
-      def tesseractify(tmp_path, out_file)
-        out_file.with_new_tmp_path do |out_path|
-          run_tesseract(tmp_path, out_path)
+      def tesseractify(in_tmp_path, out_file)
+        out_file.with_new_tmp_path do |out_tmp_path|
+          run_tesseract(in_tmp_path, out_tmp_path)
         end
         out_file
       end
 
       ##
-      # @param tmp_path [String] the source of the file
+      # @param in_path [String] the source of the file
       # @param out_path [String]
-      def run_tesseract(tmp_path, out_path)
+      def run_tesseract(in_path, out_path)
         # we pull the extension off the output path, because tesseract will add it back
         cmd = ""
         cmd += command_environment_variables + " " if command_environment_variables.present?
@@ -92,7 +95,7 @@ module DerivativeRodeo
         #
         # `out_path.split(".")[0..-2].join('.') + ".#{output_extension}"`
         output_to_path = out_path.sub('.' + output_extension, '')
-        cmd += "tesseract #{tmp_path} #{output_to_path}"
+        cmd += "tesseract #{in_path} #{output_to_path}"
         cmd += " #{additional_tessearct_options}" if additional_tessearct_options.present?
         cmd += " #{output_suffix}"
 

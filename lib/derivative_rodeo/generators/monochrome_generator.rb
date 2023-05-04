@@ -12,19 +12,15 @@ module DerivativeRodeo
       # @param in_file [StorageAdapters::BaseAdapter]
       # @param out_file [StorageAdapters::BaseAdapter]
       # @return [StorageAdapters::BaseAdapter]
-      def build_step(in_file:, out_file:)
-        @result = nil
-        in_file.with_existing_tmp_path do |image_path|
-          image = DerivativeRodeo::Services::ImageService.new(image_path)
-          @result = if image.monochrome?
-                      # The in_file is already have a monochrome file, no need to run conversions.
-                      in_file
-                    else
-                      # We need to write monochromify and the image.
-                      monochromify(out_file, image)
-                    end
+      def build_step(in_file:, out_file:, in_tmp_path:)
+        image = DerivativeRodeo::Services::ImageService.new(in_tmp_path)
+        if image.monochrome?
+          # The in_file is already have a monochrome file, no need to run conversions.
+          in_file
+        else
+          # We need to write monochromify and the image.
+          monochromify(out_file, image)
         end
-        @result
       end
 
       ##

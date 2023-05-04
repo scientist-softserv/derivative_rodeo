@@ -44,6 +44,17 @@ module DerivativeRodeo
       # TODO: rename preprocess adapter because it is the same as the preprocess method, but does
       # something else
       #
+      # @example
+      #
+      #   .new(input_uris: ["file:///path1/A/file.pdf", "file:///path2/B/file.pdf"],
+      #        output_target_template: "file:///dest1/{{path_parts[-2..-1]}}",
+      #        preprocessed_target_template: "s3://bucket_name/{{path_parts[-1..-1]}}")
+      #
+      #   => { output_uris: ["file:///dest1/A/file.pdf", "file:///dest2/B/file.pdf"]
+      #        preprocess_url: "s3://bucket_name/file.pdf" }
+      #
+      #  (Look to handlebars gem)
+      #
       # @raise [Errors::ExtensionMissingError] when we have not properly assigned the
       #        {.output_extension}
       def initialize(input_uris:, output_adapter_name: StorageAdapters::SAME, preprocess_adapter_name: nil, logger: DerivativeRodeo.config.logger)
@@ -79,9 +90,9 @@ module DerivativeRodeo
       ##
       # @return [Array<StorageAdapters::BaseAdapter>]
       def generated_files
-        @generated_files ||= requisite_files.map do |file|
+        @generated_files ||= with_requisite_files do |file, tmp_path|
           output_file = destination(file)
-          new_file = output_file.exist? ? output_file : build_step(in_file: file, out_file: output_file)
+          new_file = output_file.exist? ? output_file : build_step(in_file: file, out_file: output_file, in_tmp_path: tmp_path)
           new_file
         end
       end
@@ -108,6 +119,15 @@ module DerivativeRodeo
       # @see #generated_files
       def requisite_files
         input_files
+      end
+
+      def with_requisite_files
+        input_files.map do |input_file|
+          input_file.with_existing_tmp_path do |tmp_path|
+            yield(input_file, tmp_path)
+          end
+          input_file
+        end
       end
 
       ##
