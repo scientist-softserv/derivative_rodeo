@@ -22,12 +22,6 @@ module DerivativeRodeo
       end
 
       ##
-      # @param _file [StorageAdapters::BaseAdapter]
-      def extension_for(_file)
-        raise NotImplementedError
-      end
-
-      ##
       # @api private
       def copy(_from_path, out_file)
         out_file.with_new_tmp_path do |_out_path|
