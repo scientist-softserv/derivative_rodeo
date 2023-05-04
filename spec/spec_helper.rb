@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'bundler/setup'
+# simplecov must be declared before the DerivativeRodeo code
 require 'simplecov'
-require 'shoulda-matchers'
 
 SimpleCov.start do
   add_filter '/spec/'
@@ -12,11 +12,14 @@ end
 
 require 'derivative_rodeo'
 
+require 'shoulda-matchers'
 Shoulda::Matchers.configure do |config|
   config.integrate do |with|
     with.test_framework :rspec
   end
 end
+
+require 'rspec/its'
 
 FIXTURE_PATH = File.join(File.expand_path(__dir__), 'fixtures')
 
