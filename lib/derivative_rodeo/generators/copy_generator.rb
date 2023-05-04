@@ -5,11 +5,7 @@ module DerivativeRodeo
     ##
     # Responsible for moving files from one storage adapter to another.
     class CopyGenerator < BaseGenerator
-      ##
-      # @return [TrueClass] Because we don't want to for the requirement of an {.output_extension}.
-      def valid_instantiation?
-        true
-      end
+      self.output_extension = StorageAdapters::SAME
 
       ##
       # Copy files from one adapter to another.

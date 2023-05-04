@@ -44,7 +44,7 @@ module DerivativeRodeo
       # {.output_extension} (default 'hocr')
       #
       # @param in_file [StorageAdapters::BaseAdapter] the results of
-      #        {MonochromeGenerator#generate_files}
+      #        {Generators::MonochromeGenerator#build_step}
       # @param out_file [StorageAdapters::BaseAdapter]
       #
       # @return [StorageAdapters::BaseAdapter]

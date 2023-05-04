@@ -4,7 +4,6 @@ module DerivativeRodeo
   module StorageAdapters
     ##
     # Adapter for files found on a local disk
-    #
     class FileAdapter < BaseAdapter
       def self.create_uri(path:, parts: :all)
         file_path = file_path_from_parts(path: path, parts: parts)
@@ -25,7 +24,7 @@ module DerivativeRodeo
 
       # write the file to the file_uri
       def write
-        raise Errors::FileMissingError("Use write within a with__new_tmp_path block and fille the mp file with data before writing") unless File.exist?(tmp_file_path)
+        raise Errors::FileMissingError("Use write within a with_new_tmp_path block and fille the mp file with data before writing") unless File.exist?(tmp_file_path)
 
         FileUtils.mkdir_p(file_dir)
         FileUtils.cp_r(tmp_file_path, file_path)

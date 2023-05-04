@@ -5,6 +5,11 @@ require 'tmpdir'
 module DerivativeRodeo
   module StorageAdapters
     ##
+    # When the output adapter is the same type of adapter as "this" adapter, we indicate that via
+    # the SAME constant.
+    SAME = :same
+
+    ##
     # The base adapter for storing files.
     #
     # - dir :: is the directory path
@@ -140,23 +145,30 @@ module DerivativeRodeo
       alias exists? exist?
 
       ##
-      # @param extension [String]
-      # @param adapter_name [String]
+      #
+      # @param extension [String, :same]
+      # @param adapter_name [String, StorageAdapters::SAME] what adapter should we use; when given
+      #        {StorageAdapters::SAME} use this adapters class as the adapter to create a URI.
       #
       # @see #with_new_extension
-      def derived_file(extension:, adapter_name: 'same')
-        klass = if adapter_name == 'same'
+      # @see StorageAdapters::SAME
+      def derived_file(extension:, adapter_name: StorageAdapters::SAME)
+        klass = if adapter_name == StorageAdapters::SAME
                   self.class
                 else
                   DerivativeRodeo::StorageAdapters::BaseAdapter.load_adapter(adapter_name)
                 end
-        # TODO: Would this be easier to conceptualize if we had klass.build_from_path as a class
-        # method?
         new_uri = klass.create_uri(path: with_new_extension(extension))
         klass.new(new_uri)
       end
 
+      ##
+      # @param extension [String, StorageAdapters::SAME]
+      # @return [String] the path for the new extension; when given {StorageAdapters::SAME} re-use
+      #         the file's extension.
       def with_new_extension(extension)
+        return file_path if extension == StorageAdapters::SAME
+
         "#{file_path.split('.')[0]}.#{extension}"
       end
 

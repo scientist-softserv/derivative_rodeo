@@ -41,17 +41,12 @@ module DerivativeRodeo
       attr_reader :logger
 
       ##
-      # When the output adapter is the same type of adapter as "this" adapter, we indicate that via
-      # the SAME constant.
-      SAME = 'same'
-
-      ##
       # TODO: rename preprocess adapter because it is the same as the preprocess method, but does
       # something else
       #
       # @raise [Errors::ExtensionMissingError] when we have not properly assigned the
       #        {.output_extension}
-      def initialize(input_uris:, output_adapter_name: SAME, preprocess_adapter_name: nil, logger: DerivativeRodeo.config.logger)
+      def initialize(input_uris:, output_adapter_name: StorageAdapters::SAME, preprocess_adapter_name: nil, logger: DerivativeRodeo.config.logger)
         @input_uris = input_uris
         @output_adapter_name = output_adapter_name
         @preprocess_adapter_name = preprocess_adapter_name
@@ -145,11 +140,11 @@ module DerivativeRodeo
 
       ##
       # By default return {.output_extension}; this is provided to account for the antics of the
-      # {StorageAdapters::CopyGenerator}.  How can one know what the extension is, because we are
+      # {Generators::CopyGenerator}.  How can one know what the extension is, because we are
       # likely not going to copy `file://path/to/file.txt` to
       # `file://elsewhere/path/to/file.txt.copy`
       #
-      # @param [StorageAdapters::BaseAdapter]
+      # @param _file [StorageAdapters::BaseAdapter]
       # @return [String]
       #
       # @see output_extension
