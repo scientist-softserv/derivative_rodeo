@@ -35,16 +35,16 @@ module DerivativeRodeo
         from_uris.map do |from_uri|
           parts = from_uri.sub(SCHEME_PREFIX_REGEXP, "").split(separator)
 
-          # rubocop:disable Style/MultilineBlockChain
-          template.gsub(PATH_PARTS_REPLACEMENT_REGEXP) do |text|
+          to_uri = template.gsub(PATH_PARTS_REPLACEMENT_REGEXP) do |text|
             # The yielded value does not include capture regions.  So I'm re-matching things.
             # capture region to handle this specific thing.
             match = PATH_PARTS_REPLACEMENT_REGEXP.match(text)
             parts[(match[:left].to_i)..(match[:right].to_i)].join(separator)
-          end.gsub(SCHEME_REPLACEMENT_REGEXP) do |_text|
+          end
+
+          to_uri.gsub(SCHEME_REPLACEMENT_REGEXP) do |_text|
             SCHEME_PREFIX_REGEXP.match(from_uri)[:scheme]
           end
-          # rubocop:enable Style/MultilineBlockChain
         end
       end
     end
