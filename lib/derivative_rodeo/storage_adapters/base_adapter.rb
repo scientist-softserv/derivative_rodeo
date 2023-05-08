@@ -27,8 +27,14 @@ module DerivativeRodeo
       end
 
       def self.inherited(subclass)
-        adapters << subclass.to_s.demodulize.underscore.sub(/_adapter$/, '')
+        adapters << subclass.adapter_name
         super
+      end
+
+      ##
+      # @return [String]
+      def self.adapter_name
+        to_s.demodulize.underscore.sub(/_adapter$/, '')
       end
 
       ##

@@ -14,4 +14,22 @@ RSpec.describe DerivativeRodeo::StorageAdapters::BaseAdapter do
   it "should set the file_uri on initialize" do
     expect(subject.file_uri).to eq(args)
   end
+
+  describe '.adapter_name' do
+    subject { described_class.adapter_name }
+    it { is_expected.to be_a(String) }
+  end
+
+  describe '.file_path_from_parts' do
+    subject { described_class.file_path_from_parts(path: path, parts: parts) }
+    [
+      { path: "/hello/world", parts: 1, expected: "world" }
+    ].each do |hash|
+      context "with path: #{hash.fetch(:path).inspect} and parts: #{hash.fetch(:parts).inspect}" do
+        let(:path) { hash.fetch(:path) }
+        let(:parts) { hash.fetch(:parts) }
+        it { is_expected.to eq(hash.fetch(:expected)) }
+      end
+    end
+  end
 end
