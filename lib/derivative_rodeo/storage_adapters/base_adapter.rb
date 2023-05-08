@@ -42,7 +42,8 @@ module DerivativeRodeo
       #
       # @return [Class]
       def self.load_adapter(adapter_name)
-        raise Errors::StorageAdapterNotFoundError.new(adapter_name: adapter_name) unless adapters.include?(adapter_name.to_s)
+        adapter_name = adapter_name.split("://").first
+        raise Errors::StorageAdapterNotFoundError.new(adapter_name: adapter_name) unless adapters.include?(adapter_name)
 
         "DerivativeRodeo::StorageAdapters::#{adapter_name.to_s.classify}Adapter".constantize
       end
@@ -158,6 +159,7 @@ module DerivativeRodeo
       #
       # @see #with_new_extension
       # @see StorageAdapters::SAME
+      # @deprecated Shifting towards {#derived_file_from}
       def derived_file(extension:, adapter_name: StorageAdapters::SAME)
         klass = if adapter_name == StorageAdapters::SAME
                   self.class
@@ -166,6 +168,16 @@ module DerivativeRodeo
                 end
         new_uri = klass.create_uri(path: with_new_extension(extension))
         klass.new(new_uri)
+      end
+
+      ##
+      # @param template [String]
+      # @return [StorageAdapters::BaseAdapter]
+      #
+      # @see DerivativeRodeo::Services::ConvertUriViaTemplateService
+      def derived_file_from(template:)
+        klass = DerivativeRodeo::StorageAdapters::BaseAdapter.load_adapter(template)
+        klass.build(from_uri: file_path, template: template)
       end
 
       ##

@@ -10,7 +10,7 @@ RSpec.describe DerivativeRodeo::Generators::CopyGenerator do
     spec.run
     FileUtils.rm_f(result_path) if result_path
   end
-  subject { described_class.new(**kwargs) }
+  subject(:instance) { described_class.new(**kwargs) }
 
   %i[input_uris output_adapter_name output_extension generated_files].each do |method|
     it { is_expected.to respond_to(method) }
@@ -26,7 +26,16 @@ RSpec.describe DerivativeRodeo::Generators::CopyGenerator do
     let(:file_uri) { "file://#{file_path}" }
 
     it 'copies the given files to the target location' do
-      expect { subject.generated_files }.not_to raise_error
+      generated_files = nil
+      Fixtures.with_temporary_directory do |output_temporary_path|
+        output_target_template = "file://#{output_temporary_path}/{{dir_parts[-1..-1]}}/{{ filename }}"
+        instance = described_class.new(input_uris: [file_uri], output_target_template: output_target_template)
+        generated_files = instance.generated_files
+        expect(generated_files.all?(&:exist?)).to be_truthy
+      end
+      # Assert that we're doing clean-up; all of those generated files were destroyed once we exited
+      # the scope of the Fixtures.with_temporary_directory block.
+      expect(generated_files.all?(&:exist?)).to be_falsey
     end
   end
 end
