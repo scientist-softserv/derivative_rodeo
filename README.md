@@ -6,6 +6,7 @@
   - [Concepts](#concepts)
     - [Common Storage](#common-storage)
     - [Related Files](#related-files)
+    - [Sequence Diagram](#sequence-diagram)
   - [Installation](#installation)
   - [Usage](#usage)
   - [Technical Overview of the DerivativeRodeo](#technical-overview-of-the-derivativerodeo)
@@ -96,6 +97,49 @@ In other words, the `DerivativeRodeo` is part of moving files from one location 
 This is not strictly related to <dfn>Hyrax's FileSet</dfn>, that is a set of files in which one is considered the original and all others are _derivatives_ of the original. 
 
 However it is helpful to think in those terms; files that have a significant relation to each other; one derived from the other.  For example an original PDF and it's extracted text would be two significantly related files.
+
+### Sequence Diagram
+
+![Sequence Diagrame](./artifacts/derivative_rodeo-sequence-diagram.png)
+
+<details>
+<summary>The PlantUML Text for the Sequence Diagram</summary>
+
+```plantuml
+@startuml
+!theme amiga
+
+actor Instigator
+database S3
+control AWS
+queue SQS
+control SpaceStone
+control DerivativeRodeo
+collections From
+collections To
+Instigator -> S3 : "Upload bucket\nof files associated\n with FileSet"
+S3 -> AWS : "AWS enqueues\nthe bucket"
+AWS -> SQS : "AWS adds to SQS"
+SQS -> SpaceStone : "SQS invokes\nSpaceStone method"
+SpaceStone -> DerivativeRodeo : "SpaceStone calls\n DerivativeRodeo"
+DerivativeRodeo --> S3 : "Request file for\ntemporary processing"
+S3 --> From : "Write requested\n file to\ntemporary storage"
+DerivativeRodeo <-- From
+DerivativeRodeo -> To : "Generate derivative\n writing to local\n processing storage."
+To --> S3 : "Write file\n to S3 Bucket"
+DerivativeRodeo <-- To : "Return to DerivativeRodeo\n with generated URIs"
+SpaceStone <- DerivativeRodeo : "Return generated\n URIs"
+SpaceStone -> SQS : "Optionally enqueue\nfurther work"
+@enduml
+```
+</details>
+
+Given a single original file in a previous home, we are copying that original file (and derivatives) to various locations:
+
+- From previous home to S3.
+- From S3 to local temporary storage (for processing).
+- Create a derivative temporary file based on existing file.
+- Copying derivative temporary file to S3.
 
 ## Installation
 
