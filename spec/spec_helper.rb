@@ -11,6 +11,7 @@ SimpleCov.start do
 end
 
 require 'derivative_rodeo'
+require_relative './fixtures'
 
 require 'shoulda-matchers'
 Shoulda::Matchers.configure do |config|
