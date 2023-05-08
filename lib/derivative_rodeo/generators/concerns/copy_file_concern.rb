@@ -19,7 +19,8 @@ module DerivativeRodeo
       # @api private
       def copy(_from_path, out_file)
         out_file.with_new_tmp_path do |_out_path|
-          # This space deliberately left blank
+          # This space deliberately left blank; we need to pass a block for all of the magic to
+          # happen.
         end
         out_file
       end
