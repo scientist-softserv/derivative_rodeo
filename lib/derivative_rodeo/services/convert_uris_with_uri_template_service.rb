@@ -25,11 +25,11 @@ module DerivativeRodeo
       #
       # The specs demonstrate the use cases.
       #
-      # @param from_uris [Array<String>]
+      # @param from_uri [String] Of the form "scheme://dir/parts/basename.extension"
       # @param template [String] Another URI that may contain path_parts or scheme template values.
       # @param separator [String]
       #
-      # @return [Array<String>]
+      # @return [String]
       #
       # @example
       #   DerivativeRodeo::Services::ConvertUrisWithUriTemplateService.call(
@@ -41,26 +41,24 @@ module DerivativeRodeo
       #     from_uris: ["file:///path1/A/file.pdf", "aws:///path2/B/file.pdf"],
       #     template: "file:///dest1/{{dir_parts[-1..-1]}}/{{ filename }}")
       #   => ["file:///dest1/A/file.pdf", "aws:///dest1/B/file.pdf"]
-      def self.call(from_uris:, template:, separator: "/")
-        from_uris.map do |from_uri|
-          _scheme, path = from_uri.split("://")
-          parts = path.split(separator)
-          dir_parts = parts[0..-2]
-          filename = parts[-1]
-          basename = File.basename(filename, ".*")
-          extension = File.extname(filename)
+      def self.call(from_uri:, template:, separator: "/")
+        _scheme, path = from_uri.split("://")
+        parts = path.split(separator)
+        dir_parts = parts[0..-2]
+        filename = parts[-1]
+        basename = File.basename(filename, ".*")
+        extension = File.extname(filename)
 
-          to_uri = template.gsub(DIR_PARTS_REPLACEMENT_REGEXP) do |text|
-            # The yielded value does not include capture regions.  So I'm re-matching things.
-            # capture region to handle this specific thing.
-            match = DIR_PARTS_REPLACEMENT_REGEXP.match(text)
-            dir_parts[(match[:left].to_i)..(match[:right].to_i)].join(separator)
-          end
-
-          to_uri = to_uri.gsub(EXTENSION_REPLACEMENT_REGEXP, extension)
-          to_uri = to_uri.gsub(BASENAME_REPLACEMENT_REGEXP, basename)
-          to_uri.gsub(FILENAME_REPLACEMENT_REGEXP, filename)
+        to_uri = template.gsub(DIR_PARTS_REPLACEMENT_REGEXP) do |text|
+          # The yielded value does not include capture regions.  So I'm re-matching things.
+          # capture region to handle this specific thing.
+          match = DIR_PARTS_REPLACEMENT_REGEXP.match(text)
+          dir_parts[(match[:left].to_i)..(match[:right].to_i)].join(separator)
         end
+
+        to_uri = to_uri.gsub(EXTENSION_REPLACEMENT_REGEXP, extension)
+        to_uri = to_uri.gsub(BASENAME_REPLACEMENT_REGEXP, basename)
+        to_uri.gsub(FILENAME_REPLACEMENT_REGEXP, filename)
       end
     end
   end
