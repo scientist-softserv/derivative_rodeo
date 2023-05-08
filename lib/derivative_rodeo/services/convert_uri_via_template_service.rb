@@ -7,7 +7,7 @@ module DerivativeRodeo
     # A service to convert an array of :from_uris to :to_uris via a :template.
     #
     # @see .call
-    class ConvertUrisWithUriTemplateService
+    module ConvertUriViaTemplateService
       DIR_PARTS_REPLACEMENT_REGEXP = %r{\{\{ *dir_parts\[(?<left>\-?\d+)\.\.(?<right>\-?\d+)\] *\}\}}.freeze
       FILENAME_REPLACEMENT_REGEXP = %r{\{\{ *filename *\}\}}.freeze
       BASENAME_REPLACEMENT_REGEXP = %r{\{\{ *basename *\}\}}.freeze
@@ -32,12 +32,12 @@ module DerivativeRodeo
       # @return [String]
       #
       # @example
-      #   DerivativeRodeo::Services::ConvertUrisWithUriTemplateService.call(
+      #   DerivativeRodeo::Services::ConvertUriViaTemplateService.call(
       #     from_uris: ["file:///path1/A/file.pdf", "file:///path2/B/file.pdf"],
       #     template: "file:///dest1/{{dir_parts[-2..-1]}}/{{filename}}")
       #   => ["file:///dest1/path2/A/file.pdf", "file:///dest1/path2/B/file.pdf"]
       #
-      #   DerivativeRodeo::Services::ConvertUrisWithUriTemplateService.call(
+      #   DerivativeRodeo::Services::ConvertUriViaTemplateService.call(
       #     from_uris: ["file:///path1/A/file.pdf", "aws:///path2/B/file.pdf"],
       #     template: "file:///dest1/{{dir_parts[-1..-1]}}/{{ filename }}")
       #   => ["file:///dest1/A/file.pdf", "aws:///dest1/B/file.pdf"]
