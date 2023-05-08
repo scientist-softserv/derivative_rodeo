@@ -24,7 +24,7 @@ RSpec.describe DerivativeRodeo::Generators::PdfSplitGenerator do
     end
   end
 
-  describe '#generate_files' do
+  describe '#generated_files' do
     context 'when given a PDF to split it will create one image per page, writing that to the storage adapter, and then enqueue each page for processing'
   end
 end

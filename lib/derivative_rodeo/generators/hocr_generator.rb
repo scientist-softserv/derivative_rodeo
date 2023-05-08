@@ -54,7 +54,7 @@ module DerivativeRodeo
       end
 
       ##
-      # @param builder [Class, #generate_files]
+      # @param builder [Class, #generated_files]
       #
       # @yieldparam file [StorageAdapters::BaseAdapter]
       # @yieldparam tmp_path [String]
