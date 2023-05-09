@@ -28,14 +28,71 @@ RSpec.describe DerivativeRodeo::Generators::BaseGenerator do
           input_uri = "file://#{__FILE__}"
           instance = described_class.new(input_uris: [input_uri], output_target_template: template)
           input_file = DerivativeRodeo::StorageAdapters::BaseAdapter.from_uri(input_uri)
-          expect(instance.destination(input_file).exist?).to be_truthy
+          destination = instance.destination(input_file)
+          expect(destination.file_path).to eq(output_target)
+          expect(destination.exist?).to be_truthy
         end
       end
     end
+
     context 'when the output does not exist and the preprocessed target exists' do
-      xit 'returns the file at the preprocessed target'
+      it 'returns the file at the preprocessed target' do
+        Fixtures.with_temporary_directory do |output_target_dir|
+          Fixtures.with_temporary_directory do |preprocessed_target_dir|
+            output_target = File.join(output_target_dir, File.basename(__FILE__))
+            output_template = "file://#{output_target}"
+
+            preprocessed_target = File.join(preprocessed_target_dir, File.basename(__FILE__))
+            preprocessed_template = "file://#{preprocessed_target}"
+            FileUtils.cp(__FILE__, preprocessed_target)
+
+            input_uri = "file://#{__FILE__}"
+
+            instance = described_class.new(
+              input_uris: [input_uri],
+              output_target_template: output_template,
+              preprocessed_target_template: preprocessed_template
+            )
+
+            input_file = DerivativeRodeo::StorageAdapters::BaseAdapter.from_uri(input_uri)
+            destination = instance.destination(input_file)
+
+            expect(destination.file_path).to eq(preprocessed_target)
+            expect(destination.exist?).to be_truthy
+
+            expect(File.exist?(output_target)).to be_falsey
+          end
+        end
+      end
+
       context 'when neither the output nor the preprocessed target exists' do
-        xit 'returns the file handle at the output target (which does not exist)'
+        it 'returns the file handle at the output target (which does not exist)' do
+          Fixtures.with_temporary_directory do |output_target_dir|
+            Fixtures.with_temporary_directory do |preprocessed_target_dir|
+              output_target = File.join(output_target_dir, File.basename(__FILE__))
+              output_template = "file://#{output_target}"
+
+              preprocessed_target = File.join(preprocessed_target_dir, File.basename(__FILE__))
+              preprocessed_template = "file://#{preprocessed_target}"
+
+              input_uri = "file://#{__FILE__}"
+
+              instance = described_class.new(
+                input_uris: [input_uri],
+                output_target_template: output_template,
+                preprocessed_target_template: preprocessed_template
+              )
+
+              input_file = DerivativeRodeo::StorageAdapters::BaseAdapter.from_uri(input_uri)
+              destination = instance.destination(input_file)
+
+              expect(destination.file_path).to eq(output_target)
+              expect(destination.exist?).to be_falsey
+
+              expect(File.exist?(output_target)).to be_falsey
+            end
+          end
+        end
       end
     end
 

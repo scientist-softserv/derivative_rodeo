@@ -29,23 +29,23 @@ module DerivativeRodeo
       attr_reader :input_uris,
                   :logger,
                   :output_target_template,
-                  :preprocess_target_template
+                  :preprocessed_target_template
 
       ##
       # @param input_uris [Array<String>]
       # @param output_target_template [String] the template used to transform the given :input_uris
       #        via {Services::ConvertUriViaTemplateService}.
-      # @param preprocess_target_template [NilClass, String] when `nil` ignore, otherwise attempt to
+      # @param preprocessed_target_template [NilClass, String] when `nil` ignore, otherwise attempt to
       #        find preprocessed uris by transforming the :input_uris via
-      #        {Services::ConvertUriViaTemplateService} with the given :preprocess_target_template
+      #        {Services::ConvertUriViaTemplateService} with the given :preprocessed_target_template
       # @param logger [Logger]
-      def initialize(input_uris:, output_target_template:, preprocess_target_template: nil, logger: DerivativeRodeo.config.logger)
+      def initialize(input_uris:, output_target_template:, preprocessed_target_template: nil, logger: DerivativeRodeo.config.logger)
         # TODO: rename preprocess adapter because it is the same as the preprocess method, but does
         # something else
 
         @input_uris = input_uris
         @output_target_template = output_target_template
-        @preprocess_target_template = preprocess_target_template
+        @preprocessed_target_template = preprocessed_target_template
         @logger = logger
 
         return if valid_instantiation?
@@ -158,16 +158,16 @@ module DerivativeRodeo
       # @param input_file [StorageAdapters::BaseAdapter]
       #
       # @return [StorageAdapters::BaseAdapter] the derivative of the given :file based on either the
-      #         {#output_target_template} or {#preprocess_target_template}.
+      #         {#output_target_template} or {#preprocessed_target_template}.
       #
       # @see [StorageAdapters::BaseAdapter#exist?]
       def destination(input_file)
         output_target = input_file.derived_file_from(template: output_target_template)
 
         return output_target if output_target.exist?
-        return output_target unless preprocess_target_template
+        return output_target unless preprocessed_target_template
 
-        preprocessed_target = input_file.derived_file_from(template: preprocess_target_template)
+        preprocessed_target = input_file.derived_file_from(template: preprocessed_target_template)
         # We only want
         return preprocessed_target if preprocessed_target&.exist?
 
