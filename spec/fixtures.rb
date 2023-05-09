@@ -9,4 +9,24 @@ module Fixtures
       yield(dir)
     end
   end
+
+  ##
+  # @param filename [String]
+  # @return [String] path to the project's fixture file.
+  def self.path_for(filename)
+    File.join(FIXTURE_PATH, 'files', filename)
+  end
+
+  ##
+  # @yieldparam filenames [Array<String>] path to the temporary fixture files.
+  def self.with_file_uris_for(*filenames)
+    with_temporary_directory do |dir|
+      targets = filenames.map do |filename|
+        target = File.join(dir, filename)
+        FileUtils.cp(path_for(filename), target)
+        "file://#{target}"
+      end
+      yield(targets)
+    end
+  end
 end
