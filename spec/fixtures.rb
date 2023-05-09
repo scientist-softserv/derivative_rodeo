@@ -18,6 +18,8 @@ module Fixtures
   end
 
   ##
+  # This function copies the given :filenames to a new temporary location.
+  #
   # @yieldparam filenames [Array<String>] path to the temporary fixture files.
   def self.with_file_uris_for(*filenames)
     with_temporary_directory do |dir|

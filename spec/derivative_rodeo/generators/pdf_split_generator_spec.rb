@@ -28,10 +28,10 @@ RSpec.describe DerivativeRodeo::Generators::PdfSplitGenerator do
     context 'when given a PDF to split' do
       it 'will create one image per page, writing that to the storage adapter, and then enqueue each page for processing' do
         generated_files = nil
-        Fixtures.with_file_uris_for("minimal-2-page.pdf") do |file_uris|
+        Fixtures.with_file_uris_for("minimal-2-page.pdf") do |input_uris|
           Fixtures.with_temporary_directory do |output_temporary_path|
             output_target_template = "file://#{output_temporary_path}/{{dir_parts[0..-1]}}/{{ filename }}"
-            instance = described_class.new(input_uris: file_uris, output_target_template: output_target_template)
+            instance = described_class.new(input_uris: input_uris, output_target_template: output_target_template)
             generated_files = instance.generated_files
 
             # Note the above PDF is 2 pages!
