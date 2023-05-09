@@ -99,7 +99,9 @@ module DerivativeRodeo
       # @yieldparam file [StorageAdapters::BaseAdapter]
       # @yieldparam tmp_path [String]
       def with_each_requisite_file_and_tmp_path(builder: MonochromeGenerator)
-        @requisite_files ||= builder.new(input_uris: input_uris).generated_files
+        # TODO: Change the output_target_template as it's not quite right.  Namely we need to handle
+        # the generator's output_extension.
+        @requisite_files ||= builder.new(input_uris: input_uris, output_target_template: output_target_template).generated_files
         @requisite_files.each do |input_file|
           input_file.with_existing_tmp_path do |tmp_path|
             yield(input_file, tmp_path)
