@@ -26,19 +26,10 @@ module DerivativeRodeo
       class_attribute :output_extension
       # @!endgroup Class Attributes
 
-      # TODO: Add the registered generators?  This seems like a nice pattern to carry forward from
-      # the BaseAdapter
-
-      # TODO: Why do we have an :exception?
-      # TODO: Can these be attr_reader instead?
-      attr_accessor :exception,
-                    :input_uris,
-                    :output_adapter_name,
-                    :preprocess_adapter_name
-
-      # TODO: Why do we have this writer?
-      attr_writer :generated_files
-      attr_reader :logger
+      attr_reader :input_uris,
+                  :logger,
+                  :output_target_template,
+                  :preprocess_adapter_name
 
       ##
       # @param input_uris [Array<String>]
@@ -46,8 +37,6 @@ module DerivativeRodeo
       #        via {Services::ConvertUriViaTemplateService}.
       # @param preprocess_adapter_name [String]
       # @param logger [Logger]
-      #
-      # rubocop:disable Lint/MissingSuper
       def initialize(input_uris:, output_target_template:, preprocess_adapter_name: nil, logger: DerivativeRodeo.config.logger)
         # TODO: rename preprocess adapter because it is the same as the preprocess method, but does
         # something else
@@ -61,8 +50,6 @@ module DerivativeRodeo
 
         raise Errors::ExtensionMissingError.new(klass: self.class)
       end
-      # rubocop:enable Lint/MissingSuper
-      attr_reader :output_target_template
 
       ##
       # @api private

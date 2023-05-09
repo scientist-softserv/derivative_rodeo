@@ -8,10 +8,12 @@ module DerivativeRodeo
     #
     # @see .call
     module ConvertUriViaTemplateService
-      DIR_PARTS_REPLACEMENT_REGEXP = %r{\{\{ *dir_parts\[(?<left>\-?\d+)\.\.(?<right>\-?\d+)\] *\}\}}.freeze
-      FILENAME_REPLACEMENT_REGEXP = %r{\{\{ *filename *\}\}}.freeze
-      BASENAME_REPLACEMENT_REGEXP = %r{\{\{ *basename *\}\}}.freeze
-      EXTENSION_REPLACEMENT_REGEXP = %r{\{\{ *extension *\}\}}.freeze
+      DIR_PARTS_REPLACEMENT_REGEXP = %r{\{\{\s*dir_parts\[(?<left>\-?\d+)\.\.(?<right>\-?\d+)\]\s*\}\}}.freeze
+      FILENAME_REPLACEMENT_REGEXP = %r{\{\{\s*filename\s*\}\}}.freeze
+      BASENAME_REPLACEMENT_REGEXP = %r{\{\{\s*basename\s*\}\}}.freeze
+      EXTENSION_REPLACEMENT_REGEXP = %r{\{\{\s*extension\s*\}\}}.freeze
+      SCHEME_REPLACEMENT_REGEXP = %r{\{\{\s*scheme* \}\}}.freeze
+      SCHEME_FOR_URI_REGEXP = %r{^(?<from_scheme>[^:]+)://}.freeze
 
       ##
       # Convert the given :from_uris to a different list of uris based on the given :template.
@@ -22,11 +24,13 @@ module DerivativeRodeo
       # - extension :: the file's extension with the period
       # - dir_parts :: the directory parts in which the file exists; excludes the scheme
       # - filename :: a convenience that could be represented as `basename.extension`
+      # - scheme :: a convenience that could be represented as `basename.extension`
       #
       # The specs demonstrate the use cases.
       #
       # @param from_uri [String] Of the form "scheme://dir/parts/basename.extension"
       # @param template [String] Another URI that may contain path_parts or scheme template values.
+      # @param adapter [StorageAdapters::Adapter]
       # @param separator [String]
       #
       # @return [String]
@@ -41,8 +45,8 @@ module DerivativeRodeo
       #     from_uris: ["file:///path1/A/file.pdf", "aws:///path2/B/file.pdf"],
       #     template: "file:///dest1/{{dir_parts[-1..-1]}}/{{ filename }}")
       #   => ["file:///dest1/A/file.pdf", "aws:///dest1/B/file.pdf"]
-      def self.call(from_uri:, template:, separator: "/")
-        _scheme, path = from_uri.split("://")
+      def self.call(from_uri:, template:, adapter: nil, separator: "/")
+        from_scheme, path = from_uri.split("://")
         parts = path.split(separator)
         dir_parts = parts[0..-2]
         filename = parts[-1]
@@ -56,6 +60,7 @@ module DerivativeRodeo
           dir_parts[(match[:left].to_i)..(match[:right].to_i)].join(separator)
         end
 
+        to_uri = to_uri.gsub(SCHEME_REPLACEMENT_REGEXP, (adapter&.scheme || from_scheme))
         to_uri = to_uri.gsub(EXTENSION_REPLACEMENT_REGEXP, extension)
         to_uri = to_uri.gsub(BASENAME_REPLACEMENT_REGEXP, basename)
         to_uri.gsub(FILENAME_REPLACEMENT_REGEXP, filename)

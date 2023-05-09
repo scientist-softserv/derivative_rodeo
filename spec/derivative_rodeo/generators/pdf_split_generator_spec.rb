@@ -6,9 +6,8 @@ RSpec.describe DerivativeRodeo::Generators::PdfSplitGenerator do
   let(:kwargs) { { input_uris: [], output_target_template: nil } }
   subject(:instance) { described_class.new(**kwargs) }
 
-  %i[input_uris output_adapter_name output_extension generated_files].each do |method|
-    it { is_expected.to respond_to method }
-    it { is_expected.to respond_to "#{method}=" }
+  %i[input_uris output_extension output_extension= generated_files].each do |method|
+    it { is_expected.to respond_to(method) }
   end
 
   it { is_expected.to be_a(DerivativeRodeo::Generators::CopyFileConcern) }

@@ -21,8 +21,8 @@ module DerivativeRodeo
       # @return [StorageAdapters::BaseAdapter]
       def self.build(from_uri:, template:, service: DerivativeRodeo::Services::ConvertUriViaTemplateService)
         # HACK: Ensuring that we have the correct scheme.  Maybe this is a hack?
-        from_uri = "#{adapter_name}://#{from_uri}" unless from_uri.start_with?("#{adapter_name}://")
-        to_uri = service.call(from_uri: from_uri, template: template)
+        from_uri = "#{scheme}://#{from_uri}" unless from_uri.start_with?("#{scheme}://")
+        to_uri = service.call(from_uri: from_uri, template: template, adapter: self)
         new(to_uri)
       end
 
