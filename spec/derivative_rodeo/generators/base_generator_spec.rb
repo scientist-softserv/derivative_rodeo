@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe DerivativeRodeo::Generators::BaseGenerator do
-  let(:kwargs) { { input_uris: [] } }
+  let(:kwargs) { { input_uris: [], output_target_template: "" } }
   subject(:instance) { described_class.new(**kwargs) }
 
   %i[input_uris output_adapter_name output_extension generated_files].each do |method|
@@ -10,21 +10,6 @@ RSpec.describe DerivativeRodeo::Generators::BaseGenerator do
   end
 
   its(:output_extension) { is_expected.to be_nil }
-
-  describe '#output_adapter_name' do
-    subject(:output_adapter_name) { instance.output_adapter_name }
-
-    context 'by default' do
-      it { is_expected.to eq(DerivativeRodeo::StorageAdapters::SAME) }
-    end
-
-    context 'when given a value during instantation' do
-      let(:kwargs) { { input_uris: [], output_adapter_name: 's3' } }
-      it 'uses the given value' do
-        expect(subject).to eq('s3')
-      end
-    end
-  end
 
   describe '#build_step' do
     it 'must be defined by a child class' do

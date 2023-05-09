@@ -41,25 +41,19 @@ module DerivativeRodeo
       attr_reader :logger
 
       ##
-      # TODO: rename preprocess adapter because it is the same as the preprocess method, but does
-      # something else
+      # @param input_uris [Array<String>]
+      # @param output_target_template [String] the template used to transform the given :input_uris
+      #        via {Services::ConvertUriViaTemplateService}.
+      # @param preprocess_adapter_name [String]
+      # @param logger [Logger]
       #
-      # @example
-      #
-      #   .new(input_uris: ["file:///path1/A/file.pdf", "file:///path2/B/file.pdf"],
-      #        output_target_template: "file:///dest1/{{path_parts[-2..-1]}}",
-      #        preprocessed_target_template: "s3://bucket_name/{{path_parts[-1..-1]}}")
-      #
-      #   => { output_uris: ["file:///dest1/A/file.pdf", "file:///dest2/B/file.pdf"]
-      #        preprocess_url: "s3://bucket_name/file.pdf" }
-      #
-      #  (Look to handlebars gem)
-      #
-      # @raise [Errors::ExtensionMissingError] when we have not properly assigned the
-      #        {.output_extension}
-      def initialize(input_uris:, output_adapter_name: StorageAdapters::SAME, preprocess_adapter_name: nil, logger: DerivativeRodeo.config.logger)
+      # rubocop:disable Lint/MissingSuper
+      def initialize(input_uris:, output_target_template:, preprocess_adapter_name: nil, logger: DerivativeRodeo.config.logger)
+        # TODO: rename preprocess adapter because it is the same as the preprocess method, but does
+        # something else
+
         @input_uris = input_uris
-        @output_adapter_name = output_adapter_name
+        @output_target_template = output_target_template
         @preprocess_adapter_name = preprocess_adapter_name
         @logger = logger
 
@@ -67,6 +61,8 @@ module DerivativeRodeo
 
         raise Errors::ExtensionMissingError.new(klass: self.class)
       end
+      # rubocop:enable Lint/MissingSuper
+      attr_reader :output_target_template
 
       ##
       # @api private
@@ -174,8 +170,7 @@ module DerivativeRodeo
       #         {.output_extension}
       # @see .output_extension
       def destination(file)
-        dest = file.derived_file(extension: output_extension,
-                                 adapter_name: output_adapter_name)
+        dest = file.derived_file_from(template: output_target_template)
 
         pre_dest = if !dest.exist? && preprocess_adapter_name
                      file.derived_file(extension: output_extension,
