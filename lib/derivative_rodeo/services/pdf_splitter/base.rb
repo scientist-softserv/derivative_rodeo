@@ -8,6 +8,14 @@ module DerivativeRodeo
   module Services
     module PdfSplitter
       ##
+      # @param name [String]
+      # @return [PdfSplitter::Base]
+      def self.for(name)
+        klass_name = "#{name.to_s.classify}_page".classify
+        "DerivativeRodeo::Services::PdfSplitter::#{klass_name}".constantize
+      end
+
+      ##
       # @abstract
       #
       # The purpose of this class is to split the PDF into constituent image files.
@@ -37,14 +45,14 @@ module DerivativeRodeo
         # @param path [String] the path to the source PDF that we're processing.
         # @param baseid [String] used for creating a unique identifier
         # @param tmpdir [String] place to perform the "work" of splitting the PDF.
-        #
         # @param pdf_pages_summary [Derivative::Rodeo::PdfPagesSummary] by default we'll
         #        extract this from the given path, but for testing purposes, you might want to
         #        provide a specific summary.
         def initialize(path,
                        baseid: SecureRandom.uuid,
+                       # TODO: Do we need to provide the :tmpdir for the application?
                        tmpdir: Dir.mktmpdir,
-                       pdf_pages_summary: PdfPagesSummary.extract(path: path))
+                       pdf_pages_summary: PagesSummary.extract_from(path: path))
           @baseid = baseid
           @pdfpath = path
           @pdf_pages_summary = pdf_pages_summary
@@ -95,11 +103,12 @@ module DerivativeRodeo
           # updated during the gsdevice call.
           file_names = []
 
-          Open3.popen3(gsconver_cmd(ouput_base)) do |_stdin, stdout, _stderr, _wait_thr|
+          Open3.popen3(gsconvert_cmd(output_base)) do |_stdin, stdout, _stderr, _wait_thr|
             page_number = 0
-            stdout.read.split("\n").each do |_line|
-              file_name = create_file_name(stdout, page_number)
-              file_names << file_name if file_name.present?
+            stdout.read.split("\n").each do |line|
+              next unless line.start_with?('Page ')
+
+              file_names << format(output_base, page_number)
               page_number += 1
             end
           end
@@ -107,20 +116,16 @@ module DerivativeRodeo
           file_names
         end
 
-        def create_file_name(_stdout, page_number)
-          return nil unless line.start_with?('Page ')
-
-          filenames << File.join(tmpdir, "#{baseid}-page#{page_number}.#{image_extension}")
-        end
+        def create_file_name(line:, page_number:); end
 
         def gsconvert_cmd(output_base)
           @gsconvert_cmd ||= begin
-            cmd = "gs -dNOPAUSE -dBATCH -sDEVICE=#{gsdevice} -dTextAlphaBits=4"
-            cmd += " -sCompression=#{compression}" if compression?
-            cmd += " -dJPEGQ=#{quality}" if quality?
-            cmd += " -sOutputFile=#{output_base} -r#{ppi} -f #{pdfpath}"
-            cmd
-          end
+                               cmd = "gs -dNOPAUSE -dBATCH -sDEVICE=#{gsdevice} -dTextAlphaBits=4"
+                               cmd += " -sCompression=#{compression}" if compression?
+                               cmd += " -dJPEGQ=#{quality}" if quality?
+                               cmd += " -sOutputFile=#{output_base} -r#{ppi} -f #{pdfpath}"
+                               cmd
+                             end
         end
 
         def pagecount
