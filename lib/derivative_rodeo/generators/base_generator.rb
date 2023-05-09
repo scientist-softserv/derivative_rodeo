@@ -29,21 +29,23 @@ module DerivativeRodeo
       attr_reader :input_uris,
                   :logger,
                   :output_target_template,
-                  :preprocess_adapter_name
+                  :preprocess_target_template
 
       ##
       # @param input_uris [Array<String>]
       # @param output_target_template [String] the template used to transform the given :input_uris
       #        via {Services::ConvertUriViaTemplateService}.
-      # @param preprocess_adapter_name [String]
+      # @param preprocess_target_template [NilClass, String] when `nil` ignore, otherwise attempt to
+      #        find preprocessed uris by transforming the :input_uris via
+      #        {Services::ConvertUriViaTemplateService} with the given :preprocess_target_template
       # @param logger [Logger]
-      def initialize(input_uris:, output_target_template:, preprocess_adapter_name: nil, logger: DerivativeRodeo.config.logger)
+      def initialize(input_uris:, output_target_template:, preprocess_target_template: nil, logger: DerivativeRodeo.config.logger)
         # TODO: rename preprocess adapter because it is the same as the preprocess method, but does
         # something else
 
         @input_uris = input_uris
         @output_target_template = output_target_template
-        @preprocess_adapter_name = preprocess_adapter_name
+        @preprocess_target_template = preprocess_target_template
         @logger = logger
 
         return if valid_instantiation?
@@ -149,22 +151,29 @@ module DerivativeRodeo
       end
 
       ##
-      # Checks for file at destination and checks in prefetch location if not
+      # Returns the target destination for the given :input_file.  The file at the target
+      # destination might exist or might not.  In the case of non-existence, then the {#build_step}
+      # will create the file.
       #
-      # @param file [StorageAdapters::BaseAdapter]
+      # @param input_file [StorageAdapters::BaseAdapter]
       #
-      # @return [StorageAdapters::BaseAdapter] the derivative of the given :file with the configured
-      #         {.output_extension}
-      # @see .output_extension
-      def destination(file)
-        dest = file.derived_file_from(template: output_target_template)
+      # @return [StorageAdapters::BaseAdapter] the derivative of the given :file based on either the
+      #         {#output_target_template} or {#preprocess_target_template}.
+      #
+      # @see [StorageAdapters::BaseAdapter#exist?]
+      def destination(input_file)
+        output_target = input_file.derived_file_from(template: output_target_template)
 
-        pre_dest = if !dest.exist? && preprocess_adapter_name
-                     file.derived_file(extension: output_extension,
-                                       adapter_name: preprocess_adapter_name)
-                   end
-        dest = pre_dest if pre_dest&.exist?
-        dest
+        return output_target if output_target.exist?
+        return output_target unless preprocess_target_template
+
+        preprocessed_target = input_file.derived_file_from(template: preprocess_target_template)
+        # We only want
+        return preprocessed_target if preprocessed_target&.exist?
+
+        # NOTE: The file does not exist at the output_target; but we pass this information along so
+        # that the #build_step knows where to write the file.
+        output_target
       end
 
       ##
