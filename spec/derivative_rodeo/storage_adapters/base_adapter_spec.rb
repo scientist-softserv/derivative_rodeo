@@ -20,6 +20,11 @@ RSpec.describe DerivativeRodeo::StorageAdapters::BaseAdapter do
     it { is_expected.to be_a(String) }
   end
 
+  describe '.scheme' do
+    subject { described_class.scheme }
+    it { is_expected.to be_a(String) }
+  end
+
   describe '.file_path_from_parts' do
     subject { described_class.file_path_from_parts(path: path, parts: parts) }
     [

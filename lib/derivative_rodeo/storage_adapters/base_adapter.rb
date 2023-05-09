@@ -37,6 +37,10 @@ module DerivativeRodeo
         to_s.demodulize.underscore.sub(/_adapter$/, '')
       end
 
+      class << self
+        alias scheme adapter_name
+      end
+
       ##
       # @param adapter_name [String]
       #

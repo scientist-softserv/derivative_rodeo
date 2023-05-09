@@ -7,7 +7,7 @@ module DerivativeRodeo
     class FileAdapter < BaseAdapter
       def self.create_uri(path:, parts: :all)
         file_path = file_path_from_parts(path: path, parts: parts)
-        "file://#{file_path}"
+        "#{scheme}://#{file_path}"
       end
 
       ##

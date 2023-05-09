@@ -6,7 +6,13 @@ RSpec.describe DerivativeRodeo::StorageAdapters::FileAdapter do
   let(:short_path) { file_path.split('/')[-2..-1].join('/') }
   let(:args) { "file://#{file_path}" }
 
-  subject { described_class.new(args) }
+  subject(:instance) { described_class.new(args) }
+
+  context 'class methods' do
+    subject { described_class }
+    its(:adapter_name) { is_expected.to eq("file") }
+    its(:scheme) { is_expected.to eq("file") }
+  end
 
   it "creates a properly formatted uri from a file path with all parts as default" do
     expect(described_class.create_uri(path: file_path)).to eq(args)
