@@ -17,7 +17,7 @@ module DerivativeRodeo
       include CopyFileConcern
 
       ##
-      # @param name [Symbol]
+      # @param name [#to_s] Convert the given name into the resulting {Services::PdfSplitter::Base}.
       #
       # @return [#call, Services::PdfSplitter::Base]
       def pdf_splitter(name: pdf_splitter_name)
@@ -41,17 +41,17 @@ module DerivativeRodeo
       # When we have two PDFs (10 pages and 20 pages respectively), we will have 30 requisite files;
       # the files must have URLs that associate with their respective parent PDFs.
       #
-      # @yieldparam image_file [StorageAdapters::FileAdapters] the file and adapter logic.
+      # @yieldparam image_file [StorageAdapters::FileAdapter] the file and adapter logic.
       # @yieldparam image_path [String] where to find this file in the tmp space
       #
       # @return [Array<StorageAdapters::BaseAdapter>]
       def with_each_requisite_file_and_tmp_path
         files = []
         input_files.each do |input_file|
-          input_file.with_existing_tmp_path do |_tmp_path|
+          input_file.with_existing_tmp_path do |tmp_path|
             image_paths = pdf_splitter.call(tmp_path)
             image_paths.each do |image_path|
-              image_file = StorageAdapters::FileAdapters.new("file://#{image_path}")
+              image_file = StorageAdapters::FileAdapter.new("file://#{image_path}")
               yield(image_file, image_path)
               files << image_file
             end

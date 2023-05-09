@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe DerivativeRodeo::Generators::CopyGenerator do
-  let(:kwargs) { { input_uris: [] } }
+  let(:kwargs) { { input_uris: [], output_target_template: nil } }
   let(:result_path) { nil }
   around do |spec|
     FileUtils.rm_f(result_path) if result_path

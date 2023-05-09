@@ -4,7 +4,12 @@ module DerivativeRodeo
     ##
     # A helper module for copying files from one location to another.
     module CopyFileConcern
-      def initialize(input_uris:, output_target_template: "file:///{{ dir_parts[0..-1] }}/{{filename}}", preprocess_adapter_name: nil, logger: DerivativeRodeo.config.logger)
+      ##
+      # @param input_uris [Array<String>]
+      # @param output_target_template [String]
+      # @param preprocess_adapter_name [String]
+      # @param logger [Logger]
+      def initialize(input_uris:, output_target_template:, preprocess_adapter_name: nil, logger: DerivativeRodeo.config.logger)
         @input_uris = input_uris
         @output_target_template = output_target_template
         @preprocess_adapter_name = preprocess_adapter_name

@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe DerivativeRodeo::Generators::PdfSplitGenerator do
-  let(:kwargs) { { input_uris: [] } }
+  let(:kwargs) { { input_uris: [], output_target_template: nil } }
   subject(:instance) { described_class.new(**kwargs) }
 
   %i[input_uris output_adapter_name output_extension generated_files].each do |method|
@@ -25,6 +25,29 @@ RSpec.describe DerivativeRodeo::Generators::PdfSplitGenerator do
   end
 
   describe '#generated_files' do
-    context 'when given a PDF to split it will create one image per page, writing that to the storage adapter, and then enqueue each page for processing'
+    context 'when given a PDF to split' do
+      it 'will create one image per page, writing that to the storage adapter, and then enqueue each page for processing' do
+        generated_files = nil
+        Fixtures.with_file_uris_for("minimal-2-page.pdf") do |file_uris|
+          Fixtures.with_temporary_directory do |output_temporary_path|
+            output_target_template = "file://#{output_temporary_path}/{{dir_parts[0..-1]}}/{{ filename }}"
+            instance = described_class.new(input_uris: file_uris, output_target_template: output_target_template)
+            generated_files = instance.generated_files
+
+            # Note the above PDF is 2 pages!
+            expect(generated_files.size).to eq(2)
+
+            # We want this split according to the output extension.
+            expect(generated_files.all? { |f| f.file_uri.end_with?(".#{described_class.output_extension}") }).to be_truthy
+
+            # The generated files should exist during this test
+            expect(generated_files.all?(&:exist?)).to be_truthy
+          end
+        end
+
+        # Did we clean this up
+        expect(generated_files.any?(&:exist?)).to be_falsey
+      end
+    end
   end
 end
