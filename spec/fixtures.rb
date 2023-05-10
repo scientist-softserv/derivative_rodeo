@@ -5,6 +5,8 @@ module Fixtures
   #
   # @yieldparam [String]
   def self.with_temporary_directory
+    raise "You must pass a block" unless block_given?
+
     Dir.mktmpdir do |dir|
       yield(dir)
     end
@@ -21,14 +23,19 @@ module Fixtures
   # This function copies the given :filenames to a new temporary location.
   #
   # @yieldparam filenames [Array<String>] path to the temporary fixture files.
-  def self.with_file_uris_for(*filenames)
+  # @yieldparam output_tmp_dir [String] (Optional) path to the temporary directory where we copied
+  #             the files.
+  def self.with_file_uris_for(*filenames, &block)
+    raise "You must pass a block" unless block_given?
+
     with_temporary_directory do |dir|
       targets = filenames.map do |filename|
         target = File.join(dir, filename)
         FileUtils.cp(path_for(filename), target)
         "file://#{target}"
       end
-      yield(targets)
+      yield(targets) if block.arity == 1
+      yield(targets, dir) if block.arity == 2
     end
   end
 end
