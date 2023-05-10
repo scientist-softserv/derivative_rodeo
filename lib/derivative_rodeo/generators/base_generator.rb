@@ -35,14 +35,12 @@ module DerivativeRodeo
       # @param input_uris [Array<String>]
       # @param output_target_template [String] the template used to transform the given :input_uris
       #        via {Services::ConvertUriViaTemplateService}.
-      # @param preprocessed_target_template [NilClass, String] when `nil` ignore, otherwise attempt to
-      #        find preprocessed uris by transforming the :input_uris via
-      #        {Services::ConvertUriViaTemplateService} with the given :preprocessed_target_template
+      # @param preprocessed_target_template [NilClass, String] when `nil` ignore, otherwise attempt
+      #        to find preprocessed uris by transforming the :input_uris via
+      #        {Services::ConvertUriViaTemplateService} with the given
+      #        :preprocessed_target_template.
       # @param logger [Logger]
       def initialize(input_uris:, output_target_template:, preprocessed_target_template: nil, logger: DerivativeRodeo.config.logger)
-        # TODO: rename preprocess adapter because it is the same as the preprocess method, but does
-        # something else
-
         @input_uris = input_uris
         @output_target_template = output_target_template
         @preprocessed_target_template = preprocessed_target_template

@@ -6,7 +6,6 @@ module DerivativeRodeo
   module StorageAdapters
     ##
     # Adapter for files from the web. Download only, can not write!
-    #
     class DownloadAdapter < BaseAdapter
       def self.create_uri(path:, parts: :all, ssl: true)
         file_path = file_path_from_parts(path: path, parts: parts)
@@ -23,13 +22,19 @@ module DerivativeRodeo
                       }, &block)
       end
 
+      ##
+      # @return [TrueClass] when the remote file exists
+      # @return [FalseClass] when the remote file does not exist
       def exist?
-        connection.head(file_uri).status == 200
+        connection.head(file_uri).status.to_i == 200
       end
 
-      # write the file to the file_uri
+      ##
+      # Implemented to complete the interface.
+      #
+      # @raise [NotImplementedError]
       def write
-        raise NotImplmentedError, "#{self.class}#write"
+        raise "#{self.class}#write is deliberately not implemented"
       end
 
       def connection(faraday_adapter: 'default_adapter')
