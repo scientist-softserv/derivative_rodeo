@@ -22,7 +22,6 @@ module DerivativeRodeo
           # This space deliberately left blank; we need to pass a block for all of the magic to
           # happen.
         end
-        out_file
       end
     end
   end

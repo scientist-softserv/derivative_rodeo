@@ -81,7 +81,6 @@ module DerivativeRodeo
         out_file.with_new_tmp_path do |out_tmp_path|
           run_tesseract(in_tmp_path, out_tmp_path)
         end
-        out_file
       end
 
       ##

@@ -106,6 +106,8 @@ module DerivativeRodeo
       # @param auto_write_file [Boolean] Provided as a testing helper method.
       #
       # @yieldparam tmp_file_path [String]
+      #
+      # @return [StorageAdapters::BaseAdapter]
       # @see with_tmp_path
       def with_new_tmp_path(auto_write_file: true, &block)
         with_tmp_path(lambda { |_file_path, tmp_file_path, exist|
@@ -114,6 +116,9 @@ module DerivativeRodeo
                       }, auto_write_file: auto_write_file, &block)
       end
 
+      ##
+      # @yieldparam tmp_file_path [String]
+      # @return [StorageAdapters::BaseAdapter]
       def with_existing_tmp_path
         raise NotImplementedError, "#{self.class}#with_existing_tmp_path"
       end
@@ -128,6 +133,8 @@ module DerivativeRodeo
       #        working with the {#with_new_tmp_path}
       #
       # @yieldparam tmp_file_path [String]
+      #
+      # @return [StorageAdapters::BaseAdapter]
       def with_tmp_path(preamble_lambda, auto_write_file: false)
         raise ArgumentError, 'Expected a block' unless block_given?
 
@@ -139,6 +146,11 @@ module DerivativeRodeo
         end
         # TODO: Do we need to ensure this?
         self.tmp_file_path = nil
+
+        # In returning self we again remove the need for those calling #with_new_tmp_path,
+        # #with_tmp_path, and #with_new_tmp_path to remember to return the current Adapter.
+        # In other words removing the jagged edges of the code.
+        self
       end
 
       ##
