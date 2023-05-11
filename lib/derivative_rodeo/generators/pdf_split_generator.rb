@@ -41,7 +41,7 @@ module DerivativeRodeo
       # When we have two PDFs (10 pages and 20 pages respectively), we will have 30 requisite files;
       # the files must have URLs that associate with their respective parent PDFs.
       #
-      # @yieldparam image_target [StorageAdapters::FileAdapter] the file and adapter logic.
+      # @yieldparam image_target [StorageTargets::FileTarget] the file and adapter logic.
       # @yieldparam image_path [String] where to find this file in the tmp space
       #
       # @see BaseGenerator#with_each_requisite_target_and_tmp_file_path for further discussion
@@ -51,7 +51,7 @@ module DerivativeRodeo
           from_target.with_existing_tmp_path do |tmp_file_path|
             image_paths = pdf_splitter.call(tmp_file_path)
             image_paths.each do |image_path|
-              image_target = StorageAdapters::FileAdapter.new("file://#{image_path}")
+              image_target = StorageTargets::FileTarget.new("file://#{image_path}")
               yield(image_target, image_path)
               files << image_target
             end

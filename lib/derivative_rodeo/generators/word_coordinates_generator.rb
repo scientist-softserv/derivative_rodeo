@@ -10,10 +10,10 @@ module DerivativeRodeo
       self.output_extension = "coordinates.json"
 
       ##
-      # @param to_target [StorageAdapters::BaseAdapter]
+      # @param to_target [StorageTargets::BaseTarget]
       # @param from_tmp_path [String] the location of the file that we can use for processing.
       #
-      # @return [StorageAdapters::BaseAdapter]
+      # @return [StorageTargets::BaseTarget]
       #
       # @see #requisite_files
       def build_step(to_target:, from_tmp_path:, **)

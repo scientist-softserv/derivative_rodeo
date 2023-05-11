@@ -10,14 +10,14 @@ require 'derivative_rodeo/errors'
 require 'derivative_rodeo/configuration'
 require 'derivative_rodeo/technical_metadata'
 require 'derivative_rodeo/version'
-# Base Adapter loads the other adapters
-require 'derivative_rodeo/storage_adapters/base_adapter'
+# Base Target loads the other adapters
+require 'derivative_rodeo/storage_targets/base_target'
 require 'derivative_rodeo/generators/base_generator'
 require 'derivative_rodeo/services/base_service'
 
 ##
 # DerivativeRodeo is a gem that allows you to generate derivative files from source files
-# It is storage location agnostic, relying on {StorageAdapters}. Files can be stored locally or in the cloud.
+# It is storage location agnostic, relying on {StorageTargets}. Files can be stored locally or in the cloud.
 # {Generators} are designed to be simple to create and to short circut logic if a
 # pre processed version exists
 module DerivativeRodeo

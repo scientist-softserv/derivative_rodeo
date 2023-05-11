@@ -64,12 +64,12 @@ module DerivativeRodeo
       ##
       # @api public
       #
-      # @param from_target [StorageAdapters::BaseAdapter] the input source of the generation
-      # @param to_target [StorageAdapters::BaseAdapter] the output target of the generation
+      # @param from_target [StorageTargets::BaseTarget] the input source of the generation
+      # @param to_target [StorageTargets::BaseTarget] the output target of the generation
       # @param from_tmp_path [String] the temporary path to the location of the given :from_target to
       #        enable further processing on the file.
       #
-      # @return [StorageAdapters::BaseAdapter]
+      # @return [StorageTargets::BaseTarget]
       # @see #generated_files
       def build_step(from_target:, to_target:, from_tmp_path:)
         raise NotImplementedError, "#{self.class}#build_step"
@@ -78,7 +78,7 @@ module DerivativeRodeo
       ##
       # @api public
       #
-      # @return [Array<StorageAdapters::BaseAdapter>]
+      # @return [Array<StorageTargets::BaseTarget>]
       #
       # @see #build_step
       # @see #with_each_requisite_target_and_tmp_file_path
@@ -119,7 +119,7 @@ module DerivativeRodeo
       #
       # This method is responsible for one thing:
       #
-      # - yielding a {StorageAdapters::BaseAdapter} and the path (as String) to the files
+      # - yielding a {StorageTargets::BaseTarget} and the path (as String) to the files
       #   location in the temporary working space.
       #
       # This method allows child classes to modify the file_uris for example, to filter out files
@@ -129,7 +129,7 @@ module DerivativeRodeo
       # this method to take each given PDF and generated one image per page of each given PDF.
       # Those images are then treated as the requisite targets.
       #
-      # @yieldparam from_target [StorageAdapters::BaseAdapters] the from target as represented by
+      # @yieldparam from_target [StorageTargets::BaseTargets] the from target as represented by
       #             a URI.
       # @yieldparam tmp_file_path [String] where to find the from_target's file in the processing tmp
       #             space.
@@ -145,10 +145,10 @@ module DerivativeRodeo
       end
 
       ##
-      # @return [Array<StorageAdapters::BaseAdapter>]
+      # @return [Array<StorageTargets::BaseTarget>]
       def input_files
         @input_files ||= input_uris.map do |file_uri|
-          DerivativeRodeo::StorageAdapters::BaseAdapter.from_uri(file_uri)
+          DerivativeRodeo::StorageTargets::BaseTarget.from_uri(file_uri)
         end
       end
 
@@ -157,12 +157,12 @@ module DerivativeRodeo
       # destination might exist or might not.  In the case of non-existence, then the {#build_step}
       # will create the file.
       #
-      # @param from_target [StorageAdapters::BaseAdapter]
+      # @param from_target [StorageTargets::BaseTarget]
       #
-      # @return [StorageAdapters::BaseAdapter] the derivative of the given :file based on either the
+      # @return [StorageTargets::BaseTarget] the derivative of the given :file based on either the
       #         {#output_target_template} or {#preprocessed_target_template}.
       #
-      # @see [StorageAdapters::BaseAdapter#exist?]
+      # @see [StorageTargets::BaseTarget#exist?]
       def destination(from_target)
         output_target = from_target.derived_file_from(template: output_target_template)
 

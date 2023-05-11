@@ -3,74 +3,77 @@
 require 'tmpdir'
 
 module DerivativeRodeo
-  module StorageAdapters
+  module StorageTargets
     ##
-    # When the output adapter is the same type of adapter as "this" adapter, we indicate that via
+    # When the output target is the same type of target as "this" target, we indicate that via
     # the SAME constant.
     SAME = :same
 
     ##
-    # The base adapter for storing files.
+    # The base target for storing files.
     #
     # - dir :: is the directory path
     # - path :: is the full file path
     # - uri :: is the full file path plus the uri prefix parts
-    class BaseAdapter
+    #
+    # A target represents a pointer to a storage location.  The {#exist?} method can answer if a
+    # file exists at the path.
+    class BaseTarget
       attr_accessor :file_uri, :tmp_file_path
 
-      @adapters = []
+      @targets = []
 
       ##
       # @return [Array<String>]
-      def self.adapters
-        @adapters ||= []
+      def self.targets
+        @targets ||= []
       end
 
       def self.inherited(subclass)
-        adapters << subclass.adapter_name
+        targets << subclass.target_name
         super
       end
 
       ##
       # @return [String]
-      def self.adapter_name
-        to_s.demodulize.underscore.sub(/_adapter$/, '')
+      def self.target_name
+        to_s.demodulize.underscore.sub(/_target$/, '')
       end
 
       class << self
-        alias scheme adapter_name
+        alias scheme target_name
       end
 
       ##
-      # @param adapter_name [String]
+      # @param target_name [String]
       #
       # @return [Class]
-      def self.load_adapter(adapter_name)
-        adapter_name = adapter_name.split("://").first
-        raise Errors::StorageAdapterNotFoundError.new(adapter_name: adapter_name) unless adapters.include?(adapter_name)
+      def self.load_target(target_name)
+        target_name = target_name.split("://").first
+        raise Errors::StorageTargetNotFoundError.new(target_name: target_name) unless targets.include?(target_name)
 
-        "DerivativeRodeo::StorageAdapters::#{adapter_name.to_s.classify}Adapter".constantize
+        "DerivativeRodeo::StorageTargets::#{target_name.to_s.classify}Target".constantize
       end
 
       ##
       # @param file_uri [String] of the form scheme://arbitrary-stuff
       #
-      # @return [BaseAdapter]
+      # @return [BaseTarget]
       def self.from_uri(file_uri)
-        adapter_name = file_uri.split('://').first
-        raise Errors::StorageAdapterMissing.new(file_uri: file_uri) if adapter_name.blank?
+        target_name = file_uri.split('://').first
+        raise Errors::StorageTargetMissing.new(file_uri: file_uri) if target_name.blank?
 
-        load_adapter(adapter_name).new(file_uri)
+        load_target(target_name).new(file_uri)
       end
 
       ##
-      # Registers the adapter with the main StorageAdapter class to it can be used
+      # Registers the target with the main StorageTarget class to it can be used
       #
-      # @param adapter_name [String]
-      def self.register_adapter(adapter_name)
-        return if DerivativeRodeo::StorageAdapters::BaseAdapter.adapters.include?(adapter_name.to_s)
+      # @param target_name [String]
+      def self.register_target(target_name)
+        return if DerivativeRodeo::StorageTargets::BaseTarget.targets.include?(target_name.to_s)
 
-        DerivativeRodeo::StorageAdapters::BaseAdapter.adapters << adapter_name.to_s
+        DerivativeRodeo::StorageTargets::BaseTarget.targets << target_name.to_s
       end
 
       ##
@@ -107,7 +110,7 @@ module DerivativeRodeo
       #
       # @yieldparam tmp_file_path [String]
       #
-      # @return [StorageAdapters::BaseAdapter]
+      # @return [StorageTargets::BaseTarget]
       # @see with_tmp_path
       def with_new_tmp_path(auto_write_file: true, &block)
         with_tmp_path(lambda { |_file_path, tmp_file_path, exist|
@@ -118,7 +121,7 @@ module DerivativeRodeo
 
       ##
       # @yieldparam tmp_file_path [String]
-      # @return [StorageAdapters::BaseAdapter]
+      # @return [StorageTargets::BaseTarget]
       def with_existing_tmp_path
         raise NotImplementedError, "#{self.class}#with_existing_tmp_path"
       end
@@ -134,7 +137,7 @@ module DerivativeRodeo
       #
       # @yieldparam tmp_file_path [String]
       #
-      # @return [StorageAdapters::BaseAdapter]
+      # @return [StorageTargets::BaseTarget]
       def with_tmp_path(preamble_lambda, auto_write_file: false)
         raise ArgumentError, 'Expected a block' unless block_given?
 
@@ -148,7 +151,7 @@ module DerivativeRodeo
         self.tmp_file_path = nil
 
         # In returning self we again remove the need for those calling #with_new_tmp_path,
-        # #with_tmp_path, and #with_new_tmp_path to remember to return the current Adapter.
+        # #with_tmp_path, and #with_new_tmp_path to remember to return the current Target.
         # In other words removing the jagged edges of the code.
         self
       end
@@ -170,17 +173,17 @@ module DerivativeRodeo
       ##
       #
       # @param extension [String, :same]
-      # @param adapter_name [String, StorageAdapters::SAME] what adapter should we use; when given
-      #        {StorageAdapters::SAME} use this adapters class as the adapter to create a URI.
+      # @param target_name [String, StorageTargets::SAME] what target should we use; when given
+      #        {StorageTargets::SAME} use this targets class as the target to create a URI.
       #
       # @see #with_new_extension
-      # @see StorageAdapters::SAME
+      # @see StorageTargets::SAME
       # @deprecated Shifting towards {#derived_file_from}
-      def derived_file(extension:, adapter_name: StorageAdapters::SAME)
-        klass = if adapter_name == StorageAdapters::SAME
+      def derived_file(extension:, target_name: StorageTargets::SAME)
+        klass = if target_name == StorageTargets::SAME
                   self.class
                 else
-                  DerivativeRodeo::StorageAdapters::BaseAdapter.load_adapter(adapter_name)
+                  DerivativeRodeo::StorageTargets::BaseTarget.load_target(target_name)
                 end
         new_uri = klass.create_uri(path: with_new_extension(extension))
         klass.new(new_uri)
@@ -188,20 +191,20 @@ module DerivativeRodeo
 
       ##
       # @param template [String]
-      # @return [StorageAdapters::BaseAdapter]
+      # @return [StorageTargets::BaseTarget]
       #
       # @see DerivativeRodeo::Services::ConvertUriViaTemplateService
       def derived_file_from(template:)
-        klass = DerivativeRodeo::StorageAdapters::BaseAdapter.load_adapter(template)
+        klass = DerivativeRodeo::StorageTargets::BaseTarget.load_target(template)
         klass.build(from_uri: file_path, template: template)
       end
 
       ##
-      # @param extension [String, StorageAdapters::SAME]
-      # @return [String] the path for the new extension; when given {StorageAdapters::SAME} re-use
+      # @param extension [String, StorageTargets::SAME]
+      # @return [String] the path for the new extension; when given {StorageTargets::SAME} re-use
       #         the file's extension.
       def with_new_extension(extension)
-        return file_path if extension == StorageAdapters::SAME
+        return file_path if extension == StorageTargets::SAME
 
         "#{file_path.split('.')[0]}.#{extension}"
       end
@@ -227,6 +230,6 @@ module DerivativeRodeo
   end
 end
 
-Dir.glob(File.join(__dir__, '**/*')).sort.each do |adapter|
-  require adapter unless adapter.match?('base_adapter')
+Dir.glob(File.join(__dir__, '**/*')).sort.each do |target|
+  require target unless target.match?('base_target')
 end

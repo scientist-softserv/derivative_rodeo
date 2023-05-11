@@ -3,11 +3,11 @@
 require 'aws-sdk-sqs'
 
 module DerivativeRodeo
-  module StorageAdapters
+  module StorageTargets
     ##
-    # Adapter to download and upload files to Sqs
+    # Target to download and upload files to Sqs
     #
-    class SqsAdapter < BaseAdapter
+    class SqsTarget < BaseTarget
       class_attribute :batch_size, default: 10
 
       attr_writer :client

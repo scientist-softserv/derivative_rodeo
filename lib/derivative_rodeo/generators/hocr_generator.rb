@@ -43,10 +43,10 @@ module DerivativeRodeo
       # Run tesseract on monocrhome file and store the resulting output in the configured
       # {.output_extension} (default 'hocr')
       #
-      # @param to_target [StorageAdapters::BaseAdapter]
+      # @param to_target [StorageTargets::BaseTarget]
       # @param from_tmp_path [String]
       #
-      # @return [StorageAdapters::BaseAdapter]
+      # @return [StorageTargets::BaseTarget]
       #
       # @see #requisite_files
       def build_step(to_target:, from_tmp_path:, **)
@@ -60,7 +60,7 @@ module DerivativeRodeo
       # processing a monochrome image.  As such, this generator will auto-convert a given image to
       # monochrome.
       #
-      # @yieldparam file [StorageAdapters::BaseAdapter]
+      # @yieldparam file [StorageTargets::BaseTarget]
       # @yieldparam tmp_path [String]
       #
       # @see BaseGenerator#with_each_requisite_target_and_tmp_file_path for further discussion
@@ -80,7 +80,7 @@ module DerivativeRodeo
       # in the tmp_path
       #
       # @param from_tmp_path [String].
-      # @param to_target [StorageAdapters::BaseAdapter]
+      # @param to_target [StorageTargets::BaseTarget]
       def tesseractify(from_tmp_path, to_target)
         to_target.with_new_tmp_path do |out_tmp_path|
           run_tesseract(from_tmp_path, out_tmp_path)

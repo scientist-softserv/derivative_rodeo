@@ -3,10 +3,10 @@
 require 'faraday'
 
 module DerivativeRodeo
-  module StorageAdapters
+  module StorageTargets
     ##
-    # Adapter for files from the web. Download only, can not write!
-    class DownloadAdapter < BaseAdapter
+    # Target for files from the web. Download only, can not write!
+    class DownloadTarget < BaseTarget
       def self.create_uri(path:, parts: :all, ssl: true)
         file_path = file_path_from_parts(path: path, parts: parts)
         prefix = ssl ? "https://" : "http://"

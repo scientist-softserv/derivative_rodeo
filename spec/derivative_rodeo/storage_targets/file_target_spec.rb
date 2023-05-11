@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe DerivativeRodeo::StorageAdapters::FileAdapter do
+RSpec.describe DerivativeRodeo::StorageTargets::FileTarget do
   let(:file_path) { File.expand_path(File.join(FIXTURE_PATH, 'files', 'ocr_color.tiff')) }
   let(:new_path) { File.expand_path(File.join(FIXTURE_PATH, 'tmp', 'ocr_color.tiff')) }
   let(:short_path) { file_path.split('/')[-2..-1].join('/') }
@@ -10,7 +10,7 @@ RSpec.describe DerivativeRodeo::StorageAdapters::FileAdapter do
 
   context 'class methods' do
     subject { described_class }
-    its(:adapter_name) { is_expected.to eq("file") }
+    its(:target_name) { is_expected.to eq("file") }
     its(:scheme) { is_expected.to eq("file") }
   end
 

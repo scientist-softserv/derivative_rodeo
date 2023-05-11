@@ -14,8 +14,8 @@
       - [Interface(s)](#interfaces)
       - [Supported Generators](#supported-generators)
       - [Registered Generators](#registered-generators)
-    - [Storage Adapters](#storage-adapters)
-      - [Supported Storage Adapters](#supported-storage-adapters)
+    - [Storage Targets](#storage-targets)
+      - [Supported Storage Targets](#supported-storage-targets)
   - [Development](#development)
   - [Contributing](#contributing)
 
@@ -181,13 +181,13 @@ Below is the current list of generators.
 
 TODO: We want to expose a list of registered generators
 
-### Storage Adapters
+### Storage Targets
 
-Storage adapters are where we put things.  Each adapter has a specific implementation but is expected to inherit from the  [DerivativeRodeo::StorageAdapter::BaseAdapter](./lib/derivative_rodeo/storage_adapters/base_adapter.rb).
+Storage adapters are where we put things.  Each adapter has a specific implementation but is expected to inherit from the  [DerivativeRodeo::StorageTarget::BaseTarget](./lib/derivative_rodeo/storage_adapters/base_adapter.rb).
 
-`DerivativeRodeo::StorageAdapter::BaseAdapter.adapters` method tracks the registered adapters.
+`DerivativeRodeo::StorageTarget::BaseTarget.adapters` method tracks the registered adapters.
 
-#### Supported Storage Adapters
+#### Supported Storage Targets
 
 Storage adapters follow a [URI pattern](https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#Example_URIs)
 

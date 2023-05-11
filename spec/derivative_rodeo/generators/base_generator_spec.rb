@@ -27,7 +27,7 @@ RSpec.describe DerivativeRodeo::Generators::BaseGenerator do
 
           input_uri = "file://#{__FILE__}"
           instance = described_class.new(input_uris: [input_uri], output_target_template: template)
-          input_file = DerivativeRodeo::StorageAdapters::BaseAdapter.from_uri(input_uri)
+          input_file = DerivativeRodeo::StorageTargets::BaseTarget.from_uri(input_uri)
           destination = instance.destination(input_file)
           expect(destination.file_path).to eq(output_target)
           expect(destination.exist?).to be_truthy
@@ -54,7 +54,7 @@ RSpec.describe DerivativeRodeo::Generators::BaseGenerator do
               preprocessed_target_template: preprocessed_template
             )
 
-            input_file = DerivativeRodeo::StorageAdapters::BaseAdapter.from_uri(input_uri)
+            input_file = DerivativeRodeo::StorageTargets::BaseTarget.from_uri(input_uri)
             destination = instance.destination(input_file)
 
             expect(destination.file_path).to eq(preprocessed_target)
@@ -83,7 +83,7 @@ RSpec.describe DerivativeRodeo::Generators::BaseGenerator do
                 preprocessed_target_template: preprocessed_template
               )
 
-              input_file = DerivativeRodeo::StorageAdapters::BaseAdapter.from_uri(input_uri)
+              input_file = DerivativeRodeo::StorageTargets::BaseTarget.from_uri(input_uri)
               destination = instance.destination(input_file)
 
               expect(destination.file_path).to eq(output_target)
@@ -97,8 +97,8 @@ RSpec.describe DerivativeRodeo::Generators::BaseGenerator do
     end
 
     describe '#with_each_requisite_file_and_tmp_path' do
-      it 'will return an array of StorageAdapters::BaseAdapter instances'
-      it 'will yield two parameters: a StorageAdapters::BaseAdapter instance and a path to the temp file space'
+      it 'will return an array of StorageTargets::BaseTarget instances'
+      it 'will yield two parameters: a StorageTargets::BaseTarget instance and a path to the temp file space'
     end
   end
 end
