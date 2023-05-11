@@ -25,11 +25,22 @@
 
 “This ain’t my first rodeo.” (an idiomatic American slang for “I’m prepared for what comes next.”)
 
-The `DerivativeRodeo` provides a means of assembling a set of derivatives into a _common storage_ location by:
+The `DerivativeRodeo` "moves" files *input* one storage target *output* another storage target via a generator.
 
-- Checking if it already exists in the _common storage_.
-- Fetching it if exists elsewhere and writing it to the _common storage_.
-- Generating the derivative into the _common storage_.
+- [Storage Target](./lib/derivative_rodeo/storage_targets/base_target.rb) :: where we can expect to find a file.
+- [Generator](./lib/derivative_rodeo/generators/base_generator.rb) :: a process to transform a file into another file.
+
+In the case of a *input* storage target, we expect that the underlying file pointed at by the *input* storage target exists.  After all we can't move what we don't have.
+
+In the case of a *output* storage target, we expect that the underlying file will exist after the generator has completed.  The *output* storage target could already exist or we might need to generate the file for the *output* target.
+
+During the generator's process, we need to have a working copy of both the *input* and *output* file.  This is done by creating a temporary file.  
+
+In the case of the *input*, the creation of that temporary file involves getting the file from the *input* storage target.  In the case of the *output*, we create a temporary file that the *output* storage target then knows how to move to the resulting place.
+
+![Storage Lifecycle](./artifacts/derivative_rodeo-generator_storage_lifecycle.png)
+
+The process is designed an implemented to automatically clean-up the temporary files as the generator completes.
 
 ## Concepts
 
@@ -183,13 +194,15 @@ TODO: We want to expose a list of registered generators
 
 ### Storage Targets
 
-Storage adapters are where we put things.  Each adapter has a specific implementation but is expected to inherit from the  [DerivativeRodeo::StorageTarget::BaseTarget](./lib/derivative_rodeo/storage_adapters/base_adapter.rb).
+Storage targets are where we put things.  Each target has a specific implementation but is expected to inherit from the  [DerivativeRodeo::StorageTarget::BaseTarget](./lib/derivative_rodeo/storage_adapters/base_adapter.rb).
 
-`DerivativeRodeo::StorageTarget::BaseTarget.adapters` method tracks the registered adapters.
+`DerivativeRodeo::StorageTarget::BaseTarget.targets` method tracks the registered targets.
+
+The target represents where the file *should* be.
 
 #### Supported Storage Targets
 
-Storage adapters follow a [URI pattern](https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#Example_URIs)
+Storage targets follow a [URI pattern](https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#Example_URIs)
 
 - `file://` :: “local” file system storage
 - `s3://` :: <abbr title="Amazon Web Service">AWS</abbr>’s <abbr title="Simple Storage Service">S3</abbr> storage system
