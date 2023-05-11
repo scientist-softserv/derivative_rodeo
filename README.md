@@ -3,6 +3,7 @@
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 - [DerivativeRodeo](#derivativerodeo)
+  - [Process Life Cycle](#process-life-cycle)
   - [Concepts](#concepts)
     - [Common Storage](#common-storage)
     - [Related Files](#related-files)
@@ -25,7 +26,7 @@
 
 “This ain’t my first rodeo.” (an idiomatic American slang for “I’m prepared for what comes next.”)
 
-The `DerivativeRodeo` "moves" files from one storage target (e.g. *input*) to another storage target (e.g. *output*) via a generator.
+The `DerivativeRodeo` "moves" files from one storage target (e.g. *input*) to one or more storage targets (e.g. *output*) via a generator.
 
 - [Storage Target](./lib/derivative_rodeo/storage_targets/base_target.rb) :: where we can expect to find a file.
 - [Generator](./lib/derivative_rodeo/generators/base_generator.rb) :: a process to transform a file into another file.
@@ -115,7 +116,7 @@ However it is helpful to think in those terms; files that have a significant rel
 
 ### Sequence Diagram
 
-![Sequence Diagrame](./artifacts/derivative_rodeo-sequence-diagram.png)
+![Sequence Diagram](./artifacts/derivative_rodeo-sequence-diagram.png)
 
 <details>
 <summary>The PlantUML Text for the Sequence Diagram</summary>
