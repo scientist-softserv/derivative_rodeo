@@ -46,18 +46,15 @@ module DerivativeRodeo
       #
       # @see BaseGenerator#with_each_requisite_target_and_tmp_file_path for further discussion
       def with_each_requisite_target_and_tmp_file_path
-        files = []
-        input_files.each do |from_target|
-          from_target.with_existing_tmp_path do |tmp_file_path|
-            image_paths = pdf_splitter.call(tmp_file_path)
+        input_files.each do |input_target|
+          input_target.with_existing_tmp_path do |input_tmp_file_path|
+            image_paths = pdf_splitter.call(input_tmp_file_path)
             image_paths.each do |image_path|
               image_target = StorageTargets::FileTarget.new("file://#{image_path}")
               yield(image_target, image_path)
-              files << image_target
             end
           end
         end
-        files
       end
     end
   end

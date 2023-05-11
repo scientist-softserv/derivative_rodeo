@@ -64,14 +64,14 @@ module DerivativeRodeo
       ##
       # @api public
       #
-      # @param from_target [StorageTargets::BaseTarget] the input source of the generation
+      # @param input_target [StorageTargets::BaseTarget] the input source of the generation
       # @param to_target [StorageTargets::BaseTarget] the output target of the generation
-      # @param from_tmp_path [String] the temporary path to the location of the given :from_target to
+      # @param from_tmp_path [String] the temporary path to the location of the given :input_target to
       #        enable further processing on the file.
       #
       # @return [StorageTargets::BaseTarget]
       # @see #generated_files
-      def build_step(from_target:, to_target:, from_tmp_path:)
+      def build_step(input_target:, to_target:, from_tmp_path:)
         raise NotImplementedError, "#{self.class}#build_step"
       end
 
@@ -92,12 +92,12 @@ module DerivativeRodeo
         # helps ease subclass implementations of the #with_each_requisite_target_and_tmp_file_path or
         # #build_step
         @generated_files = []
-        with_each_requisite_target_and_tmp_file_path do |from_target, tmp_file_path|
-          generated_file = destination(from_target)
+        with_each_requisite_target_and_tmp_file_path do |input_target, tmp_file_path|
+          generated_file = destination(input_target)
           @generated_files << if generated_file.exist?
                                 generated_file
                               else
-                                build_step(from_target: from_target, to_target: generated_file, from_tmp_path: tmp_file_path)
+                                build_step(input_target: input_target, to_target: generated_file, from_tmp_path: tmp_file_path)
                               end
         end
         @generated_files
@@ -124,22 +124,22 @@ module DerivativeRodeo
       #
       # This method allows child classes to modify the file_uris for example, to filter out files
       # that are not of the correct type or as a means of having "this" generator depend on another
-      # generator.  The {Generators::HocrGenerator} requires that the from_target be a monochrome;
-      # so it does conversions of each given from_target.  The {Generators::PdfSplitGenerator} uses
+      # generator.  The {Generators::HocrGenerator} requires that the input_target be a monochrome;
+      # so it does conversions of each given input_target.  The {Generators::PdfSplitGenerator} uses
       # this method to take each given PDF and generated one image per page of each given PDF.
       # Those images are then treated as the requisite targets.
       #
-      # @yieldparam from_target [StorageTargets::BaseTargets] the from target as represented by
+      # @yieldparam input_target [StorageTargets::BaseTargets] the from target as represented by
       #             a URI.
-      # @yieldparam tmp_file_path [String] where to find the from_target's file in the processing tmp
+      # @yieldparam tmp_file_path [String] where to find the input_target's file in the processing tmp
       #             space.
       #
       # @see Generators::HocrGenerator
       # @see Generators::PdfSplitGenerator
       def with_each_requisite_target_and_tmp_file_path
-        input_files.each do |from_target|
-          from_target.with_existing_tmp_path do |tmp_file_path|
-            yield(from_target, tmp_file_path)
+        input_files.each do |input_target|
+          input_target.with_existing_tmp_path do |tmp_file_path|
+            yield(input_target, tmp_file_path)
           end
         end
       end
@@ -157,19 +157,19 @@ module DerivativeRodeo
       # destination might exist or might not.  In the case of non-existence, then the {#build_step}
       # will create the file.
       #
-      # @param from_target [StorageTargets::BaseTarget]
+      # @param input_target [StorageTargets::BaseTarget]
       #
       # @return [StorageTargets::BaseTarget] the derivative of the given :file based on either the
       #         {#output_target_template} or {#preprocessed_target_template}.
       #
       # @see [StorageTargets::BaseTarget#exist?]
-      def destination(from_target)
-        output_target = from_target.derived_file_from(template: output_target_template)
+      def destination(input_target)
+        output_target = input_target.derived_file_from(template: output_target_template)
 
         return output_target if output_target.exist?
         return output_target unless preprocessed_target_template
 
-        preprocessed_target = from_target.derived_file_from(template: preprocessed_target_template)
+        preprocessed_target = input_target.derived_file_from(template: preprocessed_target_template)
         # We only want
         return preprocessed_target if preprocessed_target&.exist?
 

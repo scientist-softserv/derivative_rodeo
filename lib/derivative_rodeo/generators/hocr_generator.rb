@@ -66,9 +66,9 @@ module DerivativeRodeo
       # @see BaseGenerator#with_each_requisite_target_and_tmp_file_path for further discussion
       def with_each_requisite_target_and_tmp_file_path(builder: MonochromeGenerator)
         requisite_files ||= builder.new(input_uris: input_uris, output_target_template: output_target_template).generated_files
-        requisite_files.each do |from_target|
-          from_target.with_existing_tmp_path do |tmp_file_path|
-            yield(from_target, tmp_file_path)
+        requisite_files.each do |input_target|
+          input_target.with_existing_tmp_path do |tmp_file_path|
+            yield(input_target, tmp_file_path)
           end
         end
       end
