@@ -11,14 +11,14 @@ module DerivativeRodeo
 
       ##
       # @param to_target [StorageAdapters::BaseAdapter]
-      # @param in_tmp_path [String] the location of the file that we can use for processing.
+      # @param from_tmp_path [String] the location of the file that we can use for processing.
       #
       # @return [StorageAdapters::BaseAdapter]
       #
       # @see #requisite_files
-      def build_step(to_target:, in_tmp_path:, **)
+      def build_step(to_target:, from_tmp_path:, **)
         to_target.with_new_tmp_path do |to_tmp_path|
-          convert_to_coordinates(path_to_hocr: in_tmp_path, path_to_coordinate: to_tmp_path)
+          convert_to_coordinates(path_to_hocr: from_tmp_path, path_to_coordinate: to_tmp_path)
         end
       end
 

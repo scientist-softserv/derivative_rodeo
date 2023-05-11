@@ -12,7 +12,7 @@ RSpec.describe DerivativeRodeo::Generators::BaseGenerator do
 
   describe '#build_step' do
     it 'must be defined by a child class' do
-      expect { subject.build_step(from_target: nil, to_target: nil, in_tmp_path: nil) }.to raise_error(NotImplementedError)
+      expect { subject.build_step(from_target: nil, to_target: nil, from_tmp_path: nil) }.to raise_error(NotImplementedError)
     end
   end
 

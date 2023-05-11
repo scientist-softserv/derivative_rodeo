@@ -66,12 +66,12 @@ module DerivativeRodeo
       #
       # @param from_target [StorageAdapters::BaseAdapter] the input source of the generation
       # @param to_target [StorageAdapters::BaseAdapter] the output target of the generation
-      # @param in_tmp_path [String] the temporary path to the location of the given :from_target to
+      # @param from_tmp_path [String] the temporary path to the location of the given :from_target to
       #        enable further processing on the file.
       #
       # @return [StorageAdapters::BaseAdapter]
       # @see #generated_files
-      def build_step(from_target:, to_target:, in_tmp_path:)
+      def build_step(from_target:, to_target:, from_tmp_path:)
         raise NotImplementedError, "#{self.class}#build_step"
       end
 
@@ -97,7 +97,7 @@ module DerivativeRodeo
           @generated_files << if generated_file.exist?
                                 generated_file
                               else
-                                build_step(from_target: from_target, to_target: generated_file, in_tmp_path: tmp_file_path)
+                                build_step(from_target: from_target, to_target: generated_file, from_tmp_path: tmp_file_path)
                               end
         end
         @generated_files

@@ -12,8 +12,8 @@ module DerivativeRodeo
       # @param from_target [StorageAdapters::BaseAdapter]
       # @param to_target [StorageAdapters::BaseAdapter]
       # @return [StorageAdapters::BaseAdapter]
-      def build_step(from_target:, to_target:, in_tmp_path:)
-        image = DerivativeRodeo::Services::ImageService.new(in_tmp_path)
+      def build_step(from_target:, to_target:, from_tmp_path:)
+        image = DerivativeRodeo::Services::ImageService.new(from_tmp_path)
         if image.monochrome?
           # The from_target is already have a monochrome file, no need to run conversions.
           from_target
