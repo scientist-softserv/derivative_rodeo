@@ -9,14 +9,14 @@ module DerivativeRodeo
       self.output_extension = 'mono.tiff'
 
       ##
-      # @param in_file [StorageAdapters::BaseAdapter]
+      # @param from_target [StorageAdapters::BaseAdapter]
       # @param out_file [StorageAdapters::BaseAdapter]
       # @return [StorageAdapters::BaseAdapter]
-      def build_step(in_file:, out_file:, in_tmp_path:)
+      def build_step(from_target:, out_file:, in_tmp_path:)
         image = DerivativeRodeo::Services::ImageService.new(in_tmp_path)
         if image.monochrome?
-          # The in_file is already have a monochrome file, no need to run conversions.
-          in_file
+          # The from_target is already have a monochrome file, no need to run conversions.
+          from_target
         else
           # We need to write monochromify and the image.
           monochromify(out_file, image)

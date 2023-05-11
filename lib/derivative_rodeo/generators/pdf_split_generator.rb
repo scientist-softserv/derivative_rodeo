@@ -5,8 +5,8 @@ module DerivativeRodeo
   module Generators
     ##
     # This class is responsible for splitting each given PDF (e.g. {#input_files}) into one image
-    # per page (e.g. {#with_each_requisite_file_and_tmp_path}).  We need to ensure that we have each
-    # of those image files in S3/file storage then enqueue those files for processing.
+    # per page (e.g. {#with_each_requisite_target_and_tmp_file_path}).  We need to ensure that we
+    # have each of those image files in S3/file storage then enqueue those files for processing.
     class PdfSplitGenerator < BaseGenerator
       ##
       # There is a duplication  of the splitter name.
@@ -45,11 +45,13 @@ module DerivativeRodeo
       # @yieldparam image_path [String] where to find this file in the tmp space
       #
       # @return [Array<StorageAdapters::BaseAdapter>]
-      def with_each_requisite_file_and_tmp_path
+      #
+      # @see BaseGenerator#with_each_requisite_target_and_tmp_file_path for further discussion
+      def with_each_requisite_target_and_tmp_file_path
         files = []
-        input_files.each do |input_file|
-          input_file.with_existing_tmp_path do |tmp_path|
-            image_paths = pdf_splitter.call(tmp_path)
+        input_files.each do |from_target|
+          from_target.with_existing_tmp_path do |tmp_file_path|
+            image_paths = pdf_splitter.call(tmp_file_path)
             image_paths.each do |image_path|
               image_file = StorageAdapters::FileAdapter.new("file://#{image_path}")
               yield(image_file, image_path)

@@ -56,15 +56,21 @@ module DerivativeRodeo
       ##
       # @param builder [Class, #generated_files]
       #
+      # When generating a hocr file from an image, we've found the best results are when we're
+      # processing a monochrome image.  As such, this generator will auto-convert a given image to
+      # monochrome.
+      #
       # @yieldparam file [StorageAdapters::BaseAdapter]
       # @yieldparam tmp_path [String]
-      def with_each_requisite_file_and_tmp_path(builder: MonochromeGenerator)
+      #
+      # @see BaseGenerator#with_each_requisite_target_and_tmp_file_path for further discussion
+      def with_each_requisite_target_and_tmp_file_path(builder: MonochromeGenerator)
         # TODO: Change the output_target_template as it's not quite right.  Namely we need to handle
         # the generator's output_extension.
         @requisite_files ||= builder.new(input_uris: input_uris, output_target_template: output_target_template).generated_files
-        @requisite_files.each do |input_file|
-          input_file.with_existing_tmp_path do |tmp_path|
-            yield(input_file, tmp_path)
+        @requisite_files.each do |from_target|
+          from_target.with_existing_tmp_path do |tmp_file_path|
+            yield(from_target, tmp_file_path)
           end
         end
       end
