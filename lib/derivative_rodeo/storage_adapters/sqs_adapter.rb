@@ -6,6 +6,8 @@ module DerivativeRodeo
   module StorageAdapters
     ##
     # Adapter to download and upload files to Sqs
+    # It uploads a file_uri to the queue, not the contents of that file
+    # reading from the queue is not currently implemented
     #
     class SqsAdapter < BaseAdapter
       class_attribute :batch_size, default: 10
@@ -23,33 +25,34 @@ module DerivativeRodeo
       # @return [String]
       def self.create_uri(path:, parts: 1)
         file_path = file_path_from_parts(path: path, parts: parts)
-        "sqs://#{DerivativeRodeo.config.aws_sqs_queue}.sqs.#{DerivativeRodeo.config.aws_sqs_region}.amazonaws.com/#{file_path}"
+        "sqs://#{DerivativeRodeo.config.aws_sqs_region}.amazonaws.com/#{DerivativeRodeo.config.aws_sqs_account_id}/#{DerivativeRodeo.config.aws_sqs_queue}/#{file_path}"
       end
+
+      # TODO: implement read
+      # ##
+      # # @api public
+      # # download or copy the file to a tmp path
+      # # deletes the tmp file after the block is executed
+      # #
+      # # @return [String] the path to the tmp file
+      # def with_existing_tmp_path(&block)
+      #   with_tmp_path(lambda { |_file_path, tmp_file_path, exist|
+      #                   raise Errors::FileMissingError unless exist
+      #                   File.open(tmp_file_path, 'w') do |file|
+      #                     read_batch.each do |message|
+      #                       file.write(message)
+      #                     end
+      #                   end
+      #                 }, &block)
+      # end
 
       ##
       # @api public
-      # download or copy the file to a tmp path
-      # deletes the tmp file after the block is executed
       #
-      # @return [String] the path to the tmp file
-      def with_existing_tmp_path(&block)
-        with_tmp_path(lambda { |_file_path, tmp_file_path, exist|
-                        raise Errors::FileMissingError unless exist
-                        File.open(tmp_file_path, 'w') do |file|
-                          read_batch.each do |message|
-                            file.write(message)
-                          end
-                        end
-                      }, &block)
-      end
-
-      ##
-      # @api public
-      #
-      # Existance is futile
+      # Existance is futile. And there's not way to check if a specific item is in an sqs queue
       # @return [Boolean]
       def exist?
-        bucket.objects(prefix: file_path).count.positive?
+        false
       end
 
       ##
@@ -61,8 +64,10 @@ module DerivativeRodeo
         raise Errors::FileMissingError("Use write within a with__new_tmp_path block and fille the mp file with data before writing") unless File.exist?(tmp_file_path)
         raise Errors::MaxQqueueSize(batch_size: batch_size) if batch_size > DerivativeRodeo.config.aws_sqs_max_batch_size
         batch = []
-        File.foreach(tmp_file_path).with_index do |line, i|
-          batch << { id: i.to_s, message_body: [line].to_json }
+        Dir.glob("#{File.dirname(tmp_file_path)}/**/**").each.with_index do |fp, i|
+          # TODO: transform to final url
+          # TODO make ids UUIDs
+          batch << { id: i.to_s, message_body: fp }
           if (i % batch_size).zero?
             add_batch(messages: batch)
             batch = []
@@ -85,24 +90,31 @@ module DerivativeRodeo
                     end
       end
 
+      def add(message:)
+        client.send_message({
+                              queue_url: queue_url,
+                              message_body: message
+                            })
+      end
+
       def add_batch(messages:)
         client.send_message_batch({
                                     queue_url: queue_url,
-                                    entries: messages.to_json
+                                    entries: messages
                                   })
       end
 
-      def read_batch
-        raise Errors::MaxQqueueSize(batch_size: batch_size) if batch_size > DerivativeRodeo.config.aws_sqs_max_batch_size
+      # def read_batch
+      #   raise Errors::MaxQqueueSize(batch_size: batch_size) if batch_size > DerivativeRodeo.config.aws_sqs_max_batch_size
 
-        response = client.receive_message({
-                                            queue_url: queue_url,
-                                            max_number_of_messages: batch_size
-                                          })
-        response.messages.map do |message|
-          JSON.parse(message.body)
-        end
-      end
+      #   response = client.receive_message({
+      #                                       queue_url: queue_url,
+      #                                       max_number_of_messages: batch_size
+      #                                     })
+      #   response.messages.map do |message|
+      #     JSON.parse(message.body)
+      #   end
+      # end
 
       def queue_url
         @queue_url ||= client.get_queue_url(queue_name: queue_name).queue_url
@@ -110,11 +122,28 @@ module DerivativeRodeo
 
       ##
       # @api private
-      # https://fancy-queue-name.sqs.eu-west-1.amazonaws.com/file.tld
       def queue_name
-        @queue_name ||= file_uri.match(%r{sqs://(.+)\.sqs})&.[](1)
+        @queue_name ||= file_path_parts[:queue_name]
       rescue StandardError
         raise Errors::QueueMissingError
+      end
+
+      ##
+      # @api private
+      def file_path
+        @file_path ||= @file_uri.sub(%r{.+://.+?/}, '')
+      end
+
+      def file_path_parts
+        return @file_path_parts if @file_path_parts
+        file_path_split = file_path.split('/')
+        @file_path_parts = {
+          region: file_path_split[0]&.split('.')&.[](0),
+          account_id: file_path_split[1],
+          queue_name: file_path_split[2],
+          path: file_path_split[3..-2]&.join('/'),
+          file_name: file_path_split[-1]
+        }
       end
     end
   end
