@@ -8,11 +8,11 @@ module DerivativeRodeo
       # Copy files from one adapter to another.
       #
       # @param output_target [StorageTargets::BaseTarget]
-      # @param from_tmp_path [String]
+      # @param input_tmp_file_path [String]
       #
       # @return [StorageTargets::BaseTarget]
-      def build_step(output_target:, from_tmp_path:, **)
-        copy(from_tmp_path, output_target)
+      def build_step(output_target:, input_tmp_file_path:, **)
+        copy(input_tmp_file_path, output_target)
       end
 
       ##

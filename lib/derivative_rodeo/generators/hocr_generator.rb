@@ -44,13 +44,13 @@ module DerivativeRodeo
       # {.output_extension} (default 'hocr')
       #
       # @param output_target [StorageTargets::BaseTarget]
-      # @param from_tmp_path [String]
+      # @param input_tmp_file_path [String]
       #
       # @return [StorageTargets::BaseTarget]
       #
       # @see #requisite_files
-      def build_step(output_target:, from_tmp_path:, **)
-        tesseractify(from_tmp_path, output_target)
+      def build_step(output_target:, input_tmp_file_path:, **)
+        tesseractify(input_tmp_file_path, output_target)
       end
 
       ##
@@ -79,11 +79,11 @@ module DerivativeRodeo
       # Call `tesseract` on the monochrome file and store the resulting hocr
       # in the tmp_path
       #
-      # @param from_tmp_path [String].
+      # @param input_tmp_file_path [String].
       # @param output_target [StorageTargets::BaseTarget]
-      def tesseractify(from_tmp_path, output_target)
+      def tesseractify(input_tmp_file_path, output_target)
         output_target.with_new_tmp_path do |out_tmp_path|
-          run_tesseract(from_tmp_path, out_tmp_path)
+          run_tesseract(input_tmp_file_path, out_tmp_path)
         end
       end
 

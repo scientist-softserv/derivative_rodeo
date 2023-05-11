@@ -66,12 +66,12 @@ module DerivativeRodeo
       #
       # @param input_target [StorageTargets::BaseTarget] the input source of the generation
       # @param output_target [StorageTargets::BaseTarget] the output target of the generation
-      # @param from_tmp_path [String] the temporary path to the location of the given :input_target to
+      # @param input_tmp_file_path [String] the temporary path to the location of the given :input_target to
       #        enable further processing on the file.
       #
       # @return [StorageTargets::BaseTarget]
       # @see #generated_files
-      def build_step(input_target:, output_target:, from_tmp_path:)
+      def build_step(input_target:, output_target:, input_tmp_file_path:)
         raise NotImplementedError, "#{self.class}#build_step"
       end
 
@@ -92,12 +92,12 @@ module DerivativeRodeo
         # helps ease subclass implementations of the #with_each_requisite_target_and_tmp_file_path or
         # #build_step
         @generated_files = []
-        with_each_requisite_target_and_tmp_file_path do |input_target, tmp_file_path|
+        with_each_requisite_target_and_tmp_file_path do |input_target, input_tmp_file_path|
           generated_file = destination(input_target)
           @generated_files << if generated_file.exist?
                                 generated_file
                               else
-                                build_step(input_target: input_target, output_target: generated_file, from_tmp_path: tmp_file_path)
+                                build_step(input_target: input_target, output_target: generated_file, input_tmp_file_path: input_tmp_file_path)
                               end
         end
         @generated_files
