@@ -10,15 +10,15 @@ module DerivativeRodeo
       self.output_extension = "coordinates.json"
 
       ##
-      # @param out_file [StorageAdapters::BaseAdapter]
+      # @param to_target [StorageAdapters::BaseAdapter]
       # @param in_tmp_path [String] the location of the file that we can use for processing.
       #
       # @return [StorageAdapters::BaseAdapter]
       #
       # @see #requisite_files
-      def build_step(out_file:, in_tmp_path:, **)
-        out_file.with_new_tmp_path do |out_tmp_path|
-          convert_to_coordinates(path_to_hocr: in_tmp_path, path_to_coordinate: out_tmp_path)
+      def build_step(to_target:, in_tmp_path:, **)
+        to_target.with_new_tmp_path do |to_tmp_path|
+          convert_to_coordinates(path_to_hocr: in_tmp_path, path_to_coordinate: to_tmp_path)
         end
       end
 
@@ -27,7 +27,7 @@ module DerivativeRodeo
       ##
       # @param path_to_hocr [String]
       # @param path_to_coordinate [String]
-      # @param service [#to_json, Services::ExtractWordCoordinatesFromHocrSgmlService]
+      # @param service [#call, Services::ExtractWordCoordinatesFromHocrSgmlService]
       def convert_to_coordinates(path_to_hocr:, path_to_coordinate:, service: Services::ExtractWordCoordinatesFromHocrSgmlService)
         hocr_html = File.read(path_to_hocr)
         File.open(path_to_coordinate, "w+") do |file|
