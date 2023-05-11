@@ -171,25 +171,6 @@ module DerivativeRodeo
       alias exists? exist?
 
       ##
-      #
-      # @param extension [String, :same]
-      # @param target_name [String, StorageTargets::SAME] what target should we use; when given
-      #        {StorageTargets::SAME} use this targets class as the target to create a URI.
-      #
-      # @see #with_new_extension
-      # @see StorageTargets::SAME
-      # @deprecated Shifting towards {#derived_file_from}
-      def derived_file(extension:, target_name: StorageTargets::SAME)
-        klass = if target_name == StorageTargets::SAME
-                  self.class
-                else
-                  DerivativeRodeo::StorageTargets::BaseTarget.load_target(target_name)
-                end
-        new_uri = klass.create_uri(path: with_new_extension(extension))
-        klass.new(new_uri)
-      end
-
-      ##
       # @param template [String]
       # @return [StorageTargets::BaseTarget]
       #
