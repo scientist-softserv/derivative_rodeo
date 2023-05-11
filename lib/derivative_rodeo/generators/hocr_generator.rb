@@ -43,14 +43,14 @@ module DerivativeRodeo
       # Run tesseract on monocrhome file and store the resulting output in the configured
       # {.output_extension} (default 'hocr')
       #
-      # @param to_target [StorageTargets::BaseTarget]
+      # @param output_target [StorageTargets::BaseTarget]
       # @param from_tmp_path [String]
       #
       # @return [StorageTargets::BaseTarget]
       #
       # @see #requisite_files
-      def build_step(to_target:, from_tmp_path:, **)
-        tesseractify(from_tmp_path, to_target)
+      def build_step(output_target:, from_tmp_path:, **)
+        tesseractify(from_tmp_path, output_target)
       end
 
       ##
@@ -80,9 +80,9 @@ module DerivativeRodeo
       # in the tmp_path
       #
       # @param from_tmp_path [String].
-      # @param to_target [StorageTargets::BaseTarget]
-      def tesseractify(from_tmp_path, to_target)
-        to_target.with_new_tmp_path do |out_tmp_path|
+      # @param output_target [StorageTargets::BaseTarget]
+      def tesseractify(from_tmp_path, output_target)
+        output_target.with_new_tmp_path do |out_tmp_path|
           run_tesseract(from_tmp_path, out_tmp_path)
         end
       end

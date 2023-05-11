@@ -10,16 +10,16 @@ module DerivativeRodeo
 
       ##
       # @param input_target [StorageTargets::BaseTarget]
-      # @param to_target [StorageTargets::BaseTarget]
+      # @param output_target [StorageTargets::BaseTarget]
       # @return [StorageTargets::BaseTarget]
-      def build_step(input_target:, to_target:, from_tmp_path:)
+      def build_step(input_target:, output_target:, from_tmp_path:)
         image = DerivativeRodeo::Services::ImageService.new(from_tmp_path)
         if image.monochrome?
           # The input_target is already have a monochrome file, no need to run conversions.
           input_target
         else
           # We need to write monochromify and the image.
-          monochromify(to_target, image)
+          monochromify(output_target, image)
         end
       end
 
