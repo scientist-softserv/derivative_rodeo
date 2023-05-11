@@ -3,11 +3,11 @@
 require 'aws-sdk-s3'
 
 module DerivativeRodeo
-  module StorageAdapters
+  module StorageTargets
     ##
-    # Adapter to download and upload files to S3
+    # Target to download and upload files to S3
     #
-    class S3Adapter < BaseAdapter
+    class S3Target < BaseTarget
       attr_writer :bucket
       ##
       # Create a new uri of the classes type. Parts argument should have a default in
@@ -20,7 +20,14 @@ module DerivativeRodeo
       # @return [String]
       def self.create_uri(path:, parts: 2)
         file_path = file_path_from_parts(path: path, parts: parts)
-        "s3://#{DerivativeRodeo.config.aws_s3_bucket}.s3.#{DerivativeRodeo.config.aws_s3_region}.amazonaws.com/#{file_path}"
+        File.join("#{adapter_prefix}/#{file_path}")
+      end
+
+      ##
+      # @param config [DerivativeRodeo::Configuration]
+      # @return [String]
+      def self.adapter_prefix(config: DerivativeRodeo.config)
+        "#{scheme}://#{config.aws_s3_bucket}.s3.#{config.aws_s3_region}.amazonaws.com"
       end
 
       ##

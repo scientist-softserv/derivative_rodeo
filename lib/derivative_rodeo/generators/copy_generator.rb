@@ -6,7 +6,7 @@ module DerivativeRodeo
     ##
     # Responsible for moving files from one storage adapter to another.
     class CopyGenerator < BaseGenerator
-      self.output_extension = StorageAdapters::SAME
+      self.output_extension = StorageTargets::SAME
 
       include CopyFileConcern
     end

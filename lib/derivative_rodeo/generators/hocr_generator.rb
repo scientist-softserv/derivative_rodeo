@@ -43,28 +43,32 @@ module DerivativeRodeo
       # Run tesseract on monocrhome file and store the resulting output in the configured
       # {.output_extension} (default 'hocr')
       #
-      # @param out_file [StorageAdapters::BaseAdapter]
-      # @param in_tmp_path [String]
+      # @param output_target [StorageTargets::BaseTarget]
+      # @param input_tmp_file_path [String]
       #
-      # @return [StorageAdapters::BaseAdapter]
+      # @return [StorageTargets::BaseTarget]
       #
       # @see #requisite_files
-      def build_step(out_file:, in_tmp_path:, **)
-        tesseractify(in_tmp_path, out_file)
+      def build_step(output_target:, input_tmp_file_path:, **)
+        tesseractify(input_tmp_file_path, output_target)
       end
 
       ##
       # @param builder [Class, #generated_files]
       #
-      # @yieldparam file [StorageAdapters::BaseAdapter]
+      # When generating a hocr file from an image, we've found the best results are when we're
+      # processing a monochrome image.  As such, this generator will auto-convert a given image to
+      # monochrome.
+      #
+      # @yieldparam file [StorageTargets::BaseTarget]
       # @yieldparam tmp_path [String]
-      def with_each_requisite_file_and_tmp_path(builder: MonochromeGenerator)
-        # TODO: Change the output_target_template as it's not quite right.  Namely we need to handle
-        # the generator's output_extension.
-        @requisite_files ||= builder.new(input_uris: input_uris, output_target_template: output_target_template).generated_files
-        @requisite_files.each do |input_file|
-          input_file.with_existing_tmp_path do |tmp_path|
-            yield(input_file, tmp_path)
+      #
+      # @see BaseGenerator#with_each_requisite_target_and_tmp_file_path for further discussion
+      def with_each_requisite_target_and_tmp_file_path(builder: MonochromeGenerator)
+        requisite_files ||= builder.new(input_uris: input_uris, output_target_template: output_target_template).generated_files
+        requisite_files.each do |input_target|
+          input_target.with_existing_tmp_path do |tmp_file_path|
+            yield(input_target, tmp_file_path)
           end
         end
       end
@@ -75,13 +79,12 @@ module DerivativeRodeo
       # Call `tesseract` on the monochrome file and store the resulting hocr
       # in the tmp_path
       #
-      # @param in_tmp_path [String].
-      # @param out_file [StorageAdapters::BaseAdapter]
-      def tesseractify(in_tmp_path, out_file)
-        out_file.with_new_tmp_path do |out_tmp_path|
-          run_tesseract(in_tmp_path, out_tmp_path)
+      # @param input_tmp_file_path [String].
+      # @param output_target [StorageTargets::BaseTarget]
+      def tesseractify(input_tmp_file_path, output_target)
+        output_target.with_new_tmp_path do |out_tmp_path|
+          run_tesseract(input_tmp_file_path, out_tmp_path)
         end
-        out_file
       end
 
       ##

@@ -1,24 +1,28 @@
 # frozen_string_literal: true
 
 module DerivativeRodeo
-  module StorageAdapters
+  module StorageTargets
     ##
-    # Adapter for files found on a local disk
-    class FileAdapter < BaseAdapter
+    # Target for files found on a local disk
+    class FileTarget < BaseTarget
       def self.create_uri(path:, parts: :all)
         file_path = file_path_from_parts(path: path, parts: parts)
-        "#{scheme}://#{file_path}"
+        "#{adapter_prefix}#{file_path}"
+      end
+
+      def self.adapter_prefix
+        "#{scheme}://"
       end
 
       ##
-      # Build a {StorageAdapters::BaseAdapter} by converting the :from_uri with the :template via
+      # Build a {StorageTargets::BaseTarget} by converting the :from_uri with the :template via
       # the given :service.
       #
       # @param from_uri [String]
       # @param template [String]
       # @param service [#call, Module<DerivativeRodeo::Services::ConvertUriViaTemplateService>]
       #
-      # @return [StorageAdapters::BaseAdapter]
+      # @return [StorageTargets::BaseTarget]
       def self.build(from_uri:, template:, service: DerivativeRodeo::Services::ConvertUriViaTemplateService)
         # HACK: Ensuring that we have the correct scheme.  Maybe this is a hack?
         from_uri = "#{scheme}://#{from_uri}" unless from_uri.start_with?("#{scheme}://")

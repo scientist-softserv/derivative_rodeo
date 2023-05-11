@@ -3,7 +3,7 @@
 # This class is very rudimentary implementation of a bucket.  It conforms to the necessary
 # interface for downloading and uploading.
 #
-# @see [DerivativeRodeo::StorageAdapters::S3Adapter]
+# @see [DerivativeRodeo::StorageTargets::S3Target]
 class AwsS3FauxBucket
   def initialize
     @storage = {}

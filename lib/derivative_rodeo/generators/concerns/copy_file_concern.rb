@@ -7,22 +7,21 @@ module DerivativeRodeo
       ##
       # Copy files from one adapter to another.
       #
-      # @param out_file [StorageAdapters::BaseAdapter]
-      # @param in_tmp_path [String]
+      # @param output_target [StorageTargets::BaseTarget]
+      # @param input_tmp_file_path [String]
       #
-      # @return [StorageAdapters::BaseAdapter]
-      def build_step(out_file:, in_tmp_path:, **)
-        copy(in_tmp_path, out_file)
+      # @return [StorageTargets::BaseTarget]
+      def build_step(output_target:, input_tmp_file_path:, **)
+        copy(input_tmp_file_path, output_target)
       end
 
       ##
       # @api private
-      def copy(_from_path, out_file)
-        out_file.with_new_tmp_path do |_out_path|
+      def copy(_from_path, output_target)
+        output_target.with_new_tmp_path do |_out_path|
           # This space deliberately left blank; we need to pass a block for all of the magic to
           # happen.
         end
-        out_file
       end
     end
   end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe DerivativeRodeo::StorageAdapters::BaseAdapter do
+RSpec.describe DerivativeRodeo::StorageTargets::BaseTarget do
   let(:args) { "fake://nothing" }
 
   subject { described_class.new(args) }
@@ -15,8 +15,8 @@ RSpec.describe DerivativeRodeo::StorageAdapters::BaseAdapter do
     expect(subject.file_uri).to eq(args)
   end
 
-  describe '.adapter_name' do
-    subject { described_class.adapter_name }
+  describe '.target_name' do
+    subject { described_class.target_name }
     it { is_expected.to be_a(String) }
   end
 

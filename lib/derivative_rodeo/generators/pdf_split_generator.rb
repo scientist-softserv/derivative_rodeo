@@ -5,8 +5,8 @@ module DerivativeRodeo
   module Generators
     ##
     # This class is responsible for splitting each given PDF (e.g. {#input_files}) into one image
-    # per page (e.g. {#with_each_requisite_file_and_tmp_path}).  We need to ensure that we have each
-    # of those image files in S3/file storage then enqueue those files for processing.
+    # per page (e.g. {#with_each_requisite_target_and_tmp_file_path}).  We need to ensure that we
+    # have each of those image files in S3/file storage then enqueue those files for processing.
     class PdfSplitGenerator < BaseGenerator
       ##
       # There is a duplication  of the splitter name.
@@ -41,23 +41,20 @@ module DerivativeRodeo
       # When we have two PDFs (10 pages and 20 pages respectively), we will have 30 requisite files;
       # the files must have URLs that associate with their respective parent PDFs.
       #
-      # @yieldparam image_file [StorageAdapters::FileAdapter] the file and adapter logic.
+      # @yieldparam image_target [StorageTargets::FileTarget] the file and adapter logic.
       # @yieldparam image_path [String] where to find this file in the tmp space
       #
-      # @return [Array<StorageAdapters::BaseAdapter>]
-      def with_each_requisite_file_and_tmp_path
-        files = []
-        input_files.each do |input_file|
-          input_file.with_existing_tmp_path do |tmp_path|
-            image_paths = pdf_splitter.call(tmp_path)
+      # @see BaseGenerator#with_each_requisite_target_and_tmp_file_path for further discussion
+      def with_each_requisite_target_and_tmp_file_path
+        input_files.each do |input_target|
+          input_target.with_existing_tmp_path do |input_tmp_file_path|
+            image_paths = pdf_splitter.call(input_tmp_file_path)
             image_paths.each do |image_path|
-              image_file = StorageAdapters::FileAdapter.new("file://#{image_path}")
-              yield(image_file, image_path)
-              files << image_file
+              image_target = StorageTargets::FileTarget.new("file://#{image_path}")
+              yield(image_target, image_path)
             end
           end
         end
-        files
       end
     end
   end

@@ -11,7 +11,7 @@ RSpec.describe DerivativeRodeo::Generators::CopyGenerator do
   end
 
   it { is_expected.to be_a(DerivativeRodeo::Generators::CopyFileConcern) }
-  its(:output_extension) { is_expected.to eq(DerivativeRodeo::StorageAdapters::SAME) }
+  its(:output_extension) { is_expected.to eq(DerivativeRodeo::StorageTargets::SAME) }
 
   describe '#generated_files' do
     let(:kwargs) { { input_uris: [file_uri] } }

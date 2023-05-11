@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe DerivativeRodeo::StorageAdapters::SqsAdapter do
+RSpec.describe DerivativeRodeo::StorageTargets::SqsTarget do
   let(:file_path) { File.expand_path(File.join(FIXTURE_PATH, 'files', 'ocr_color.tiff')) }
   let(:short_path) { file_path.split('/')[-2..-1].join('/') }
   let(:args) { "sqs://eu-west-1.amazonaws.com/55555555/fake-queue/#{short_path}?template=s3://adventist-preprocess.s3.us-west-1.amazonaws.com/preprocess/#{short_path}" }

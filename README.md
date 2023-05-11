@@ -3,6 +3,7 @@
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 - [DerivativeRodeo](#derivativerodeo)
+  - [Process Life Cycle](#process-life-cycle)
   - [Concepts](#concepts)
     - [Common Storage](#common-storage)
     - [Related Files](#related-files)
@@ -14,8 +15,8 @@
       - [Interface(s)](#interfaces)
       - [Supported Generators](#supported-generators)
       - [Registered Generators](#registered-generators)
-    - [Storage Adapters](#storage-adapters)
-      - [Supported Storage Adapters](#supported-storage-adapters)
+    - [Storage Targets](#storage-targets)
+      - [Supported Storage Targets](#supported-storage-targets)
   - [Development](#development)
   - [Contributing](#contributing)
 
@@ -25,11 +26,26 @@
 
 “This ain’t my first rodeo.” (an idiomatic American slang for “I’m prepared for what comes next.”)
 
-The `DerivativeRodeo` provides a means of assembling a set of derivatives into a _common storage_ location by:
+The `DerivativeRodeo` "moves" files from one storage target (e.g. *input*) to one or more storage targets (e.g. *output*) via a generator.
 
-- Checking if it already exists in the _common storage_.
-- Fetching it if exists elsewhere and writing it to the _common storage_.
-- Generating the derivative into the _common storage_.
+- [Storage Target](./lib/derivative_rodeo/storage_targets/base_target.rb) :: where we can expect to find a file.
+- [Generator](./lib/derivative_rodeo/generators/base_generator.rb) :: a process to transform a file into another file.
+
+## Process Life Cycle
+
+In the case of a *input* storage target, we expect that the underlying file pointed at by the *input* storage target exists.  After all we can't move what we don't have.
+
+In the case of a *output* storage target, we expect that the underlying file will exist after the generator has completed.  The *output* storage target *could* already exist or we might need to generate the file for the *output* target.
+
+During the generator's process, we need to have a working copy of both the *input* and *output* file.  This is done by creating a temporary file.
+
+In the case of the *input*, the creation of that temporary file involves getting the file from the *input* storage target.  In the case of the *output*, we create a temporary file that the *output* storage target then knows how to move to the resulting place.
+
+![Storage Lifecycle](./artifacts/derivative_rodeo-generator_storage_lifecycle.png)
+
+The above Storage Lifecycle diagram is as follows: `input target` to `input tmp file` to `generator` to `output tmp file` to `output target`.
+
+*Note:* We've designed and implemented the data life cycle to automatically clean-up the temporary files as the generator completes.  In this way we can use the smallest working space possible.  A design decision that helps run `DerivativeRodeo` within distributed clusters (e.g. AWS Serverless).
 
 ## Concepts
 
@@ -100,7 +116,7 @@ However it is helpful to think in those terms; files that have a significant rel
 
 ### Sequence Diagram
 
-![Sequence Diagrame](./artifacts/derivative_rodeo-sequence-diagram.png)
+![Sequence Diagram](./artifacts/derivative_rodeo-sequence-diagram.png)
 
 <details>
 <summary>The PlantUML Text for the Sequence Diagram</summary>
@@ -167,7 +183,7 @@ Generators are responsible for ensuring that we have the file associated with th
 
 Generators must have an initializer and build command:
 
-- `.new(array_of_file_urls, output_url_type, preprocessor_url_type)`
+- `.new(array_of_file_urls, output_target_template, preprocessed_target_template)`
 - `#generated_files` (executes the generators actions) and returns array of files
 - `#generated_uris` (executes the generators actions) and returns array of output uris
 
@@ -177,21 +193,25 @@ Below is the current list of generators.
 
 - [HocrGenerator](./lib/derivative_rodeo/generators/hocr_generator.rb) :: generated tesseract files from images, also creates monocrhome files as a prestep
 - [MonochromeGenerator](./lib/derivative_rodeo/generators/monochrome_generator.rb) :: converts images to monochrome
-- [MoveGenerator](./lib/derivative_rodeo/generators/move_generator.rb) :: sends a set of uris to another location. For example from <abbr title="Simple Storage Service">S3</abbr> to <abbr title="Simple Queue Service">SQS</abbr> or from filesystem to S3.
+- [CopyGenerator](./lib/derivative_rodeo/generators/copy_generator.rb) :: sends a set of uris to another location. For example from <abbr title="Simple Storage Service">S3</abbr> to <abbr title="Simple Queue Service">SQS</abbr> or from filesystem to S3.
+- [PdfSplitGenerator](./lib/derivative_rodeo/generators/pdf_split_generator.rb) :: split a PDF into one image per page
+- [WordCoordinatesGenerator](./lib/derivative_rodeo/generators/word_coordinates_generator.rb) :: create a JSON file representing the words and coordinates (derived from the `.hocr` file).
 
 #### Registered Generators
 
 TODO: We want to expose a list of registered generators
 
-### Storage Adapters
+### Storage Targets
 
-Storage adapters are where we put things.  Each adapter has a specific implementation but is expected to inherit from the  [DerivativeRodeo::StorageAdapter::BaseAdapter](./lib/derivative_rodeo/storage_adapters/base_adapter.rb).
+Storage targets are where we put things.  Each target has a specific implementation but is expected to inherit from the  [DerivativeRodeo::StorageTarget::BaseTarget](./lib/derivative_rodeo/storage_adapters/base_adapter.rb).
 
-`DerivativeRodeo::StorageAdapter::BaseAdapter.adapters` method tracks the registered adapters.
+`DerivativeRodeo::StorageTarget::BaseTarget.targets` method tracks the registered targets.
 
-#### Supported Storage Adapters
+The target represents where the file *should* be.
 
-Storage adapters follow a [URI pattern](https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#Example_URIs)
+#### Supported Storage Targets
+
+Storage targets follow a [URI pattern](https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#Example_URIs)
 
 - `file://` :: “local” file system storage
 - `s3://` :: <abbr title="Amazon Web Service">AWS</abbr>’s <abbr title="Simple Storage Service">S3</abbr> storage system

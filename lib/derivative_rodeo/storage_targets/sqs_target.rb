@@ -4,13 +4,12 @@ require 'aws-sdk-sqs'
 require 'cgi'
 
 module DerivativeRodeo
-  module StorageAdapters
+  module StorageTargets
     ##
-    # Adapter to download and upload files to Sqs
+    # Target to download and upload files to Sqs
     # It uploads a file_uri to the queue, not the contents of that file
     # reading from the queue is not currently implemented
-    #
-    class SqsAdapter < BaseAdapter
+    class SqsTarget < BaseTarget
       class_attribute :batch_size, default: 10
 
       attr_writer :client
@@ -26,7 +25,11 @@ module DerivativeRodeo
       # @return [String]
       def self.create_uri(path:, parts: 1)
         file_path = file_path_from_parts(path: path, parts: parts)
-        "sqs://#{DerivativeRodeo.config.aws_sqs_region}.amazonaws.com/#{DerivativeRodeo.config.aws_sqs_account_id}/#{DerivativeRodeo.config.aws_sqs_queue}/#{file_path}"
+        "#{adapter_prefix}#{file_path}"
+      end
+
+      def self.adapter_prefix(config: DerivativeRodeo.config)
+        "#{scheme}://#{config.aws_sqs_region}.amazonaws.com/#{config.aws_sqs_account_id}/#{config.aws_sqs_queue}/"
       end
 
       # TODO: implement read
