@@ -3,7 +3,7 @@
 RSpec.describe DerivativeRodeo::StorageAdapters::SqsAdapter do
   let(:file_path) { File.expand_path(File.join(FIXTURE_PATH, 'files', 'ocr_color.tiff')) }
   let(:short_path) { file_path.split('/')[-2..-1].join('/') }
-  let(:args) { "sqs://eu-west-1.amazonaws.com/55555555/fake-queue/#{short_path}" }
+  let(:args) { "sqs://eu-west-1.amazonaws.com/55555555/fake-queue/#{short_path}?template=s3://adventist-preprocess.s3.us-west-1.amazonaws.com/preprocess/#{short_path}" }
   let(:client) { AwsSqsFauxClient.new }
 
   subject { described_class.new(args) }
@@ -47,8 +47,7 @@ RSpec.describe DerivativeRodeo::StorageAdapters::SqsAdapter do
     # {"https://sqs.us-west-2.amazonaws.com/5555555555/fake"=>[{:id=>"0", :message_body=>"/var/folders/43/3hsph86d56b4mzpzhrbq2fm00000gn/T/d20230510-36732-1civ6nm/ocr_color.tiff"}]}
     expect(client.storage).to be
     expect(client.storage["https://sqs.us-west-2.amazonaws.com/5555555555/fake"].size).to eq(1)
-    # TODO
-    # expect(client.storage["https://sqs.us-west-2.amazonaws.com/5555555555/fake"].first.message_body).to eq('s3://')
+    expect(client.storage["https://sqs.us-west-2.amazonaws.com/5555555555/fake"].first[:message_body]).to eq('s3://adventist-preprocess.s3.us-west-1.amazonaws.com/preprocess/files/ocr_color.tiff')
     expect(File.exist?(@tmp_path)).to be false
   end
 

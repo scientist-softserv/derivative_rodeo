@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'aws-sdk-sqs'
+require 'cgi'
 
 module DerivativeRodeo
   module StorageAdapters
@@ -65,9 +66,7 @@ module DerivativeRodeo
         raise Errors::MaxQqueueSize(batch_size: batch_size) if batch_size > DerivativeRodeo.config.aws_sqs_max_batch_size
         batch = []
         Dir.glob("#{File.dirname(tmp_file_path)}/**/**").each.with_index do |fp, i|
-          # TODO: transform to final url
-          # TODO make ids UUIDs
-          batch << { id: i.to_s, message_body: fp }
+          batch << { id: SecureRandom.uuid, message_body: output_uri("file://#{fp}") }
           if (i % batch_size).zero?
             add_batch(messages: batch)
             batch = []
@@ -123,7 +122,7 @@ module DerivativeRodeo
       ##
       # @api private
       def queue_name
-        @queue_name ||= file_path_parts[:queue_name]
+        @queue_name ||= file_uri_parts[:queue_name]
       rescue StandardError
         raise Errors::QueueMissingError
       end
@@ -131,19 +130,39 @@ module DerivativeRodeo
       ##
       # @api private
       def file_path
-        @file_path ||= @file_uri.sub(%r{.+://.+?/}, '')
+        @file_path ||= file_uri_parts[:file_path]
       end
 
-      def file_path_parts
-        return @file_path_parts if @file_path_parts
-        file_path_split = file_path.split('/')
-        @file_path_parts = {
-          region: file_path_split[0]&.split('.')&.[](0),
-          account_id: file_path_split[1],
-          queue_name: file_path_split[2],
-          path: file_path_split[3..-2]&.join('/'),
-          file_name: file_path_split[-1]
-        }
+      def template
+        params&.[]('template')&.first
+      end
+
+      def scheme
+        file_uri_parts&.[](:scheme)
+      end
+
+      def output_uri(uri)
+        DerivativeRodeo::Services::ConvertUriViaTemplateService.call(from_uri: uri, template: template, adapter: self)
+      end
+
+      def params
+        @params ||= CGI.parse(file_uri_parts[:query]) if file_uri_parts[:query]
+      end
+
+      def file_uri_parts
+        return @file_uri_parts if @file_uri_parts
+        uri = URI.parse(file_uri)
+        @file_uri_parts = uri&.component&.inject({}) do |hash, component|
+          hash[component] = uri.send(component)
+          hash
+        end
+        @file_uri_parts[:region] = @file_uri_parts[:host]&.split('.')&.[](0)
+        path_parts = @file_uri_parts[:path]&.split('/')
+        @file_uri_parts[:account_id] = path_parts&.[](1)
+        @file_uri_parts[:queue_name] = path_parts&.[](2)
+        @file_uri_parts[:file_name] = path_parts&.[](-1)
+        @file_uri_parts[:file_path] = path_parts&.[](3..-2)&.join('/')
+        @file_uri_parts
       end
     end
   end
