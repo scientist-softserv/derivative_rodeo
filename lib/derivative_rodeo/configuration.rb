@@ -82,6 +82,7 @@ module DerivativeRodeo
 
     aws_config prefix: 'sqs', name: 'region', default: 'us-east-1'
     aws_config prefix: 'sqs', name: 'queue'
+    aws_config prefix: 'sqs', name: 'account_id'
     aws_config prefix: 'sqs', name: 'access_key_id'
     aws_config prefix: 'sqs', name: 'secret_access_key'
     aws_config prefix: 'sqs', name: 'max_batch_size', default: 10

@@ -110,7 +110,7 @@ In other words, the `DerivativeRodeo` is part of moving files from one location 
 
 ### Related Files
 
-This is not strictly related to <dfn>Hyrax's FileSet</dfn>, that is a set of files in which one is considered the original and all others are _derivatives_ of the original. 
+This is not strictly related to <dfn>Hyrax's FileSet</dfn>, that is a set of files in which one is considered the original and all others are _derivatives_ of the original.
 
 However it is helpful to think in those terms; files that have a significant relation to each other; one derived from the other.  For example an original PDF and it's extracted text would be two significantly related files.
 
@@ -166,6 +166,8 @@ gem 'derivative_rodeo'
 ```
 
 And then execute: `$ bundle install`
+
+Be aware that you need `pdfinfo` command line tool installed for this gem to run specs or when using PDF functionality.
 
 ## Usage
 
