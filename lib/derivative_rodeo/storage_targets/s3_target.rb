@@ -20,7 +20,14 @@ module DerivativeRodeo
       # @return [String]
       def self.create_uri(path:, parts: 2)
         file_path = file_path_from_parts(path: path, parts: parts)
-        "s3://#{DerivativeRodeo.config.aws_s3_bucket}.s3.#{DerivativeRodeo.config.aws_s3_region}.amazonaws.com/#{file_path}"
+        File.join("#{adapter_prefix}/#{file_path}")
+      end
+
+      ##
+      # @param config [DerivativeRodeo::Configuration]
+      # @return [String]
+      def self.adapter_prefix(config: DerivativeRodeo.config)
+        "#{scheme}://#{config.aws_s3_bucket}.s3.#{config.aws_s3_region}.amazonaws.com"
       end
 
       ##

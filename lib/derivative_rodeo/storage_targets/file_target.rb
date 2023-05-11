@@ -7,7 +7,11 @@ module DerivativeRodeo
     class FileTarget < BaseTarget
       def self.create_uri(path:, parts: :all)
         file_path = file_path_from_parts(path: path, parts: parts)
-        "#{scheme}://#{file_path}"
+        "#{adapter_prefix}#{file_path}"
+      end
+
+      def self.adapter_prefix
+        "#{scheme}://"
       end
 
       ##

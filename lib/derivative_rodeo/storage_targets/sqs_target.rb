@@ -23,7 +23,11 @@ module DerivativeRodeo
       # @return [String]
       def self.create_uri(path:, parts: 1)
         file_path = file_path_from_parts(path: path, parts: parts)
-        "sqs://#{DerivativeRodeo.config.aws_sqs_queue}.sqs.#{DerivativeRodeo.config.aws_sqs_region}.amazonaws.com/#{file_path}"
+        File.join(adapter_prefix, file_path)
+      end
+
+      def self.adapter_prefix(config: DerivativeRodeo.config)
+        "#{scheme}://#{config.aws_sqs_queue}.sqs.#{config.aws_sqs_region}.amazonaws.com/"
       end
 
       ##
