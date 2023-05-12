@@ -212,5 +212,5 @@ module DerivativeRodeo
 end
 
 Dir.glob(File.join(__dir__, '**/*')).sort.each do |target|
-  require target unless File.directory?(file) || target.match?('base_target')
+  require target unless File.directory?(target) || target.match?('base_target')
 end
