@@ -5,15 +5,19 @@ require 'faraday'
 module DerivativeRodeo
   module StorageTargets
     ##
-    # Target for files from the web. Download only, can not write!
-    class DownloadTarget < BaseTarget
-      def self.create_uri(path:, parts: :all, ssl: true)
-        file_path = file_path_from_parts(path: path, parts: parts)
-        "#{adapter_prefix(ssl: ssl)}#{file_path}"
-      end
+    # A helper module for copying files from one location to another.
+    module DownloadConcern
+      extend ActiveSupport::Concern
 
-      def self.adapter_prefix(ssl: true)
-        ssl ? "https://" : "http://"
+      class_methods do
+        def create_uri(path:, parts: :all, ssl: true)
+          file_path = file_path_from_parts(path: path, parts: parts)
+          "#{adapter_prefix(ssl: ssl)}#{file_path}"
+        end
+
+        def adapter_prefix(ssl: true)
+          ssl ? "https://" : "http://"
+        end
       end
 
       def with_existing_tmp_path(&block)
