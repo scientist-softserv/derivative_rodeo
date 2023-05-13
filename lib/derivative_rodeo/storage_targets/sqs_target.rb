@@ -3,6 +3,10 @@
 require 'aws-sdk-sqs'
 require 'cgi'
 
+ActiveSupport::Inflector.inflections(:en) do |inflect|
+  inflect.uncountable 'sqs'
+end
+
 module DerivativeRodeo
   module StorageTargets
     ##

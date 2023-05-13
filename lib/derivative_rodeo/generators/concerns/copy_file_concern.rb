@@ -17,10 +17,10 @@ module DerivativeRodeo
 
       ##
       # @api private
-      def copy(_from_path, output_target)
-        output_target.with_new_tmp_path do |_out_path|
-          # This space deliberately left blank; we need to pass a block for all of the magic to
-          # happen.
+      def copy(from_path, output_target)
+        output_target.with_new_tmp_path do |out_path|
+          # We can move here because we are done with the tmp file after this.
+          FileUtils.mv(from_path, out_path)
         end
       end
     end

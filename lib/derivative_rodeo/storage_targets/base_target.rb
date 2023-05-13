@@ -51,7 +51,6 @@ module DerivativeRodeo
       def self.load_target(target_name)
         target_name = target_name.split("://").first
         raise Errors::StorageTargetNotFoundError.new(target_name: target_name) unless targets.include?(target_name)
-
         "DerivativeRodeo::StorageTargets::#{target_name.to_s.classify}Target".constantize
       end
 
@@ -89,6 +88,22 @@ module DerivativeRodeo
       # @see .file_path_from_parts
       def self.create_uri(path:, parts:)
         raise NotImplementedError, "#{self.class}.create_uri"
+      end
+
+      ##
+      # Build a {StorageTargets::BaseTarget} by converting the :from_uri with the :template via
+      # the given :service.
+      #
+      # @param from_uri [String]
+      # @param template [String]
+      # @param service [#call, Module<DerivativeRodeo::Services::ConvertUriViaTemplateService>]
+      #
+      # @return [StorageTargets::BaseTarget]
+      def self.build(from_uri:, template:, service: DerivativeRodeo::Services::ConvertUriViaTemplateService)
+        # HACK: Ensuring that we have the correct scheme.  Maybe this is a hack?
+        from_uri = "#{scheme}://#{from_uri}" unless from_uri.start_with?("#{scheme}://")
+        to_uri = service.call(from_uri: from_uri, template: template, adapter: self)
+        new(to_uri)
       end
 
       ##

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'faraday'
+require 'faraday/follow_redirects'
 
 module DerivativeRodeo
   module StorageTargets
@@ -24,7 +25,7 @@ module DerivativeRodeo
         with_tmp_path(lambda { |_file_path, tmp_file_path, exist|
                         raise Errors::FileMissingError unless exist
 
-                        response = http_conn.get file_uri
+                        response = connection.get file_uri
                         File.open(tmp_file_path, 'wb') { |fp| fp.write(response.body) }
                       }, &block)
       end
@@ -46,7 +47,7 @@ module DerivativeRodeo
 
       def connection(faraday_adapter: 'default_adapter')
         @connection = Faraday.new do |builder|
-          builder.use FaradayMiddleware::FollowRedirects
+          builder.response :follow_redirects
           builder.adapter Faraday.send(faraday_adapter)
         end
       end
