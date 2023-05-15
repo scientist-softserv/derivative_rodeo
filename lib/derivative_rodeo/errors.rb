@@ -19,8 +19,8 @@ module DerivativeRodeo
     ##
     # Raised when a storage adapter is called for but does not exist in the registered adapter list
     class StorageTargetNotFoundError < Error
-      def initialize(adapter_name: '')
-        super("Could not find the adapter #{adapter_name}. Make sure it is required and registerd properly.")
+      def initialize(target_name: '')
+        super("Could not find the adapter #{target_name}. Make sure it is required and registerd properly.")
       end
     end
 
