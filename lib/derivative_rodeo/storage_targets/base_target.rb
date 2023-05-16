@@ -157,7 +157,8 @@ module DerivativeRodeo
         raise ArgumentError, 'Expected a block' unless block_given?
 
         tmp_file_dir do |tmpdir|
-          self.tmp_file_path = File.join(tmpdir, file_name)
+          self.tmp_file_path = File.join(tmpdir, file_dir, file_name)
+          FileUtils.mkdir_p(File.dirname(tmp_file_path))
           preamble_lambda.call(file_path, tmp_file_path, exist?)
           yield tmp_file_path
           write if auto_write_file
@@ -215,6 +216,14 @@ module DerivativeRodeo
 
       def file_name
         @file_name ||= File.basename(file_path)
+      end
+
+      def file_extension
+        @file_extension ||= File.extname(file_path)
+      end
+
+      def file_basename
+        @file_basename ||= File.basename(file_path, file_extension)
       end
 
       def tmp_file_dir(&block)
