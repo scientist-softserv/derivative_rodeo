@@ -20,7 +20,7 @@ RSpec.describe DerivativeRodeo::Generators::HocrGenerator do
         generated_files = nil
         Fixtures.with_file_uris_for("ocr_color.tiff") do |input_uris|
           Fixtures.with_temporary_directory do |output_temporary_path|
-            output_target_template = "file://#{output_temporary_path}/{{ dir_parts[0..-1] }}/{{basename}}.#{described_class.output_extension}"
+            output_target_template = "file://#{output_temporary_path}/{{ dir_parts[-1..-1] }}/{{basename}}.#{described_class.output_extension}"
             instance = described_class.new(input_uris: input_uris, output_target_template: output_target_template)
             generated_files = instance.generated_files
 
@@ -38,7 +38,7 @@ RSpec.describe DerivativeRodeo::Generators::HocrGenerator do
         generated_files = nil
         Fixtures.with_file_uris_for('ocr_color_pre.tiff') do |input_uris|
           Fixtures.with_temporary_directory do |output_temporary_path|
-            output_target_template = "file://#{output_temporary_path}/{{ dir_parts[0..-1] }}/{{basename}}.#{described_class.output_extension}"
+            output_target_template = "file://#{output_temporary_path}/{{ dir_parts[-1..-1] }}/{{basename}}.#{described_class.output_extension}"
             instance = described_class.new(input_uris: input_uris, output_target_template: output_target_template)
             generated_files = instance.generated_files
 
