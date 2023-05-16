@@ -73,7 +73,7 @@ module DerivativeRodeo
         raise Errors::MaxQqueueSize(batch_size: batch_size) if batch_size > DerivativeRodeo.config.aws_sqs_max_batch_size
         batch = []
         Dir.glob("#{File.dirname(tmp_file_path)}/**/**").each.with_index do |fp, i|
-          batch << { id: SecureRandom.uuid, message_body: output_uri("file://#{fp}") }
+          batch << { id: SecureRandom.uuid, message_body: output_json("file://#{fp}") }
           if (i % batch_size).zero?
             add_batch(messages: batch)
             batch = []
@@ -137,7 +137,17 @@ module DerivativeRodeo
       ##
       # @api private
       def file_path
-        @file_path ||= file_uri_parts[:file_path]
+        @file_path ||= [file_dir, file_name].join('/')
+      end
+
+      def file_dir
+        @file_dir ||= file_uri_parts[:file_dir]
+      end
+
+      ##
+      # @api private
+      def file_name
+        @file_name ||= file_uri_parts[:file_name]
       end
 
       def template
@@ -148,12 +158,13 @@ module DerivativeRodeo
         file_uri_parts&.[](:scheme)
       end
 
-      def output_uri(uri)
-        DerivativeRodeo::Services::ConvertUriViaTemplateService.call(from_uri: uri, template: template, adapter: self)
-      end
-
       def params
         @params ||= CGI.parse(file_uri_parts[:query]) if file_uri_parts[:query]
+      end
+
+      def output_json(uri)
+        key = DerivativeRodeo::Services::ConvertUriViaTemplateService.call(from_uri: uri, template: template, adapter: self)
+        { key => [template] }.to_json
       end
 
       def file_uri_parts
@@ -168,7 +179,7 @@ module DerivativeRodeo
         @file_uri_parts[:account_id] = path_parts&.[](1)
         @file_uri_parts[:queue_name] = path_parts&.[](2)
         @file_uri_parts[:file_name] = path_parts&.[](-1)
-        @file_uri_parts[:file_path] = path_parts&.[](3..-2)&.join('/')
+        @file_uri_parts[:file_dir] = path_parts&.[](3..-2)&.join('/')
         @file_uri_parts
       end
     end
