@@ -37,8 +37,8 @@ module DerivativeRodeo
         # @param path [String] The path the the PDF
         #
         # @return [Enumerable, Utilities::PdfSplitter::Base]
-        def self.call(path)
-          new(path)
+        def self.call(path, baseid: SureRandom.uuid, tmpdir: Dir.mktmpdir)
+          new(path, baseid: baseid, tmpdir: tmpdir)
         end
 
         ##
@@ -104,7 +104,7 @@ module DerivativeRodeo
           file_names = []
 
           Open3.popen3(gsconvert_cmd(output_base)) do |_stdin, stdout, _stderr, _wait_thr|
-            page_number = 0
+            page_number = 1
             stdout.read.split("\n").each do |line|
               next unless line.start_with?('Page ')
 
