@@ -49,9 +49,13 @@ module DerivativeRodeo
     private_class_method :aws_config_setter
 
     def initialize
-      # By default, minimize the chatter of the specs; we may want to consider piggybacking on
-      # whether Rails is defined or not.
-      @logger = Logger.new($stderr, level: Logger::FATAL)
+      @logger = if defined?(Rails)
+                  Rails.logger
+                else
+                  # By default, minimize the chatter of the specs.  Add ENV['DEBUG'] to expose the
+                  # chatter.
+                  Logger.new($stderr, level: Logger::FATAL)
+                end
       yield self if block_given?
     end
 
