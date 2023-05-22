@@ -29,13 +29,13 @@ module Fixtures
     raise "You must pass a block" unless block_given?
 
     with_temporary_directory do |dir|
-      targets = filenames.map do |filename|
-        target = File.join(dir, filename)
-        FileUtils.cp(path_for(filename), target)
-        "file://#{target}"
+      locations = filenames.map do |filename|
+        location = File.join(dir, filename)
+        FileUtils.cp(path_for(filename), location)
+        "file://#{location}"
       end
-      yield(targets) if block.arity == 1
-      yield(targets, dir) if block.arity == 2
+      yield(locations) if block.arity == 1
+      yield(locations, dir) if block.arity == 2
     end
   end
 end

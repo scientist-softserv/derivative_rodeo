@@ -10,7 +10,7 @@ module DerivativeRodeo
 
     ##
     # Raised when a file uri is passed in that does not contain a storage adapter part before the ://
-    class StorageTargetMissing < Error
+    class StorageLocationMissing < Error
       def initialize(file_uri: '')
         super("#{file_uri} does not contain an adapter. Should look like file:///my_dir/myfile or s3://bucket_name/location/file_name. The part before the :// is used to select the storage adapter.") # rubocop:disable Layout/LineLength
       end
@@ -18,9 +18,9 @@ module DerivativeRodeo
 
     ##
     # Raised when a storage adapter is called for but does not exist in the registered adapter list
-    class StorageTargetNotFoundError < Error
-      def initialize(target_name: '')
-        super("Could not find the adapter #{target_name}. Make sure it is required and registerd properly.")
+    class StorageLocationNotFoundError < Error
+      def initialize(location_name: '')
+        super("Could not find the adapter #{location_name}. Make sure it is required and registerd properly.")
       end
     end
 

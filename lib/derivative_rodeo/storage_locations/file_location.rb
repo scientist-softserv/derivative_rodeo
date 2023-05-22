@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 module DerivativeRodeo
-  module StorageTargets
+  module StorageLocations
     ##
-    # Target for files found on a local disk
-    class FileTarget < BaseTarget
+    # Location for files found on a local disk
+    class FileLocation < BaseLocation
       def self.create_uri(path:, parts: :all)
         file_path = file_path_from_parts(path: path, parts: parts)
         "#{adapter_prefix}#{file_path}"

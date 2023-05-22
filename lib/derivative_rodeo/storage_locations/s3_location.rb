@@ -3,11 +3,11 @@
 require 'aws-sdk-s3'
 
 module DerivativeRodeo
-  module StorageTargets
+  module StorageLocations
     ##
-    # Target to download and upload files to S3
+    # Location to download and upload files to S3
     #
-    class S3Target < BaseTarget
+    class S3Location < BaseLocation
       attr_writer :bucket
       ##
       # Create a new uri of the classes type. Parts argument should have a default in

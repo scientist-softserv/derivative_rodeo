@@ -8,12 +8,12 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
 end
 
 module DerivativeRodeo
-  module StorageTargets
+  module StorageLocations
     ##
-    # Target to download and upload files to Sqs
+    # Location to download and upload files to Sqs
     # It uploads a file_uri to the queue, not the contents of that file
     # reading from the queue is not currently implemented
-    class SqsTarget < BaseTarget
+    class SqsLocation < BaseLocation
       class_attribute :batch_size, default: 10
 
       attr_writer :client

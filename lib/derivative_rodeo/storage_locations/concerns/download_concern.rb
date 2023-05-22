@@ -4,7 +4,7 @@ require 'faraday'
 require 'faraday/follow_redirects'
 
 module DerivativeRodeo
-  module StorageTargets
+  module StorageLocations
     ##
     # A helper module for copying files from one location to another.
     module DownloadConcern

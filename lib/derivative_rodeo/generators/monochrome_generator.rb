@@ -9,26 +9,26 @@ module DerivativeRodeo
       self.output_extension = 'mono.tiff'
 
       ##
-      # @param input_target [StorageTargets::BaseTarget]
-      # @param output_target [StorageTargets::BaseTarget]
-      # @return [StorageTargets::BaseTarget]
-      def build_step(input_target:, output_target:, input_tmp_file_path:)
+      # @param input_location [StorageLocations::BaseLocation]
+      # @param output_location [StorageLocations::BaseLocation]
+      # @return [StorageLocations::BaseLocation]
+      def build_step(input_location:, output_location:, input_tmp_file_path:)
         image = DerivativeRodeo::Services::ImageService.new(input_tmp_file_path)
         if image.monochrome?
-          # The input_target is already have a monochrome file, no need to run conversions.
-          input_target
+          # The input_location is already have a monochrome file, no need to run conversions.
+          input_location
         else
           # We need to write monochromify and the image.
-          monochromify(output_target, image)
+          monochromify(output_location, image)
         end
       end
 
       ##
       # Convert the above image to a file at the monochrome_path
       #
-      # @param monochrome_file [StorageTargets::BaseTarget]
+      # @param monochrome_file [StorageLocations::BaseLocation]
       # @param image [Services::ImageService]
-      # @return [StorageTargets::BaseTarget]
+      # @return [StorageLocations::BaseLocation]
       def monochromify(monochrome_file, image)
         monochrome_file.with_new_tmp_path do |monochrome_path|
           image.convert(destination: monochrome_path, monochrome: true)
