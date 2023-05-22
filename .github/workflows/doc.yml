@@ -8,24 +8,21 @@ on:
 jobs:
   yard:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        ruby-version: ['2.7.5', '3.0']
     steps:
     - uses: actions/checkout@v3.5.2
 
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1.150.0
       with:
-        ruby-version: ${{ matrix.ruby-version }}
+        ruby-version: '2.7.5'
 
     - name: Cache Gems
       uses: actions/cache@v2.1.8
       with:
         path: vendor/bundle
-        key: ${{ runner.OS }}-gems-${{ matrix.ruby-version }}-${{ hashFiles('**/Gemfile.lock') }}
+        key: ${{ runner.OS }}-gems-2.7.5-${{ hashFiles('**/Gemfile.lock') }}
         restore-keys: |
-          ${{ runner.OS }}-gems-${{ matrix.ruby-version }}-
+          ${{ runner.OS }}-gems-2.7.5-
 
     - name: Install dependencies
       run: |
