@@ -18,6 +18,7 @@
     - [Storage Locations](#storage-locations)
       - [Supported Storage Locations](#supported-storage-locations)
   - [Development](#development)
+    - [Logging in Test Environment](#logging-in-test-environment)
   - [Contributing](#contributing)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -219,9 +220,25 @@ Storage locations follow a [URI pattern](https://en.wikipedia.org/wiki/Uniform_R
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+- Checkout the repository: `git clone https://github.com/scientist-softserv/derivative_rodeo`
+- Install dependencies: `cd derivative_rodeo; bundle install`
+- Install git hooks: `rake install_hooks`
+- Install binaries:
+  - `pdfinfo`: provided by poppler (e.g. `brew install poppler`)
+  - GhostScript (e.g. `gs`): run `brew install gs`
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+Then go about writing your code and documentation.
+
+The git hooks call `rake default` which will:
+
+- Amend the table of contents of this file
+- Run `rubocop`
+- Validate yard documentation (see http://rubydoc.info/gems/yard/file/docs/Tags.md#List_of_Available_Tags for help correcting warnings)
+- Run `rspec` with `simplecov`
+
+### Logging in Test Environment
+
+Throughout the `DerivativeRodeo` we log some activity.  In the typical test run, the logs are overly chatty.  If you want the more chatty logs run the following: `DEBUG=t rspec`.
 
 ## Contributing
 
