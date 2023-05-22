@@ -1,0 +1,36 @@
+name: Lint
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  rubocop:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ruby-version: ['2.7.5', '3.0']
+    steps:
+    - uses: actions/checkout@v3.5.2
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1.150.0
+      with:
+        ruby-version: ${{ matrix.ruby-version }}
+
+    - name: Cache Gems
+      uses: actions/cache@v2.1.8
+      with:
+        path: vendor/bundle
+        key: ${{ runner.OS }}-gems-${{ matrix.ruby-version }}-${{ hashFiles('**/Gemfile.lock') }}
+        restore-keys: |
+          ${{ runner.OS }}-gems-${{ matrix.ruby-version }}-
+
+    - name: Install dependencies
+      run: |
+        bundle config path vendor/bundle
+        bundle install
+
+    - name: Run RuboCop
+      run: bundle exec rake rubocop

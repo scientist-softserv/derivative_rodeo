@@ -1,4 +1,4 @@
-name: CI
+name: Test
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  setup:
+  spec:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -32,26 +32,5 @@ jobs:
         bundle config path vendor/bundle
         bundle install
 
-  rubocop:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3.5.2
-    - name: Run RuboCop
-      run: bundle exec rake rubocop
-
-  yard:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3.5.2
-    - name: Run Yard
-      run: bundle exec rake yard
-
-  spec:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3.5.2
     - name: Run Specs
       run: bundle exec rake spec
