@@ -9,7 +9,7 @@ module DerivativeRodeo
   # This class is responsible for the consistent configuration of the "application" that leverages
   # the {DerivativeRodeo}.
   #
-  # This configuration helps set defaults for storage targets and generators.
+  # This configuration helps set defaults for storage locations and generators.
   class Configuration
     ##
     # Allows AWS configuration to be set via environment variables by declairing them in the configuration
@@ -62,7 +62,7 @@ module DerivativeRodeo
     ##
     # @!group AWS S3 Configuration
     #
-    # Various AWS items for {StorageTargets::S3Target}. These can be set from the ENV or the configuration block
+    # Various AWS items for {StorageLocations::S3Location}. These can be set from the ENV or the configuration block
     #
     # @note
     #
