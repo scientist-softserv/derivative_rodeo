@@ -18,9 +18,9 @@ module DerivativeRodeo
     #
     # A location represents a pointer to a storage location.  The {#exist?} method can answer if a
     # file exists at the path.
+    #
+    # rubocop:disable Metrics/ClassLength
     class BaseLocation
-      attr_accessor :file_uri, :tmp_file_path
-
       @locations = []
 
       ##
@@ -116,9 +116,19 @@ module DerivativeRodeo
         parts == :all ? path : path.split('/')[parts..-1].join('/')
       end
 
-      def initialize(file_uri)
+      ##
+      # @param file_uri [String] a URI to the file's location; this is **not** a templated URI (as
+      #        described in {DerivativeRodeo::Services::ConvertUriViaTemplateService}
+      # @param config [DerivativeRodeo::Configuration]
+      def initialize(file_uri, config: DerivativeRodeo.config)
         @file_uri = file_uri
+        @config = config
       end
+
+      attr_accessor :tmp_file_path
+      private :tmp_file_path=, :tmp_file_path
+
+      attr_reader :config, :file_uri
 
       ##
       # @param auto_write_file [Boolean] Provided as a testing helper method.
@@ -232,6 +242,7 @@ module DerivativeRodeo
         Dir.mktmpdir(&block)
       end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end
 
