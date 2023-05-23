@@ -13,7 +13,7 @@ jobs:
 
     - name: Install utilities
       run: |
-        sudo apt install -y gs tesseract-ocr poppler-utils
+        sudo apt install -y ghostscript tesseract-ocr poppler-utils
 
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1.150.0
