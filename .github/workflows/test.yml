@@ -48,4 +48,4 @@ jobs:
         limit-access-to-actor: true
 
     - name: Run Specs
-      run: bundle exec rake spec --tag ~skip_ci
+      run: bundle exec rspec --tag ~skip_ci
