@@ -144,7 +144,9 @@ module DerivativeRodeo
             err = stderr.read
             logger.error "#{self.class}#pagecount encountered the following error with `pdfinfo': #{err}" if err.present?
             output = stdout.read
-
+            if output.blank?
+              raise "pdfinfo failed to return output for #{pdfpath} - #{err}"
+            end
             match = page_count_regexp.match(output)
 
             @pagecount = match[1].to_i
