@@ -10,6 +10,22 @@ RSpec.describe DerivativeRodeo::Generators::BaseGenerator do
 
   its(:output_extension) { is_expected.to be_nil }
 
+  describe '#input_uris' do
+    subject { instance.input_uris }
+    context 'when given a String' do
+      let(:kwargs) { { input_uris: '123', output_location_template: "" } }
+      it { is_expected.to be_a(Array) }
+    end
+
+    context 'when given an Array' do
+      let(:kwargs) { { input_uris: ['123'], output_location_template: "" } }
+
+      it "uses the given array" do
+        expect(subject).to match_array(kwargs.fetch(:input_uris))
+      end
+    end
+  end
+
   describe '#build_step' do
     it 'must be defined by a child class' do
       expect { subject.build_step(input_location: nil, output_location: nil, input_tmp_file_path: nil) }.to raise_error(NotImplementedError)

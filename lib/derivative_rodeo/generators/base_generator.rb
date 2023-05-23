@@ -41,7 +41,7 @@ module DerivativeRodeo
       #        :preprocessed_location_template.
       # @param logger [Logger]
       def initialize(input_uris:, output_location_template:, preprocessed_location_template: nil, logger: DerivativeRodeo.config.logger)
-        @input_uris = input_uris
+        @input_uris = Array.wrap(input_uris)
         @output_location_template = output_location_template
         @preprocessed_location_template = preprocessed_location_template
         @logger = logger
