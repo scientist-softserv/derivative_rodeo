@@ -8,7 +8,7 @@ RSpec.describe DerivativeRodeo::Generators::WordCoordinatesGenerator do
       generated_file = nil
       Fixtures.with_file_uris_for("ocr_mono_text_hocr.html") do |hocr_uris, from_tmp_dir|
         template = "file://#{from_tmp_dir}/{{ basename }}.coordinates.json"
-        instance = described_class.new(input_uris: hocr_uris, output_target_template: template)
+        instance = described_class.new(input_uris: hocr_uris, output_location_template: template)
         generated_file = instance.generated_files.first
         json = JSON.parse(File.read(generated_file.file_path))
         expect(json.keys).to match_array(["width", "height", "coords"])

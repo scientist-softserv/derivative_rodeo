@@ -43,14 +43,14 @@ module DerivativeRodeo
       # Run tesseract on monocrhome file and store the resulting output in the configured
       # {.output_extension} (default 'hocr')
       #
-      # @param output_target [StorageTargets::BaseTarget]
+      # @param output_location [StorageLocations::BaseLocation]
       # @param input_tmp_file_path [String]
       #
-      # @return [StorageTargets::BaseTarget]
+      # @return [StorageLocations::BaseLocation]
       #
       # @see #requisite_files
-      def build_step(output_target:, input_tmp_file_path:, **)
-        tesseractify(input_tmp_file_path, output_target)
+      def build_step(output_location:, input_tmp_file_path:, **)
+        tesseractify(input_tmp_file_path, output_location)
       end
 
       ##
@@ -60,16 +60,16 @@ module DerivativeRodeo
       # processing a monochrome image.  As such, this generator will auto-convert a given image to
       # monochrome.
       #
-      # @yieldparam file [StorageTargets::BaseTarget]
+      # @yieldparam file [StorageLocations::BaseLocation]
       # @yieldparam tmp_path [String]
       #
-      # @see BaseGenerator#with_each_requisite_target_and_tmp_file_path for further discussion
-      def with_each_requisite_target_and_tmp_file_path(builder: MonochromeGenerator)
-        mono_target_template = output_target_template.gsub(self.class.output_extension, builder.output_extension)
-        requisite_files ||= builder.new(input_uris: input_uris, output_target_template: mono_target_template).generated_files
-        requisite_files.each do |input_target|
-          input_target.with_existing_tmp_path do |tmp_file_path|
-            yield(input_target, tmp_file_path)
+      # @see BaseGenerator#with_each_requisite_location_and_tmp_file_path for further discussion
+      def with_each_requisite_location_and_tmp_file_path(builder: MonochromeGenerator)
+        mono_location_template = output_location_template.gsub(self.class.output_extension, builder.output_extension)
+        requisite_files ||= builder.new(input_uris: input_uris, output_location_template: mono_location_template).generated_files
+        requisite_files.each do |input_location|
+          input_location.with_existing_tmp_path do |tmp_file_path|
+            yield(input_location, tmp_file_path)
           end
         end
       end
@@ -81,9 +81,9 @@ module DerivativeRodeo
       # in the tmp_path
       #
       # @param input_tmp_file_path [String].
-      # @param output_target [StorageTargets::BaseTarget]
-      def tesseractify(input_tmp_file_path, output_target)
-        output_target.with_new_tmp_path do |out_tmp_path|
+      # @param output_location [StorageLocations::BaseLocation]
+      def tesseractify(input_tmp_file_path, output_location)
+        output_location.with_new_tmp_path do |out_tmp_path|
           run_tesseract(input_tmp_file_path, out_tmp_path)
         end
       end

@@ -8,15 +8,15 @@ RSpec.describe DerivativeRodeo::Services::ConvertUriViaTemplateService do
     [
       { from_uri: "file:///path1/A/file.pdf",
         template: "file:///dest1/{{dir_parts[-1..-1]}}/{{filename}}",
-        adapter: DerivativeRodeo::StorageTargets::FileTarget,
+        adapter: DerivativeRodeo::StorageLocations::FileLocation,
         expected: "file:///dest1/A/file.pdf" },
       { from_uri: "aws:///path1/A/file1.pdf",
         template: "{{ scheme }}:///dest1/{{dir_parts[-1..-1]}}/{{filename}}",
-        adapter: DerivativeRodeo::StorageTargets::FileTarget,
+        adapter: DerivativeRodeo::StorageLocations::FileLocation,
         expected: "file:///dest1/A/file1.pdf" },
       { from_uri: "file:///path1/A/file1.pdf",
         template: "file:///dest1/{{dir_parts[-1..-1]}}/{{basename}}/derived{{extension}}",
-        adapter: DerivativeRodeo::StorageTargets::FileTarget,
+        adapter: DerivativeRodeo::StorageLocations::FileLocation,
         expected: "file:///dest1/A/file1/derived.pdf" }
     ].each do |hash|
       context "with from_uri: #{hash.fetch(:from_uri).inspect}, template: #{hash.fetch(:template).inspect}, adapter: #{hash.fetch(:adapter)}" do

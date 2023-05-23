@@ -3,76 +3,76 @@
 require 'tmpdir'
 
 module DerivativeRodeo
-  module StorageTargets
+  module StorageLocations
     ##
-    # When the output target is the same type of target as "this" target, we indicate that via
+    # When the output location is the same type of location as "this" location, we indicate that via
     # the SAME constant.
     SAME = :same
 
     ##
-    # The base target for storing files.
+    # The base location for storing files.
     #
     # - dir :: is the directory path
     # - path :: is the full file path
     # - uri :: is the full file path plus the uri prefix parts
     #
-    # A target represents a pointer to a storage location.  The {#exist?} method can answer if a
+    # A location represents a pointer to a storage location.  The {#exist?} method can answer if a
     # file exists at the path.
-    class BaseTarget
-      attr_accessor :file_uri, :tmp_file_path
-
-      @targets = []
+    #
+    # rubocop:disable Metrics/ClassLength
+    class BaseLocation
+      @locations = []
 
       ##
       # @return [Array<String>]
-      def self.targets
-        @targets ||= []
+      def self.locations
+        @locations ||= []
       end
 
       def self.inherited(subclass)
-        targets << subclass.target_name
+        locations << subclass.location_name
         super
       end
 
       ##
       # @return [String]
-      def self.target_name
-        to_s.demodulize.underscore.sub(/_target$/, '')
+      def self.location_name
+        to_s.demodulize.underscore.sub(/_location$/, '')
       end
 
       class << self
-        alias scheme target_name
+        alias scheme location_name
       end
 
       ##
-      # @param target_name [String]
+      # @param location_name [String]
       #
       # @return [Class]
-      def self.load_target(target_name)
-        target_name = target_name.split("://").first
-        raise Errors::StorageTargetNotFoundError.new(target_name: target_name) unless targets.include?(target_name)
-        "DerivativeRodeo::StorageTargets::#{target_name.to_s.classify}Target".constantize
+      def self.load_location(location_name)
+        location_name = location_name.split("://").first
+        raise Errors::StorageLocationNotFoundError.new(location_name: location_name) unless locations.include?(location_name)
+        "DerivativeRodeo::StorageLocations::#{location_name.to_s.classify}Location".constantize
       end
 
       ##
       # @param file_uri [String] of the form scheme://arbitrary-stuff
       #
-      # @return [BaseTarget]
+      # @return [BaseLocation]
       def self.from_uri(file_uri)
-        target_name = file_uri.split('://').first
-        raise Errors::StorageTargetMissing.new(file_uri: file_uri) if target_name.blank?
+        location_name = file_uri.split('://').first
+        raise Errors::StorageLocationMissing.new(file_uri: file_uri) if location_name.blank?
 
-        load_target(target_name).new(file_uri)
+        load_location(location_name).new(file_uri)
       end
 
       ##
-      # Registers the target with the main StorageTarget class to it can be used
+      # Registers the location with the main StorageLocation class to it can be used
       #
-      # @param target_name [String]
-      def self.register_target(target_name)
-        return if DerivativeRodeo::StorageTargets::BaseTarget.targets.include?(target_name.to_s)
+      # @param location_name [String]
+      def self.register_location(location_name)
+        return if DerivativeRodeo::StorageLocations::BaseLocation.locations.include?(location_name.to_s)
 
-        DerivativeRodeo::StorageTargets::BaseTarget.targets << target_name.to_s
+        DerivativeRodeo::StorageLocations::BaseLocation.locations << location_name.to_s
       end
 
       ##
@@ -91,14 +91,14 @@ module DerivativeRodeo
       end
 
       ##
-      # Build a {StorageTargets::BaseTarget} by converting the :from_uri with the :template via
+      # Build a {StorageLocations::BaseLocation} by converting the :from_uri with the :template via
       # the given :service.
       #
       # @param from_uri [String]
       # @param template [String]
       # @param service [#call, Module<DerivativeRodeo::Services::ConvertUriViaTemplateService>]
       #
-      # @return [StorageTargets::BaseTarget]
+      # @return [StorageLocations::BaseLocation]
       def self.build(from_uri:, template:, service: DerivativeRodeo::Services::ConvertUriViaTemplateService)
         # HACK: Ensuring that we have the correct scheme.  Maybe this is a hack?
         from_uri = "#{scheme}://#{from_uri}" unless from_uri.start_with?("#{scheme}://")
@@ -116,16 +116,26 @@ module DerivativeRodeo
         parts == :all ? path : path.split('/')[parts..-1].join('/')
       end
 
-      def initialize(file_uri)
+      ##
+      # @param file_uri [String] a URI to the file's location; this is **not** a templated URI (as
+      #        described in {DerivativeRodeo::Services::ConvertUriViaTemplateService}
+      # @param config [DerivativeRodeo::Configuration]
+      def initialize(file_uri, config: DerivativeRodeo.config)
         @file_uri = file_uri
+        @config = config
       end
+
+      attr_accessor :tmp_file_path
+      private :tmp_file_path=, :tmp_file_path
+
+      attr_reader :config, :file_uri
 
       ##
       # @param auto_write_file [Boolean] Provided as a testing helper method.
       #
       # @yieldparam tmp_file_path [String]
       #
-      # @return [StorageTargets::BaseTarget]
+      # @return [StorageLocations::BaseLocation]
       # @see with_tmp_path
       def with_new_tmp_path(auto_write_file: true, &block)
         with_tmp_path(lambda { |_file_path, tmp_file_path, exist|
@@ -136,7 +146,7 @@ module DerivativeRodeo
 
       ##
       # @yieldparam tmp_file_path [String]
-      # @return [StorageTargets::BaseTarget]
+      # @return [StorageLocations::BaseLocation]
       def with_existing_tmp_path
         raise NotImplementedError, "#{self.class}#with_existing_tmp_path"
       end
@@ -152,7 +162,7 @@ module DerivativeRodeo
       #
       # @yieldparam tmp_file_path [String]
       #
-      # @return [StorageTargets::BaseTarget]
+      # @return [StorageLocations::BaseLocation]
       def with_tmp_path(preamble_lambda, auto_write_file: false)
         raise ArgumentError, 'Expected a block' unless block_given?
 
@@ -167,7 +177,7 @@ module DerivativeRodeo
         self.tmp_file_path = nil
 
         # In returning self we again remove the need for those calling #with_new_tmp_path,
-        # #with_tmp_path, and #with_new_tmp_path to remember to return the current Target.
+        # #with_tmp_path, and #with_new_tmp_path to remember to return the current Location.
         # In other words removing the jagged edges of the code.
         self
       end
@@ -188,20 +198,20 @@ module DerivativeRodeo
 
       ##
       # @param template [String]
-      # @return [StorageTargets::BaseTarget]
+      # @return [StorageLocations::BaseLocation]
       #
       # @see DerivativeRodeo::Services::ConvertUriViaTemplateService
       def derived_file_from(template:)
-        klass = DerivativeRodeo::StorageTargets::BaseTarget.load_target(template)
+        klass = DerivativeRodeo::StorageLocations::BaseLocation.load_location(template)
         klass.build(from_uri: file_path, template: template)
       end
 
       ##
-      # @param extension [String, StorageTargets::SAME]
-      # @return [String] the path for the new extension; when given {StorageTargets::SAME} re-use
+      # @param extension [String, StorageLocations::SAME]
+      # @return [String] the path for the new extension; when given {StorageLocations::SAME} re-use
       #         the file's extension.
       def with_new_extension(extension)
-        return file_path if extension == StorageTargets::SAME
+        return file_path if extension == StorageLocations::SAME
 
         "#{file_path.split('.')[0]}.#{extension}"
       end
@@ -232,9 +242,10 @@ module DerivativeRodeo
         Dir.mktmpdir(&block)
       end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end
 
-Dir.glob(File.join(__dir__, '**/*')).sort.each do |target|
-  require target unless File.directory?(target) || target.match?('base_target')
+Dir.glob(File.join(__dir__, '**/*')).sort.each do |location|
+  require location unless File.directory?(location) || location.match?('base_location')
 end

@@ -8,12 +8,12 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
 end
 
 module DerivativeRodeo
-  module StorageTargets
+  module StorageLocations
     ##
-    # Target to download and upload files to Sqs
+    # Location to download and upload files to Sqs
     # It uploads a file_uri to the queue, not the contents of that file
     # reading from the queue is not currently implemented
-    class SqsTarget < BaseTarget
+    class SqsLocation < BaseLocation
       class_attribute :batch_size, default: 10
 
       attr_writer :client
@@ -70,7 +70,7 @@ module DerivativeRodeo
       # @return [String] the file_uri
       def write
         raise Errors::FileMissingError("Use write within a with__new_tmp_path block and fille the mp file with data before writing") unless File.exist?(tmp_file_path)
-        raise Errors::MaxQqueueSize(batch_size: batch_size) if batch_size > DerivativeRodeo.config.aws_sqs_max_batch_size
+        raise Errors::MaxQqueueSize(batch_size: batch_size) if batch_size > config.aws_sqs_max_batch_size
         batch = []
         Dir.glob("#{File.dirname(tmp_file_path)}/**/**").each.with_index do |fp, i|
           batch << { id: SecureRandom.uuid, message_body: output_json("file://#{fp}") }
@@ -83,16 +83,16 @@ module DerivativeRodeo
       end
 
       def client
-        @client ||= if DerivativeRodeo.config.aws_sqs_access_key_id && DerivativeRodeo.config.aws_sqs_secret_access_key
+        @client ||= if config.aws_sqs_access_key_id && config.aws_sqs_secret_access_key
                       Aws::SQS::Client.new(
-                        region: DerivativeRodeo.config.aws_sqs_region,
+                        region: config.aws_sqs_region,
                         credentials: Aws::Credentials.new(
-                          DerivativeRodeo.config.aws_sqs_access_key_id,
-                          DerivativeRodeo.config.aws_sqs_secret_access_key
+                          config.aws_sqs_access_key_id,
+                          config.aws_sqs_secret_access_key
                         )
                       )
                     else
-                      Aws::SQS::Client.new(region: DerivativeRodeo.config.aws_sqs_region)
+                      Aws::SQS::Client.new(region: config.aws_sqs_region)
                     end
       end
 

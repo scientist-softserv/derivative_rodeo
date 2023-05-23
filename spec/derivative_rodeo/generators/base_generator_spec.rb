@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe DerivativeRodeo::Generators::BaseGenerator do
-  let(:kwargs) { { input_uris: [], output_target_template: "" } }
+  let(:kwargs) { { input_uris: [], output_location_template: "" } }
   subject(:instance) { described_class.new(**kwargs) }
 
   %i[input_uris output_extension output_extension= generated_files].each do |method|
@@ -10,86 +10,102 @@ RSpec.describe DerivativeRodeo::Generators::BaseGenerator do
 
   its(:output_extension) { is_expected.to be_nil }
 
+  describe '#input_uris' do
+    subject { instance.input_uris }
+    context 'when given a String' do
+      let(:kwargs) { { input_uris: '123', output_location_template: "" } }
+      it { is_expected.to be_a(Array) }
+    end
+
+    context 'when given an Array' do
+      let(:kwargs) { { input_uris: ['123'], output_location_template: "" } }
+
+      it "uses the given array" do
+        expect(subject).to match_array(kwargs.fetch(:input_uris))
+      end
+    end
+  end
+
   describe '#build_step' do
     it 'must be defined by a child class' do
-      expect { subject.build_step(input_target: nil, output_target: nil, input_tmp_file_path: nil) }.to raise_error(NotImplementedError)
+      expect { subject.build_step(input_location: nil, output_location: nil, input_tmp_file_path: nil) }.to raise_error(NotImplementedError)
     end
   end
 
   describe '#destination' do
     context 'when the output already exists' do
-      it 'returns the file at the output target' do
-        Fixtures.with_temporary_directory do |output_target_dir|
-          # Ensure that we have the file in the output target.
-          output_target = File.join(output_target_dir, File.basename(__FILE__))
-          FileUtils.cp(__FILE__, output_target)
-          template = "file://#{output_target}"
+      it 'returns the file at the output location' do
+        Fixtures.with_temporary_directory do |output_location_dir|
+          # Ensure that we have the file in the output location.
+          output_location = File.join(output_location_dir, File.basename(__FILE__))
+          FileUtils.cp(__FILE__, output_location)
+          template = "file://#{output_location}"
 
           input_uri = "file://#{__FILE__}"
-          instance = described_class.new(input_uris: [input_uri], output_target_template: template)
-          input_file = DerivativeRodeo::StorageTargets::BaseTarget.from_uri(input_uri)
+          instance = described_class.new(input_uris: [input_uri], output_location_template: template)
+          input_file = DerivativeRodeo::StorageLocations::BaseLocation.from_uri(input_uri)
           destination = instance.destination(input_file)
-          expect(destination.file_path).to eq(output_target)
+          expect(destination.file_path).to eq(output_location)
           expect(destination.exist?).to be_truthy
         end
       end
     end
 
-    context 'when the output does not exist and the preprocessed target exists' do
-      it 'returns the file at the preprocessed target' do
-        Fixtures.with_temporary_directory do |output_target_dir|
-          Fixtures.with_temporary_directory do |preprocessed_target_dir|
-            output_target = File.join(output_target_dir, File.basename(__FILE__))
-            output_template = "file://#{output_target}"
+    context 'when the output does not exist and the preprocessed location exists' do
+      it 'returns the file at the preprocessed location' do
+        Fixtures.with_temporary_directory do |output_location_dir|
+          Fixtures.with_temporary_directory do |preprocessed_location_dir|
+            output_location = File.join(output_location_dir, File.basename(__FILE__))
+            output_template = "file://#{output_location}"
 
-            preprocessed_target = File.join(preprocessed_target_dir, File.basename(__FILE__))
-            preprocessed_template = "file://#{preprocessed_target}"
-            FileUtils.cp(__FILE__, preprocessed_target)
+            preprocessed_location = File.join(preprocessed_location_dir, File.basename(__FILE__))
+            preprocessed_template = "file://#{preprocessed_location}"
+            FileUtils.cp(__FILE__, preprocessed_location)
 
             input_uri = "file://#{__FILE__}"
 
             instance = described_class.new(
               input_uris: [input_uri],
-              output_target_template: output_template,
-              preprocessed_target_template: preprocessed_template
+              output_location_template: output_template,
+              preprocessed_location_template: preprocessed_template
             )
 
-            input_file = DerivativeRodeo::StorageTargets::BaseTarget.from_uri(input_uri)
+            input_file = DerivativeRodeo::StorageLocations::BaseLocation.from_uri(input_uri)
             destination = instance.destination(input_file)
 
-            expect(destination.file_path).to eq(preprocessed_target)
+            expect(destination.file_path).to eq(preprocessed_location)
             expect(destination.exist?).to be_truthy
 
-            expect(File.exist?(output_target)).to be_falsey
+            expect(File.exist?(output_location)).to be_falsey
           end
         end
       end
 
-      context 'when neither the output nor the preprocessed target exists' do
-        it 'returns the file handle at the output target (which does not exist)' do
-          Fixtures.with_temporary_directory do |output_target_dir|
-            Fixtures.with_temporary_directory do |preprocessed_target_dir|
-              output_target = File.join(output_target_dir, File.basename(__FILE__))
-              output_template = "file://#{output_target}"
+      context 'when neither the output nor the preprocessed location exists' do
+        it 'returns the file handle at the output location (which does not exist)' do
+          Fixtures.with_temporary_directory do |output_location_dir|
+            Fixtures.with_temporary_directory do |preprocessed_location_dir|
+              output_location = File.join(output_location_dir, File.basename(__FILE__))
+              output_template = "file://#{output_location}"
 
-              preprocessed_target = File.join(preprocessed_target_dir, File.basename(__FILE__))
-              preprocessed_template = "file://#{preprocessed_target}"
+              preprocessed_location = File.join(preprocessed_location_dir, File.basename(__FILE__))
+              preprocessed_template = "file://#{preprocessed_location}"
 
               input_uri = "file://#{__FILE__}"
 
               instance = described_class.new(
                 input_uris: [input_uri],
-                output_target_template: output_template,
-                preprocessed_target_template: preprocessed_template
+                output_location_template: output_template,
+                preprocessed_location_template: preprocessed_template
               )
 
-              input_file = DerivativeRodeo::StorageTargets::BaseTarget.from_uri(input_uri)
+              input_file = DerivativeRodeo::StorageLocations::BaseLocation.from_uri(input_uri)
               destination = instance.destination(input_file)
 
-              expect(destination.file_path).to eq(output_target)
+              expect(destination.file_path).to eq(output_location)
               expect(destination.exist?).to be_falsey
 
-              expect(File.exist?(output_target)).to be_falsey
+              expect(File.exist?(output_location)).to be_falsey
             end
           end
         end
@@ -97,8 +113,8 @@ RSpec.describe DerivativeRodeo::Generators::BaseGenerator do
     end
 
     describe '#with_each_requisite_file_and_tmp_path' do
-      it 'will return an array of StorageTargets::BaseTarget instances'
-      it 'will yield two parameters: a StorageTargets::BaseTarget instance and a path to the temp file space'
+      it 'will return an array of StorageLocations::BaseLocation instances'
+      it 'will yield two parameters: a StorageLocations::BaseLocation instance and a path to the temp file space'
     end
   end
 end

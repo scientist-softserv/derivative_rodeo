@@ -48,16 +48,21 @@ module DerivativeRodeo
         # @param pdf_pages_summary [Derivative::Rodeo::PdfPagesSummary] by default we'll
         #        extract this from the given path, but for testing purposes, you might want to
         #        provide a specific summary.
+        # @param logger [Logger, #error]
         def initialize(path,
                        baseid: SecureRandom.uuid,
                        # TODO: Do we need to provide the :tmpdir for the application?
                        tmpdir: Dir.mktmpdir,
-                       pdf_pages_summary: PagesSummary.extract_from(path: path))
+                       pdf_pages_summary: PagesSummary.extract_from(path: path),
+                       logger: DerivativeRodeo.config.logger)
           @baseid = baseid
           @pdfpath = path
           @pdf_pages_summary = pdf_pages_summary
           @tmpdir = tmpdir
+          @logger = logger
         end
+
+        attr_reader :logger
 
         # In creating {#each} we get many of the methods of array operation (e.g. #to_a).
         include Enumerable
@@ -103,7 +108,10 @@ module DerivativeRodeo
           # updated during the gsdevice call.
           file_names = []
 
-          Open3.popen3(gsconvert_cmd(output_base)) do |_stdin, stdout, _stderr, _wait_thr|
+          Open3.popen3(gsconvert_cmd(output_base)) do |_stdin, stdout, stderr, _wait_thr|
+            err = stderr.read
+            logger.error "#{self.class}#gsconvert encountered the following error with `gs': #{err}" if err.present?
+
             page_number = 1
             stdout.read.split("\n").each do |line|
               next unless line.start_with?('Page ')
@@ -133,9 +141,11 @@ module DerivativeRodeo
 
           cmd = "pdfinfo #{pdfpath}"
           Open3.popen3(cmd) do |_stdin, stdout, stderr, _wait_thr|
+            err = stderr.read
+            logger.error "#{self.class}#pagecount encountered the following error with `pdfinfo': #{err}" if err.present?
             output = stdout.read
             if output.blank?
-              raise "pdfinfo failed to return output for #{pdfpath} - #{_stderr.read}"
+              raise "pdfinfo failed to return output for #{pdfpath} - #{err}"
             end
             match = page_count_regexp.match(output)
 

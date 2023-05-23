@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe DerivativeRodeo::StorageTargets::BaseTarget do
+RSpec.describe DerivativeRodeo::StorageLocations::BaseLocation do
   let(:args) { "fake://nothing" }
 
   subject { described_class.new(args) }
@@ -11,12 +11,14 @@ RSpec.describe DerivativeRodeo::StorageTargets::BaseTarget do
     expect { described_class.new }.to raise_error(ArgumentError)
   end
 
+  its(:config) { is_expected.to be_a(DerivativeRodeo::Configuration) }
+
   it "should set the file_uri on initialize" do
     expect(subject.file_uri).to eq(args)
   end
 
-  describe '.target_name' do
-    subject { described_class.target_name }
+  describe '.location_name' do
+    subject { described_class.location_name }
     it { is_expected.to be_a(String) }
   end
 

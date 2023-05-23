@@ -31,7 +31,7 @@ module DerivativeRodeo
       #
       # @param from_uri [String] Of the form "scheme://dir/parts/basename.extension"
       # @param template [String] Another URI that may contain path_parts or scheme template values.
-      # @param adapter [StorageTargets::Target]
+      # @param adapter [StorageLocations::Location]
       # @param separator [String]
       #
       # @return [String]

@@ -15,9 +15,10 @@
       - [Interface(s)](#interfaces)
       - [Supported Generators](#supported-generators)
       - [Registered Generators](#registered-generators)
-    - [Storage Targets](#storage-targets)
-      - [Supported Storage Targets](#supported-storage-targets)
+    - [Storage Locations](#storage-locations)
+      - [Supported Storage Locations](#supported-storage-locations)
   - [Development](#development)
+    - [Logging in Test Environment](#logging-in-test-environment)
   - [Contributing](#contributing)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -26,24 +27,24 @@
 
 “This ain’t my first rodeo.” (an idiomatic American slang for “I’m prepared for what comes next.”)
 
-The `DerivativeRodeo` "moves" files from one storage target (e.g. *input*) to one or more storage targets (e.g. *output*) via a generator.
+The `DerivativeRodeo` "moves" files from one storage location (e.g. *input*) to one or more storage locations (e.g. *output*) via a generator.
 
-- [Storage Target](./lib/derivative_rodeo/storage_targets/base_target.rb) :: where we can expect to find a file.
+- [Storage Location](./lib/derivative_rodeo/storage_locations/base_location.rb) :: where we can expect to find a file.
 - [Generator](./lib/derivative_rodeo/generators/base_generator.rb) :: a process to transform a file into another file.
 
 ## Process Life Cycle
 
-In the case of a *input* storage target, we expect that the underlying file pointed at by the *input* storage target exists.  After all we can't move what we don't have.
+In the case of a *input* storage location, we expect that the underlying file pointed at by the *input* storage location exists.  After all we can't move what we don't have.
 
-In the case of a *output* storage target, we expect that the underlying file will exist after the generator has completed.  The *output* storage target *could* already exist or we might need to generate the file for the *output* target.
+In the case of a *output* storage location, we expect that the underlying file will exist after the generator has completed.  The *output* storage location *could* already exist or we might need to generate the file for the *output* location.
 
 During the generator's process, we need to have a working copy of both the *input* and *output* file.  This is done by creating a temporary file.
 
-In the case of the *input*, the creation of that temporary file involves getting the file from the *input* storage target.  In the case of the *output*, we create a temporary file that the *output* storage target then knows how to move to the resulting place.
+In the case of the *input*, the creation of that temporary file involves getting the file from the *input* storage location.  In the case of the *output*, we create a temporary file that the *output* storage location then knows how to move to the resulting place.
 
 ![Storage Lifecycle](./artifacts/derivative_rodeo-generator_storage_lifecycle.png)
 
-The above Storage Lifecycle diagram is as follows: `input target` to `input tmp file` to `generator` to `output tmp file` to `output target`.
+The above Storage Lifecycle diagram is as follows: `input location` to `input tmp file` to `generator` to `output tmp file` to `output location`.
 
 *Note:* We've designed and implemented the data life cycle to automatically clean-up the temporary files as the generator completes.  In this way we can use the smallest working space possible.  A design decision that helps run `DerivativeRodeo` within distributed clusters (e.g. AWS Serverless).
 
@@ -183,7 +184,7 @@ Generators are responsible for ensuring that we have the file associated with th
 
 Generators must have an initializer and build command:
 
-- `.new(array_of_file_urls, output_target_template, preprocessed_target_template)`
+- `.new(array_of_file_urls, output_location_template, preprocessed_location_template)`
 - `#generated_files` (executes the generators actions) and returns array of files
 - `#generated_uris` (executes the generators actions) and returns array of output uris
 
@@ -201,17 +202,17 @@ Below is the current list of generators.
 
 TODO: We want to expose a list of registered generators
 
-### Storage Targets
+### Storage Locations
 
-Storage targets are where we put things.  Each target has a specific implementation but is expected to inherit from the  [DerivativeRodeo::StorageTarget::BaseTarget](./lib/derivative_rodeo/storage_adapters/base_adapter.rb).
+Storage locations are where we put things.  Each location has a specific implementation but is expected to inherit from the  [DerivativeRodeo::StorageLocation::BaseLocation](./lib/derivative_rodeo/storage_adapters/base_adapter.rb).
 
-`DerivativeRodeo::StorageTarget::BaseTarget.targets` method tracks the registered targets.
+`DerivativeRodeo::StorageLocation::BaseLocation.locations` method tracks the registered locations.
 
-The target represents where the file *should* be.
+The location represents where the file *should* be.
 
-#### Supported Storage Targets
+#### Supported Storage Locations
 
-Storage targets follow a [URI pattern](https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#Example_URIs)
+Storage locations follow a [URI pattern](https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#Example_URIs)
 
 - `file://` :: “local” file system storage
 - `s3://` :: <abbr title="Amazon Web Service">AWS</abbr>’s <abbr title="Simple Storage Service">S3</abbr> storage system
@@ -219,9 +220,25 @@ Storage targets follow a [URI pattern](https://en.wikipedia.org/wiki/Uniform_Res
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+- Checkout the repository: `git clone https://github.com/scientist-softserv/derivative_rodeo`
+- Install dependencies: `cd derivative_rodeo; bundle install`
+- Install git hooks: `rake install_hooks`
+- Install binaries:
+  - `pdfinfo`: provided by poppler (e.g. `brew install poppler`)
+  - GhostScript (e.g. `gs`): run `brew install gs`
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+Then go about writing your code and documentation.
+
+The git hooks call `rake default` which will:
+
+- Amend the table of contents of this file
+- Run `rubocop`
+- Validate yard documentation (see http://rubydoc.info/gems/yard/file/docs/Tags.md#List_of_Available_Tags for help correcting warnings)
+- Run `rspec` with `simplecov`
+
+### Logging in Test Environment
+
+Throughout the `DerivativeRodeo` we log some activity.  In the typical test run, the logs are overly chatty.  If you want the more chatty logs run the following: `DEBUG=t rspec`.
 
 ## Contributing
 
