@@ -1,0 +1,51 @@
+name: Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        type: boolean
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        required: false
+        default: false
+
+jobs:
+  spec:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3.5.2
+
+    - name: Install utilities
+      run: |
+        sudo add-apt-repository ppa:alex-p/tesseract-ocr-daily
+        sudo apt update
+        sudo apt install -y ghostscript tesseract-ocr poppler-utils
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1.150.0
+      with:
+        ruby-version: '2.7.5'
+
+    - name: Cache Gems
+      uses: actions/cache@v2.1.8
+      with:
+        path: vendor/bundle
+        key: ${{ runner.OS }}-gems-2.7.5-${{ hashFiles('**/Gemfile.lock') }}
+        restore-keys: |
+          ${{ runner.OS }}-gems-2.7.5-
+
+    - name: Install dependencies
+      run: |
+        bundle config path vendor/bundle
+        bundle install
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
+      if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
+      with:
+        limit-access-to-actor: true
+
+    - name: Run Specs
+      run: bundle exec rspec --tag ~skip_ci

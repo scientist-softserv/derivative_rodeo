@@ -1,0 +1,33 @@
+name: Doc
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  yard:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3.5.2
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1.150.0
+      with:
+        ruby-version: '2.7.5'
+
+    - name: Cache Gems
+      uses: actions/cache@v2.1.8
+      with:
+        path: vendor/bundle
+        key: ${{ runner.OS }}-gems-2.7.5-${{ hashFiles('**/Gemfile.lock') }}
+        restore-keys: |
+          ${{ runner.OS }}-gems-2.7.5-
+
+    - name: Install dependencies
+      run: |
+        bundle config path vendor/bundle
+        bundle install
+
+    - name: Run Yard
+      run: bundle exec rake yard
