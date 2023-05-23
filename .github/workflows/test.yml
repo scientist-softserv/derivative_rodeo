@@ -11,9 +11,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3.5.2
 
-    - name: Install pdf utils
+    - name: Install utilities
       run: |
-        sudo apt install -y poppler-utils
+        sudo apt install -y gs tesseract-ocr poppler-utils
 
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1.150.0
