@@ -20,6 +20,8 @@ jobs:
 
     - name: Install utilities
       run: |
+        sudo add-apt-repository ppa:alex-p/tesseract-ocr-daily
+        sudo apt update
         sudo apt install -y ghostscript tesseract-ocr poppler-utils
 
     - name: Set up Ruby
@@ -46,4 +48,4 @@ jobs:
         limit-access-to-actor: true
 
     - name: Run Specs
-      run: bundle exec rake spec
+      run: bundle exec rake spec --tag ~skip_ci

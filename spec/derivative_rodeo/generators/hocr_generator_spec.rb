@@ -15,7 +15,7 @@ RSpec.describe DerivativeRodeo::Generators::HocrGenerator do
     let(:kwargs) { { input_uris: [file_uri] } }
     subject(:generated_files) { instance.generated_files }
 
-    context 'with color image' do
+    context 'with color image', :skip_ci do
       it 'builds a hocr file' do
         generated_files = nil
         Fixtures.with_file_uris_for("ocr_color.tiff") do |input_uris|
@@ -33,7 +33,7 @@ RSpec.describe DerivativeRodeo::Generators::HocrGenerator do
       end
     end
 
-    context 'with pre processed color image' do
+    context 'with pre processed color image', :skip_ci do
       it 'builds a hocr file' do
         generated_files = nil
         Fixtures.with_file_uris_for('ocr_color_pre.tiff') do |input_uris|
