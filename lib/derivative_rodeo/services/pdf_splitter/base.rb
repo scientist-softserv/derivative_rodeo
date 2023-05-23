@@ -132,8 +132,11 @@ module DerivativeRodeo
           return @pagecount if defined? @pagecount
 
           cmd = "pdfinfo #{pdfpath}"
-          Open3.popen3(cmd) do |_stdin, stdout, _stderr, _wait_thr|
+          Open3.popen3(cmd) do |_stdin, stdout, stderr, _wait_thr|
             output = stdout.read
+            if output.blank?
+              raise "pdfinfo failed to return output for #{pdfpath} - #{_stderr.read}"
+            end
             match = page_count_regexp.match(output)
 
             @pagecount = match[1].to_i
