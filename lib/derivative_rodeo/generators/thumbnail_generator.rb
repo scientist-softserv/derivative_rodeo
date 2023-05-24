@@ -10,7 +10,7 @@ module DerivativeRodeo
       # We want to mirror the same file "last" extension as described in Hyrax.
       #
       # @see https://github.com/samvera/hyrax/blob/426575a9065a5dd3b30f458f5589a0a705ad7be2/app/services/hyrax/file_set_derivatives_service.rb
-      self.output_extension = 'thumbnail.jpg'
+      self.output_extension = 'thumbnail.jpeg'
 
       ##
       # @param output_location [StorageLocations::BaseLocation]
@@ -30,10 +30,8 @@ module DerivativeRodeo
       # @param path_of_file_to_create_thumbnail_from [String]
       # @param path_for_thumbnail_output [String]
       def thumbnify(path_of_file_to_create_thumbnail_from:, path_for_thumbnail_output:)
-        # Put a byebug here is reasonable.
-        # Favor and if possible, call the command line tools without any MiniMagick
-        # TODO: Do the command-line
-        raise NotImplementedError, "Kirk and Deon will be implementing this!"
+        # @todo the dimensions might not be always 200x150, figure out a way to make it dynamic
+        `convert #{path_of_file_to_create_thumbnail_from} -thumbnail '200x150>' -flatten #{path_for_thumbnail_output}`
       end
     end
   end
