@@ -20,16 +20,19 @@ RSpec.describe DerivativeRodeo::Services::ExtractWordCoordinatesFromHocrSgmlServ
     subject { hocr.text }
 
     it 'outputs plain text' do
-      expect(subject.slice(0, 40)).to eq "_A  FEARFUL  ADVENTURE.\n‘The  Missouri. "
-      expect(subject.size).to eq 831
+      expect(subject.slice(0, 40)).to eq "_A FEARFUL ADVENTURE.\n‘The Missouri. Rep"
+      expect(subject.size).to eq 723
     end
   end
 
   describe '#to_json' do
     subject { hocr.to_json }
-    it 'outputs JSON that includes coords key' do
+    it 'outputs JSON that includes coords key with unique coordinate values' do
       parsed = JSON.parse(subject)
       expect(parsed['coords'].length).to be > 1
+      parsed['coords'].values.each do |value|
+        expect(value.uniq.length).to eq(value.length)
+      end
     end
   end
 end

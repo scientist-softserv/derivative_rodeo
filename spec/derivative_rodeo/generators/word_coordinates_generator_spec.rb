@@ -13,6 +13,7 @@ RSpec.describe DerivativeRodeo::Generators::WordCoordinatesGenerator do
         json = JSON.parse(File.read(generated_file.file_path))
         expect(json.keys).to match_array(["width", "height", "coords"])
         expect(generated_file.exist?).to be_truthy
+        expect(generated_file.file_path).to end_with("/ocr_mono_text_hocr.coordinates.json")
       end
 
       expect(generated_file.exist?).to be_falsey
