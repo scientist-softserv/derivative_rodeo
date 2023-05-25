@@ -17,19 +17,20 @@ module DerivativeRodeo
       include CopyFileConcern
 
       ##
-      # @param name [#to_s] Convert the given name into the resulting {Services::PdfSplitter::Base}.
+      # @param basename [String] The given PDF file's base name (e.g. "hello.pdf" would have a base name of
+      #        "hello").
       #
-      # @return [#call, Services::PdfSplitter::Base]
-      def pdf_splitter(name: pdf_splitter_name)
-        @pdf_splitter ||= Services::PdfSplitter.for(name)
-      end
-
-      ##
-      # @return [Symbol]
+      # @return [String] A template for the filenames of the images produced by Ghostscript.
       #
-      # @see .output_extension
-      def pdf_splitter_name
-        output_extension.to_s.split(".").last.to_sym
+      # @note This must include "%d" in the returning value, as that is how Ghostscript will assign
+      # the page number.
+      #
+      # @note I have extracted this function to make it abundantly clear the expected filename of
+      # each split image.
+      def image_file_basename_template(basename:)
+        # TODO: Rather urgently we need to decide if this is a reasonable format?  Do we want to
+        # have subfolders instead?  Will that make it easier to find things.
+        "#{basename}-page%d.#{output_extension}"
       end
 
       ##
@@ -48,8 +49,11 @@ module DerivativeRodeo
       def with_each_requisite_location_and_tmp_file_path
         input_files.each do |input_location|
           input_location.with_existing_tmp_path do |input_tmp_file_path|
-            image_paths = pdf_splitter.call(input_tmp_file_path, baseid: input_location.file_basename, tmpdir: File.dirname(input_tmp_file_path))
-            image_paths.each do |image_path|
+            Services::PdfSplitter.call(
+              input_tmp_file_path,
+              image_extension: output_extension,
+              image_file_basename_template: image_file_basename_template(basename: input_location.file_basename)
+            ).each do |image_path|
               image_location = StorageLocations::FileLocation.new("file://#{image_path}")
               yield(image_location, image_path)
             end

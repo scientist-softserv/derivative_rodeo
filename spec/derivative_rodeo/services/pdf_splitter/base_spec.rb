@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe DerivativeRodeo::Services::PdfSplitter::Base do
-  subject { described_class.new(__FILE__, pdf_pages_summary: pdf_pages_summary) }
+  subject { described_class.new(__FILE__, pdf_pages_summary: pdf_pages_summary, image_file_basename_template: "%d") }
   let(:pdf_pages_summary) { double(DerivativeRodeo::Services::PdfSplitter::PagesSummary) }
 
   # Becasue the described class is an abstract class, we want to verify its public interface.

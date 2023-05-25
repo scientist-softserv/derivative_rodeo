@@ -14,13 +14,6 @@ RSpec.describe DerivativeRodeo::Generators::PdfSplitGenerator do
 
   context 'by default' do
     its(:output_extension) { is_expected.to eq('tiff') }
-    its(:pdf_splitter_name) { is_expected.to eq(:tiff) }
-  end
-
-  context 'when you change the #output_extension' do
-    it 'changes the #pdf_splitter_name' do
-      expect { instance.output_extension = 'png' }.to change(instance, :pdf_splitter_name).from(:tiff).to(:png)
-    end
   end
 
   describe '#generated_files' do
@@ -29,7 +22,7 @@ RSpec.describe DerivativeRodeo::Generators::PdfSplitGenerator do
         generated_files = nil
         Fixtures.with_file_uris_for("minimal-2-page.pdf") do |input_uris|
           Fixtures.with_temporary_directory do |output_temporary_path|
-            output_location_template = "file://#{output_temporary_path}/{{dir_parts[0..-1]}}/{{ filename }}"
+            output_location_template = "file://#{output_temporary_path}/{{dir_parts[-1..-1]}}/{{ filename }}"
             instance = described_class.new(input_uris: input_uris, output_location_template: output_location_template)
             generated_files = instance.generated_files
 

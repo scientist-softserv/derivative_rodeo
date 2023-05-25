@@ -6,13 +6,31 @@ require 'tmpdir'
 
 module DerivativeRodeo
   module Services
+    ##
+    # A service module for splitting PDFs into one image per page.
+    #
+    # @see .call
     module PdfSplitter
       ##
-      # @param name [String]
-      # @return [PdfSplitter::Base]
-      def self.for(name)
-        klass_name = "#{name.to_s.classify}_page".classify
-        "DerivativeRodeo::Services::PdfSplitter::#{klass_name}".constantize
+      # @api public
+      #
+      # Split the file found at the given :path
+      #
+      # @param path [String] the path to the source PDF that we're processing.
+      # @param image_extension [String] used to determine the splitting service we use; there is an
+      #        implicit relationship between image_extension and image_file_basename_template
+      #        (though filenames do not necessarily reflect mime types)
+      # @param image_file_basename_template [String] use this string to generate the unique filename
+      #        for an image "split" from the given PDF.  It must include "%d" as part of the
+      #        declaration.  For example if the template is "hello-world-%d.png" then the first
+      #        split page will be "hello-world-1.png".
+      # @param tmpdir [String] place to perform the "work" of splitting the PDF.
+      #
+      # @return [Enumerable, Utilities::PdfSplitter::Base, #each] see {Base#each}
+      def self.call(path, image_extension:, image_file_basename_template:, tmpdir: File.dirname(path))
+        klass_name = "#{image_extension.to_s.classify}_page".classify
+        klass = "DerivativeRodeo::Services::PdfSplitter::#{klass_name}".constantize
+        klass.new(path, tmpdir: tmpdir, image_file_basename_template: image_file_basename_template)
       end
 
       ##
@@ -31,38 +49,22 @@ module DerivativeRodeo
 
         class_attribute :gsdevice, instance_accessor: false
         class_attribute :page_count_regexp, instance_accessor: true, default: /^Pages: +(\d+)$/
-        ##
-        # @api public
-        #
-        # @param path [String] The path the the PDF
-        #
-        # @return [Enumerable, Utilities::PdfSplitter::Base]
-        def self.call(path, baseid: SureRandom.uuid, tmpdir: Dir.mktmpdir)
-          new(path, baseid: baseid, tmpdir: tmpdir)
-        end
 
-        ##
-        # @param path [String] the path to the source PDF that we're processing.
-        # @param baseid [String] used for creating a unique identifier
-        # @param tmpdir [String] place to perform the "work" of splitting the PDF.
-        # @param pdf_pages_summary [Derivative::Rodeo::PdfPagesSummary] by default we'll
-        #        extract this from the given path, but for testing purposes, you might want to
-        #        provide a specific summary.
-        # @param logger [Logger, #error]
         def initialize(path,
-                       baseid: SecureRandom.uuid,
-                       # TODO: Do we need to provide the :tmpdir for the application?
+                       image_file_basename_template:,
+                       # TODO: Do we need to provide the :tmpdir for the application?  Based on
+                       # implementation, no, this can be extracted from the provided path.
                        tmpdir: Dir.mktmpdir,
-                       pdf_pages_summary: PagesSummary.extract_from(path: path),
-                       logger: DerivativeRodeo.config.logger)
-          @baseid = baseid
+                       pdf_pages_summary: PagesSummary.extract_from(path: path))
           @pdfpath = path
           @pdf_pages_summary = pdf_pages_summary
           @tmpdir = tmpdir
-          @logger = logger
+          @ghost_script_output_file_template = File.join(tmpdir, image_file_basename_template)
         end
 
-        attr_reader :logger
+        attr_reader :ghost_script_output_file_template
+
+        delegate :logger, to: DerivativeRodeo
 
         # In creating {#each} we get many of the methods of array operation (e.g. #to_a).
         include Enumerable
@@ -80,8 +82,8 @@ module DerivativeRodeo
           !pdf_pages_summary.valid?
         end
 
-        attr_reader :pdf_pages_summary, :tmpdir, :baseid, :pdfpath
-        private :pdf_pages_summary, :tmpdir, :baseid, :pdfpath
+        attr_reader :pdf_pages_summary, :tmpdir, :basename, :pdfpath
+        private :pdf_pages_summary, :tmpdir, :basename, :pdfpath
 
         # @api private
         def gsdevice
@@ -99,16 +101,12 @@ module DerivativeRodeo
           @entries = Array.wrap(gsconvert)
         end
 
-        def output_base
-          @output_base ||= File.join(tmpdir, "#{baseid}-page%d.#{image_extension}")
-        end
-
         def gsconvert
           # NOTE: you must call gsdevice before compression, as compression is
           # updated during the gsdevice call.
           file_names = []
 
-          Open3.popen3(gsconvert_cmd(output_base)) do |_stdin, stdout, stderr, _wait_thr|
+          Open3.popen3(gsconvert_cmd(ghost_script_output_file_template)) do |_stdin, stdout, stderr, _wait_thr|
             err = stderr.read
             logger.error "#{self.class}#gsconvert encountered the following error with `gs': #{err}" if err.present?
 
@@ -116,7 +114,7 @@ module DerivativeRodeo
             stdout.read.split("\n").each do |line|
               next unless line.start_with?('Page ')
 
-              file_names << format(output_base, page_number)
+              file_names << format(ghost_script_output_file_template, page_number)
               page_number += 1
             end
           end
@@ -126,12 +124,12 @@ module DerivativeRodeo
 
         def create_file_name(line:, page_number:); end
 
-        def gsconvert_cmd(output_base)
+        def gsconvert_cmd(ghost_script_output_file_template)
           @gsconvert_cmd ||= begin
                                cmd = "gs -dNOPAUSE -dBATCH -sDEVICE=#{gsdevice} -dTextAlphaBits=4"
                                cmd += " -sCompression=#{compression}" if compression?
                                cmd += " -dJPEGQ=#{quality}" if quality?
-                               cmd += " -sOutputFile=#{output_base} -r#{ppi} -f #{pdfpath}"
+                               cmd += " -sOutputFile=#{ghost_script_output_file_template} -r#{ppi} -f #{pdfpath}"
                                cmd
                              end
         end
