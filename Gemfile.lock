@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    derivative_rodeo (0.1.0)
+    derivative-rodeo (0.2.0)
       activesupport (>= 5)
       aws-sdk-s3
       aws-sdk-sqs
@@ -161,7 +161,7 @@ PLATFORMS
 DEPENDENCIES
   bixby
   byebug
-  derivative_rodeo!
+  derivative-rodeo!
   rake (~> 13.0)
   rspec (~> 3.0)
   rspec-its

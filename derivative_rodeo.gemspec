@@ -3,7 +3,9 @@
 require_relative 'lib/derivative_rodeo/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'derivative_rodeo'
+  # Renaming to reflect that we previously registered 'derivative-rodeo' and Rubygems guards against
+  # names that are close in resemblence.
+  spec.name          = 'derivative-rodeo'
   spec.version       = DerivativeRodeo::VERSION
   spec.authors       = ['Rob Kaufman', 'Jeremy Friesen']
   spec.email         = ['rob@notch8.com', 'jeremy.n.friesen@gmail.com']

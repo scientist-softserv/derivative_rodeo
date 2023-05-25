@@ -3,3 +3,7 @@ inherit_gem:
 
 Rails/RakeEnvironment:
   Enabled: false  
+
+Naming/FileName:
+  Exclude:
+    - 'lib/derivative-rodeo.rb'

@@ -163,8 +163,14 @@ Given a single original file in a previous home, we are copying that original fi
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'derivative_rodeo'
+gem 'derivative-rodeo'
 ```
+
+(Due to historical reasons the gem name is `derivative-rodeo` even though the repository is `derivative_rodeo`.  The following "require" methods will work:
+
+- `require 'derivative_rodeo'`
+- `require 'derivative-rodeo'`
+- `require 'derivative/rodeo'`
 
 And then execute: `$ bundle install`
 
@@ -172,7 +178,7 @@ Be aware that you need `pdfinfo` command line tool installed for this gem to run
 
 ## Usage
 
-TODO: Write usage instructions here
+TODO
 
 ## Technical Overview of the DerivativeRodeo
 
