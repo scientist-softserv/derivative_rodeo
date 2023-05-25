@@ -33,4 +33,8 @@ module DerivativeRodeo
     yield(@config) if block_given?
     @config
   end
+
+  class << self
+    delegate :logger, to: :config
+  end
 end

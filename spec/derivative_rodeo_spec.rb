@@ -5,7 +5,6 @@ RSpec.describe DerivativeRodeo do
     expect(DerivativeRodeo::VERSION).not_to be nil
   end
 
-  it 'loads a configuration object' do
-    expect(subject.config).to be_a DerivativeRodeo::Configuration
-  end
+  its(:config) { is_expected.to be_a DerivativeRodeo::Configuration }
+  its(:logger) { is_expected.to be_a Logger }
 end
