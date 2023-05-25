@@ -207,6 +207,22 @@ module DerivativeRodeo
       end
 
       ##
+      # When you have a known location and want to check for files that are within that location,
+      # use the #globbed_tail_locations method.  In the case of {Generators::PdfSplitGenerator} we
+      # need to know the path to the all of the image files we "split" off of the given PDF.
+      #
+      # We can use the :file_path as the prefix the given :tail_glob as the suffix for a "fully
+      # qualified" Dir.glob type search.
+      #
+      # @param tail_glob [String]
+      #
+      # @return [StorageLocations::BaseLocation] when there is one or more files at the location
+      # @return [NilClass] when there are no files
+      def globbed_tail_locations(tail_glob:)
+        raise NotImplementedError, "#{self.class}#globbed_locations"
+      end
+
+      ##
       # @param extension [String, StorageLocations::SAME]
       # @return [String] the path for the new extension; when given {StorageLocations::SAME} re-use
       #         the file's extension.

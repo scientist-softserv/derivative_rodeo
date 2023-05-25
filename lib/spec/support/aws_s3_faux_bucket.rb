@@ -15,20 +15,23 @@ class AwsS3FauxBucket
   attr_reader :storage
   def object(path)
     # Yup, we've got nested buckets
-    @storage[path] ||= Storage.new
+    @storage[path] ||= Storage.new(key: path)
   end
 
   def objects(prefix:)
-    @storage.select do |path, _file|
-      path.start_with?(prefix)
+    @storage.each_with_object([]) do |(path, obj), accumulator|
+      accumulator << obj if path.start_with?(prefix)
     end
   end
 
   class Storage
-    def initialize
+    # Because we're now coping with the glob tail finder, we need to account for the bucket entry's
+    # key.
+    def initialize(key:)
+      @key = key
       @storage = {}
     end
-    attr_reader :storage
+    attr_reader :storage, :key
 
     def upload_file(path)
       @storage[:upload] = path

@@ -62,6 +62,28 @@ module DerivativeRodeo
       end
 
       ##
+      # @return [Enumerable<DerivativeRodeo::StorageLocations::S3Location>]
+      #
+      # @note S3 allows searching on a prefix but does not allow for "wildcard" searches.  We can
+      #       use the components of the file_path to fake that behavior.
+      def globbed_tail_locations(tail_glob:)
+        # file_path = "s3://blah/1234/hello-world/pages/*.tiff"
+        #
+        # NOTE: Should we be storing our files as such?  The pattern we need is
+        # :parent_identifier/:file_set_identifier/files There are probably cases where a work has
+        # more than one PDF (that we intend to split); we don't want to trample on those split files
+        # and miscolate two PDFs.
+        #
+        # file_path = "s3://blah/1234/hello-world/hello-world.pdf
+        # TODO: Should file_path be file_dir?
+        globname = File.join(file_path, tail_glob)
+        regexp = %r{#{File.extname(globname)}$}
+        bucket.objects(prefix: File.dirname(globname)).flat_map do |object|
+          derived_file_from(object.key) if object.key.match(regexp)
+        end
+      end
+
+      ##
       # @api public
       # write the tmp file to the file_uri
       #

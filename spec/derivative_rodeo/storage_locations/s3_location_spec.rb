@@ -63,4 +63,16 @@ RSpec.describe DerivativeRodeo::StorageLocations::S3Location do
 
   xit "write additional write cases"
   xit "write cases or mark private the rest of the methods"
+
+  describe '#globbed_tail_locations' do
+    it 'searched the bucket' do
+      # The subject's bucket is not the same as the above bucket
+      subject.bucket = bucket
+      basename_ish = short_path.split(".").first
+      key = File.join(basename_ish, File.basename(__FILE__))
+      bucket.object(key).upload_file(__FILE__)
+
+      subject.globbed_tail_locations(tail_glob: "*.rb")
+    end
+  end
 end

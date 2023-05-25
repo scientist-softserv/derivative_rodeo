@@ -34,6 +34,10 @@ module DerivativeRodeo
         FileUtils.cp_r(tmp_file_path, file_path)
         file_uri
       end
+
+      def globbed_tail_locations(tail_glob:)
+        Dir.glob(File.join(file_dir, tail_glob))
+      end
     end
   end
 end

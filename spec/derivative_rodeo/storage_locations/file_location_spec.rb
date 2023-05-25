@@ -68,4 +68,12 @@ RSpec.describe DerivativeRodeo::StorageLocations::FileLocation do
     end
   end
   xit "write cases or mark private the rest of the methods"
+
+  context '#globbed_tail_locations' do
+    let(:args) { "file://#{__FILE__}" }
+
+    it "searches for files within the file_dir that match the given glob" do
+      expect(instance.globbed_tail_locations(tail_glob: "*.rb")).to include(__FILE__)
+    end
+  end
 end
