@@ -13,7 +13,7 @@ module DerivativeRodeo
       # @param sgml [String] The SGML (e.g. XML or HTML) text of a HOCR file.
       # @return [String] A JSON document
       def self.call(sgml)
-        new(sgml).to_json
+        new(sgml)
       end
 
       ##
@@ -41,6 +41,13 @@ module DerivativeRodeo
         )
       end
       alias json to_json
+
+      # Output plain text, keeping the method calls consistent with so calling this #to_text
+      #
+      # @return [String] plain text of OCR'd document
+      def to_text
+        @to_text ||= doc_stream.text
+      end
 
       private
 
