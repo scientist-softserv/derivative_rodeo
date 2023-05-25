@@ -32,8 +32,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'activesupport', '>= 5'
   spec.add_dependency 'aws-sdk-s3'
   spec.add_dependency 'aws-sdk-sqs'
-  spec.add_dependency 'faraday'
-  spec.add_dependency 'faraday-follow_redirects'
   spec.add_dependency 'httparty'
   spec.add_dependency 'marcel'
   spec.add_dependency 'mime-types'

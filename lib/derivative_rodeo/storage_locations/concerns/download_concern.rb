@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'faraday'
-require 'faraday/follow_redirects'
+require 'httparty'
 
 module DerivativeRodeo
   module StorageLocations
@@ -21,20 +20,15 @@ module DerivativeRodeo
         end
       end
 
+      delegate :config, to: DerivativeRodeo
+
       def with_existing_tmp_path(&block)
         with_tmp_path(lambda { |_file_path, tmp_file_path, exist|
-                        raise Errors::FileMissingError unless exist
+          raise Errors::FileMissingError unless exist
 
-                        response = connection.get file_uri
-                        File.open(tmp_file_path, 'wb') { |fp| fp.write(response.body) }
-                      }, &block)
-      end
-
-      ##
-      # @return [TrueClass] when the remote file exists
-      # @return [FalseClass] when the remote file does not exist
-      def exist?
-        connection.head(file_uri).status.to_i == 200
+          response = get(file_uri)
+          File.open(tmp_file_path, 'wb') { |fp| fp.write(response.body) }
+        }, &block)
       end
 
       ##
@@ -45,11 +39,28 @@ module DerivativeRodeo
         raise "#{self.class}#write is deliberately not implemented"
       end
 
-      def connection(faraday_adapter: 'default_adapter')
-        @connection = Faraday.new do |builder|
-          builder.response :follow_redirects
-          builder.adapter Faraday.send(faraday_adapter)
-        end
+      ##
+      # @param url [String]
+      #
+      # @return [String]
+      def read(url)
+        HTTParty.get(url, logger: config.logger)
+      rescue => e
+        config.logger.error(%(#{e.message}\n#{e.backtrace.join("\n")}))
+        raise e
+      end
+
+      ##
+      # @param url [String]
+      #
+      # @return [URI] when the URL resolves successfully
+      # @return [FalseClass] when the URL's head request is not successful or we've exhausted our
+      #         remaining redirects.
+      def exists?(url)
+        HTTParty.head(url, logger: config.logger)
+      rescue => e
+        config.logger.error(%(#{e.message}\n#{e.backtrace.join("\n")}))
+        false
       end
     end
   end
