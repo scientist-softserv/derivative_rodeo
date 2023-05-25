@@ -121,6 +121,7 @@ module DerivativeRodeo
           # add trailing space to plaintext buffer for between words:
           @text += ' '
           @words.push(@current) if word_complete?
+          @current = nil # clear the current word
         end
 
         def end_line
@@ -156,10 +157,13 @@ module DerivativeRodeo
         # Callback for element end; at this time, flush word coordinate state
         #   for current word, and append line endings to plain text:
         #
-        # @param _name [String] element name.
-        def end_element(_name)
-          end_line if @element_class_name == 'ocr_line'
-          end_word if @element_class_name == 'ocrx_word'
+        # @param name [String] element name.
+        def end_element(name)
+          if name == 'span'
+            end_word if @element_class_name == 'ocrx_word'
+            @text += "\n" if @element_class_name.nil?
+          end
+          @element_class_name = nil
         end
 
         # Callback for completion of parsing hOCR, used to normalize generated
