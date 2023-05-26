@@ -8,7 +8,15 @@ module DerivativeRodeo
     # Location to download and upload files to S3
     #
     class S3Location < BaseLocation
-      attr_writer :bucket
+      ##
+      # @!group Class Attributes
+      # @!attribute use_actual_s3_bucket
+      #
+      # When , we are going to use a live S3 bucket.  When false, we'll use a fake local bucket.
+      class_attribute :use_actual_s3_bucket, default: true
+      # @!endgroup Class Attributes
+      ##
+
       ##
       # Create a new uri of the classes type. Parts argument should have a default in
       # implementing classes. Must support a number or the symbol :all
@@ -71,6 +79,9 @@ module DerivativeRodeo
       #
       # @return [Aws::S3::Resource]
       def resource
+        # TODO: Are there instantiation considerations when running in Lambda?  In tests
+        # initializing a resource is very slow (e.g. 3 seconds or so).  Should this be a class
+        # method?  Can it be given the SpaceStone constraints?
         @resource ||= if DerivativeRodeo.config.aws_s3_access_key_id
                         Aws::S3::Resource.new(region: DerivativeRodeo.config.aws_s3_region,
                                               credentials: Aws::Credentials.new(
@@ -91,12 +102,27 @@ module DerivativeRodeo
         raise Errors::BucketMissingError
       end
 
+      # @see .use_actual_s3_bucket
       def bucket
-        @bucket ||= resource.bucket(bucket_name)
+        @bucket ||= if use_actual_s3_bucket?
+                      resource.bucket(bucket_name)
+                    else
+                      faux_bucket
+                    end
       end
 
       def file_path
         @file_path ||= @file_uri.sub(%r{.+://.+?/}, '')
+      end
+
+      ##
+      # A fake constructed fake bucket that confroms to the narrow S3 interface that we use.
+      #
+      # @see .use_actual_s3_bucket
+      # @return [AwsS3FauxBucket]
+      def faux_bucket
+        # We are not requiring this file; except in the spec context.
+        AwsS3FauxBucket.new
       end
     end
   end

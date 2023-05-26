@@ -1,7 +1,11 @@
 # frozen_string_literal: true
+
 ##
 # This class is very rudimentary implementation of a bucket.  It conforms to the necessary
-# interface for downloading and uploading.
+# interface for downloading and uploading and filter on prefix.
+#
+# It is provided as a lib/spec/support so that downstream implementations can leverage a fake S3
+# bucket.
 #
 # @see [DerivativeRodeo::StorageLocations::S3Location]
 class AwsS3FauxBucket

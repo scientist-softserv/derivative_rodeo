@@ -27,7 +27,6 @@ module DerivativeRodeo
       # @!endgroup Class Attributes
 
       attr_reader :input_uris,
-                  :logger,
                   :output_location_template,
                   :preprocessed_location_template
 
@@ -39,23 +38,25 @@ module DerivativeRodeo
       #        to find preprocessed uris by transforming the :input_uris via
       #        {Services::ConvertUriViaTemplateService} with the given
       #        :preprocessed_location_template.
-      # @param logger [Logger]
-      def initialize(input_uris:, output_location_template:, preprocessed_location_template: nil, logger: DerivativeRodeo.config.logger)
+      def initialize(input_uris:, output_location_template:, preprocessed_location_template: nil)
+        # NOTE: Are we using this preprocessed_location_template?  Wondering?
         @input_uris = Array.wrap(input_uris)
         @output_location_template = output_location_template
         @preprocessed_location_template = preprocessed_location_template
-        @logger = logger
 
         return if valid_instantiation?
 
         raise Errors::ExtensionMissingError.new(klass: self.class)
       end
 
+      delegate :logger, to: DerivativeRodeo
+
       ##
       # @api private
       #
       # @return [Boolean]
       def valid_instantiation?
+        # TODO: Does this even make sense.
         # When we have a BaseGenerator and not one of it's children or when we've assigned the
         # output_extension.  instance_of? is more specific than is_a?
         instance_of?(DerivativeRodeo::Generators::BaseGenerator) || output_extension
@@ -83,6 +84,7 @@ module DerivativeRodeo
       # @see #build_step
       # @see #with_each_requisite_location_and_tmp_file_path
       def generated_files
+        # TODO: Examples please
         return @generated_files if defined?(@generated_files)
 
         # As much as I would like to use map or returned values; given the implementations it's
@@ -92,6 +94,9 @@ module DerivativeRodeo
         # helps ease subclass implementations of the #with_each_requisite_location_and_tmp_file_path or
         # #build_step
         @generated_files = []
+
+        # BaseLocation is like the Ruby `File` (Pathname) "File.exist?(path) :: location.exist?"
+        # "file:///Users/jfriesen/.profile"
         with_each_requisite_location_and_tmp_file_path do |input_location, input_tmp_file_path|
           generated_file = destination(input_location)
           @generated_files << if generated_file.exist?
@@ -170,7 +175,7 @@ module DerivativeRodeo
         return output_location unless preprocessed_location_template
 
         preprocessed_location = input_location.derived_file_from(template: preprocessed_location_template)
-        # We only want
+        # We only want the location if it exists
         return preprocessed_location if preprocessed_location&.exist?
 
         # NOTE: The file does not exist at the output_location; but we pass this information along so
