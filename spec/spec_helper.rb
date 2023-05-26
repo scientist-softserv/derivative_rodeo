@@ -36,8 +36,8 @@ FIXTURE_PATH = File.join(File.expand_path(__dir__), 'fixtures')
 # of increasing the boot-up time by auto-requiring all files in the support
 # directory. Alternatively, in the individual `*_spec.rb` files, manually
 # require only the support files necessary.
-#
-Dir[File.join(__dir__, 'support', '**', '*.rb')].each { |f| require f }
+Dir.glob(File.expand_path("../lib/spec/support/**/*.rb", __dir__)).each { |f| require f }
+Dir.glob(File.expand_path('./support/**/*.rb', __dir__)).each { |f| require f }
 
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate

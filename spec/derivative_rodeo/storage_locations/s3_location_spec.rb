@@ -4,15 +4,12 @@ RSpec.describe DerivativeRodeo::StorageLocations::S3Location do
   let(:file_path) { File.expand_path(File.join(FIXTURE_PATH, 'files', 'ocr_color.tiff')) }
   let(:short_path) { file_path.split('/')[-2..-1].join('/') }
   let(:args) { "s3://fake-bucket.s3.eu-west-1.amazonaws.com/#{short_path}" }
-  let(:bucket) do
-    bucket = AwsS3FauxBucket.new
-    bucket.object(short_path).upload_file(file_path)
-    bucket
-  end
 
   subject { described_class.new(args) }
 
   before do
+    # Let's use a FakeBucket instead!
+    subject.use_actual_s3_bucket = false
     DerivativeRodeo.config do |config|
       config.aws_s3_bucket = 'fake-bucket'
       config.aws_s3_access_key_id = "FAKEFAKEFAKE"
@@ -39,7 +36,8 @@ RSpec.describe DerivativeRodeo::StorageLocations::S3Location do
   it "creates a tmp path, downloads the file, and deletes the tmp path at the end" do
     @tmp_path = nil
     file = subject
-    file.bucket = bucket
+    file.bucket.object(short_path).upload_file(file_path)
+
     file.with_existing_tmp_path do |tmp_path|
       @tmp_path = tmp_path
       expect(File.exist?(@tmp_path)).to be true
@@ -52,7 +50,6 @@ RSpec.describe DerivativeRodeo::StorageLocations::S3Location do
   it "writes a file to the bucket" do
     @tmp_path = nil
     file = subject
-    file.bucket = bucket
     file.with_new_tmp_path(auto_write_file: false) do |tmp_path|
       @tmp_path = tmp_path
       # copy a file in so we can test that its uploaded
@@ -60,7 +57,7 @@ RSpec.describe DerivativeRodeo::StorageLocations::S3Location do
       file.write
       expect(File.exist?(@tmp_path)).to be true
     end
-    expect(bucket.object(short_path)).to be
+    expect(subject.bucket.object(short_path)).to be
     expect(File.exist?(@tmp_path)).to be false
   end
 
