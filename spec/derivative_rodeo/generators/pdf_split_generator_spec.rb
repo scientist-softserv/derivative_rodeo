@@ -17,6 +17,33 @@ RSpec.describe DerivativeRodeo::Generators::PdfSplitGenerator do
   end
 
   describe '#generated_files' do
+    context 'when given an already split PDF' do
+      it 'uses the already split components' do
+        Fixtures.with_file_uris_for("minimal-2-page.pdf") do |input_uris|
+          Fixtures.with_temporary_directory do |output_temporary_path|
+            output_location_template = "file://#{output_temporary_path}/{{ dir_parts[-1..-1] }}/{{ filename }}"
+            instance = described_class.new(input_uris: input_uris, output_location_template: output_location_template)
+            output_location = DerivativeRodeo::StorageLocations::FileLocation.build(from_uri: input_uris.first, template: output_location_template)
+
+            # Let's fake a nice TIFF being in a pre-processed location.
+            pre_existing_tiff_path = File.join(output_location.file_dir, output_location.file_basename, "pages/1.tiff")
+            FileUtils.mkdir_p(File.dirname(pre_existing_tiff_path))
+            File.open(pre_existing_tiff_path, "w+") do |f|
+              f.puts "🤠🐮🐴 A muppet man parading as a TIFF."
+            end
+
+            generated_files = instance.generated_files
+            # TODO: The PDF is two pages yet we only check for the presence of one
+            # or more derived files; hence our faked pre-processed derivative is all that we find.
+            expect(generated_files.size).to eq(1)
+
+            # Ensuring that we do in fact have the pre-made file.
+            expect(File.read(generated_files.first.file_path)).to start_with("🤠🐮🐴")
+          end
+        end
+      end
+    end
+
     context 'when given a PDF to split' do
       it 'will create one image per page, writing that to the storage adapter, and then enqueue each page for processing' do
         generated_files = nil

@@ -66,11 +66,9 @@ RSpec.describe DerivativeRodeo::StorageLocations::S3Location do
 
   describe '#globbed_tail_locations' do
     it 'searched the bucket' do
-      # The subject's bucket is not the same as the above bucket
-      subject.bucket = bucket
       basename_ish = short_path.split(".").first
       key = File.join(basename_ish, File.basename(__FILE__))
-      bucket.object(key).upload_file(__FILE__)
+      subject.bucket.object(key).upload_file(__FILE__)
 
       subject.globbed_tail_locations(tail_glob: "*.rb")
     end

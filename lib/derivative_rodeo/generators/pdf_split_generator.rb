@@ -30,9 +30,7 @@ module DerivativeRodeo
       #
       # @see #existing_page_locations
       def image_file_basename_template(basename:)
-        # We can do this because the temp files are always local; and we'll need to modify how we
-        # write these files.
-        "pages/#{basename}-%d.#{output_extension}"
+        "#{basename}/pages/#{basename}-%d.#{output_extension}"
       end
 
       ##
@@ -45,10 +43,12 @@ module DerivativeRodeo
       #         with :tail_glob.
       #
       # @note There is relation to {Generators::BaseGenerator#destination} and this method.
+      #
+      # @note The tail_glob is in relation to the {#image_file_basename_template}
       def existing_page_locations(input_location:)
-        # TODO: Are we adequately accounting for the directory structure necessary to have a work have
-        # more than one PDF and then split each PDF's pages into the correct sub directory?
-        tail_glob = "pages/*.#{output_extension}"
+        # See image_file_basename_template
+        tail_glob = "#{input_location.file_basename}/pages/*.#{output_extension}"
+
         output_locations = input_location.derived_file_from(template: output_location_template).globbed_tail_locations(tail_glob: tail_glob)
         return output_locations if output_locations.count.positive?
 
@@ -69,7 +69,12 @@ module DerivativeRodeo
       # @yieldparam image_location [StorageLocations::FileLocation] the file and adapter logic.
       # @yieldparam image_path [String] where to find this file in the tmp space
       #
+      # @note This function makes a concession; namely that if it encounters any
+      # {#existing_page_locations} it will use all of that result as the entire number of pages.
+      # We could make this smarter but at the moment we're deferring on that.
+      #
       # @see BaseGenerator#with_each_requisite_location_and_tmp_file_path for further discussion
+      #
       # rubocop:disable Metrics/MethodLength
       def with_each_requisite_location_and_tmp_file_path
         input_files.each do |input_location|
