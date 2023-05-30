@@ -12,7 +12,7 @@ module DerivativeRodeo
       # @!group Class Attributes
       # @!attribute use_actual_s3_bucket
       #
-      # When , we are going to use a live S3 bucket.  When false, we'll use a fake local bucket.
+      # When true , we are going to use a live S3 bucket.  When false, we'll use a fake local bucket.
       class_attribute :use_actual_s3_bucket, default: true
       # @!endgroup Class Attributes
       ##
