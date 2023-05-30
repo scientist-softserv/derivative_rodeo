@@ -3,6 +3,14 @@
 require 'spec_helper'
 
 RSpec.describe DerivativeRodeo::Generators::PlainTextGenerator do
+  it "has the correct output_extension" do
+    expect(described_class.output_extension).to eq "plain_text.txt"
+  end
+
+  it "has the correct service class" do
+    expect(described_class.service).to eq DerivativeRodeo::Services::ExtractWordCoordinatesFromHocrSgmlService
+  end
+
   describe "#generated_files" do
     it "derives the plain text from the given hocr file" do
       generated_file = nil

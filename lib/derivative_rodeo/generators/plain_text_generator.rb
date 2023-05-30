@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require_relative '../services/extract_word_coordinates_from_hocr_sgml_service'
 
 module DerivativeRodeo
   module Generators
@@ -8,6 +9,8 @@ module DerivativeRodeo
     # @note Assumes that we're receiving a HOCR file (generated via {HocrGenerator}).
     class PlainTextGenerator < BaseGenerator
       self.output_extension = "plain_text.txt"
+
+      class_attribute :service, default: Services::ExtractWordCoordinatesFromHocrSgmlService
 
       ##
       # @param output_location [StorageLocations::BaseLocation]
@@ -27,11 +30,10 @@ module DerivativeRodeo
       ##
       # @param path_to_hocr [String]
       # @param path_to_plain_text [String]
-      # @param service [#call, Services::ExtractWordCoordinatesFromHocrSgmlService]
-      def convert_to_coordinates(path_to_hocr:, path_to_plain_text:, service: Services::ExtractWordCoordinatesFromHocrSgmlService)
+      def convert_to_coordinates(path_to_hocr:, path_to_plain_text:)
         hocr_html = File.read(path_to_hocr)
         File.open(path_to_plain_text, "w+") do |file|
-          file.puts service.call(hocr_html).to_text
+          file.puts self.class.service.call(hocr_html).to_text
         end
       end
     end
