@@ -49,6 +49,14 @@ module DerivativeRodeo
         @to_text ||= doc_stream.text
       end
 
+      def to_alto
+        @to_alto ||= AltoXml.to_alto(
+          words: doc_stream.words,
+          width: doc_stream.width,
+          height: doc_stream.height
+        )
+      end
+
       private
 
       def xml?(xml)
@@ -222,6 +230,102 @@ module DerivativeRodeo
           end
           payload = { width: width, height: height, coords: coordinates }
           JSON.generate(payload)
+        end
+      end
+
+      class AltoXml
+        ##
+        # @api public
+        #
+        # @param words [Array<Hash>] an array of hash objects that have the keys `:word` and `:coordinates`.
+        # @param width [Integer, nil] the width of the "canvas" on which the words appear.
+        # @param height [Integer, nil] the height of the "canvas" on which the words appear.
+        #
+        # @return [String] the ALTO XML representation of the given words and their coordinates.
+        def self.to_alto(words:, width: nil, height: nil)
+          new(words: words, width: width, height: height).to_alto
+        end
+
+        def initialize(words:, width:, height:, scaling: 1.0)
+          @words = words
+          @height = height.to_i
+          @width = width.to_i
+          @scaling = scaling
+        end
+
+        attr_reader :words, :width, :height, :scaling
+
+        # Output ALTO XML of word coordinates
+        #
+        # @return [String] ALTO XML representation of the words and their coordinates
+        def to_alto
+          page = alto_page(width, height) do |xml|
+            words.each do |word|
+              xml.String(
+                CONTENT: word[:word],
+                WIDTH: scale_point(word[:coordinates][2]).to_s,
+                HEIGHT: scale_point(word[:coordinates][3]).to_s,
+                HPOS: scale_point(word[:coordinates][0]).to_s,
+                VPOS: scale_point(word[:coordinates][1]).to_s
+              ) { xml.text '' }
+            end
+          end
+          page.to_xml
+        end
+
+        private
+
+        # given block to manage word generation, wrap with page/block/line
+        def alto_page(pixel_width, pixel_height, &block)
+          builder = Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
+            xml.alto(xmlns: 'http://www.loc.gov/standards/alto/ns-v2#') do
+              xml.Description do
+                xml.MeasurementUnit 'pixel'
+              end
+              alto_layout(xml, pixel_width, pixel_height, &block)
+            end
+          end
+          builder
+        end
+
+        def scale_point(value)
+          # NOTE: presuming non-fractional, even though ALTO 2.1
+          #   specifies coordinates are xsd:float, not xsd:int,
+          #   simplify to integer value for output:
+          (value * scaling).to_i
+        end
+
+        # return layout for page
+        def alto_layout(xml, pixel_width, pixel_height, &block)
+          xml.Layout do
+            xml.Page(ID: 'ID1',
+                     PHYSICAL_IMG_NR: '1',
+                     HEIGHT: pixel_height,
+                     WIDTH: pixel_width) do
+              xml.PrintSpace(HEIGHT: pixel_height,
+                             WIDTH: pixel_width,
+                             HPOS: '0',
+                             VPOS: '0') do
+                alto_blockline(xml, pixel_width, pixel_height, &block)
+              end
+            end
+          end
+        end
+
+        # make block line and call word-block
+        def alto_blockline(xml, pixel_width, pixel_height)
+          xml.TextBlock(ID: 'ID1a',
+                        HEIGHT: pixel_height,
+                        WIDTH: pixel_width,
+                        HPOS: '0',
+                        VPOS: '0') do
+            xml.TextLine(HEIGHT: pixel_height,
+                         WIDTH: pixel_width,
+                         HPOS: '0',
+                         VPOS: '0') do
+              yield(xml)
+            end
+          end
         end
       end
     end
