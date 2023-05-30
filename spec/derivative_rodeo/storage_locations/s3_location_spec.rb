@@ -10,6 +10,7 @@ RSpec.describe DerivativeRodeo::StorageLocations::S3Location do
   before do
     # Let's use a FakeBucket instead!
     subject.use_actual_s3_bucket = false
+
     DerivativeRodeo.config do |config|
       config.aws_s3_bucket = 'fake-bucket'
       config.aws_s3_access_key_id = "FAKEFAKEFAKE"
@@ -66,11 +67,22 @@ RSpec.describe DerivativeRodeo::StorageLocations::S3Location do
 
   describe '#globbed_tail_locations' do
     it 'searched the bucket' do
-      basename_ish = short_path.split(".").first
-      key = File.join(basename_ish, File.basename(__FILE__))
+      # Because we instantiated the subject as a location to the :file_path (e.g. let(:file_path))
+      # we are encoding where things are relative to this file.  In other words, this logic is
+      # mirroring the generator logic that says where we're writing derivatives relative to their
+      # original file/input file.
+      bucket_dir = "files/#{File.basename(file_path, '.tiff')}"
+
+      basename = File.basename(__FILE__)
+      key = File.join(bucket_dir, "pages", basename)
       subject.bucket.object(key).upload_file(__FILE__)
 
-      subject.globbed_tail_locations(tail_glob: "*.rb")
+      non_matching_key = File.join(bucket_dir, "missing", basename)
+      subject.bucket.object(non_matching_key).upload_file(__FILE__)
+
+      locations = subject.globbed_tail_locations(tail_glob: "ocr_color/pages/*.rb")
+
+      expect(locations.size).to eq(1)
     end
   end
 end
