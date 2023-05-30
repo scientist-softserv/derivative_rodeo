@@ -14,9 +14,20 @@ module DerivativeRodeo
     # It uploads a file_uri to the queue, not the contents of that file
     # reading from the queue is not currently implemented
     class SqsLocation < BaseLocation
+      ##
+      # @!group Class Attributes
+      #
+      # @!attribute batch_size
+      #   @return [Integer]
       class_attribute :batch_size, default: 10
 
-      attr_writer :client
+      # @!attribute use_real_sqs
+      #   When true, use the real SQS; else when false use a fake one.  You probably don't want to
+      #   use the fake one in your production.  But it's exposed in this manner to ease testing of
+      #   downstream dependencies.
+      class_attribute :use_real_sqs, default: true
+      # @!endgroup Class Attributes
+      ##
 
       ##
       # Create a new uri of the classes type. Parts argument should have a default in
@@ -82,19 +93,26 @@ module DerivativeRodeo
         file_uri
       end
 
+      # rubocop:disable Metrics/MethodLength
       def client
-        @client ||= if config.aws_sqs_access_key_id && config.aws_sqs_secret_access_key
-                      Aws::SQS::Client.new(
-                        region: config.aws_sqs_region,
-                        credentials: Aws::Credentials.new(
-                          config.aws_sqs_access_key_id,
-                          config.aws_sqs_secret_access_key
+        @client ||= if use_real_sqs?
+                      if config.aws_sqs_access_key_id && config.aws_sqs_secret_access_key
+                        Aws::SQS::Client.new(
+                          region: config.aws_sqs_region,
+                          credentials: Aws::Credentials.new(
+                            config.aws_sqs_access_key_id,
+                            config.aws_sqs_secret_access_key
+                          )
                         )
-                      )
+                      else
+                        Aws::SQS::Client.new(region: config.aws_sqs_region)
+                      end
                     else
-                      Aws::SQS::Client.new(region: config.aws_sqs_region)
+                      # We are not requiring this file; except in the spec context.
+                      AwsSqsFauxClient.new
                     end
       end
+      # rubocop:enable Metrics/MethodLength
 
       def add(message:)
         client.send_message({

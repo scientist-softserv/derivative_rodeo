@@ -4,11 +4,15 @@ RSpec.describe DerivativeRodeo::StorageLocations::SqsLocation do
   let(:file_path) { File.expand_path(File.join(FIXTURE_PATH, 'files', 'ocr_color.tiff')) }
   let(:short_path) { file_path.split('/')[-2..-1].join('/') }
   let(:args) { "sqs://eu-west-1.amazonaws.com/55555555/fake-queue/#{short_path}?template=s3://adventist-preprocess.s3.us-west-1.amazonaws.com/preprocess/{{dir_parts[-1..-1]}}/{{ filename }}" }
-  let(:client) { AwsSqsFauxClient.new }
+  subject(:instance) { described_class.new(args) }
 
-  subject { described_class.new(args) }
+  context '.use_real_sqs' do
+    subject { described_class.use_real_sqs }
+    it { is_expected.to be_truthy }
+  end
 
   before do
+    instance.use_real_sqs = false
     DerivativeRodeo.config do |config|
       config.aws_sqs_queue = 'fake-queue'
       config.aws_sqs_account_id = '55555555'
@@ -36,7 +40,6 @@ RSpec.describe DerivativeRodeo::StorageLocations::SqsLocation do
   it "writes a file path to the queue" do
     @tmp_path = nil
     file = subject
-    file.client = client
     file.with_new_tmp_path(auto_write_file: false) do |tmp_path|
       @tmp_path = tmp_path
       # copy a file in so we can test that its uploaded
@@ -45,10 +48,10 @@ RSpec.describe DerivativeRodeo::StorageLocations::SqsLocation do
       expect(File.exist?(@tmp_path)).to be true
     end
     # {"https://sqs.us-west-2.amazonaws.com/5555555555/fake"=>[{:id=>"0", :message_body=>"/var/folders/43/3hsph86d56b4mzpzhrbq2fm00000gn/T/d20230510-36732-1civ6nm/ocr_color.tiff"}]}
-    expect(client.storage).to be
-    expect(client.storage["https://sqs.us-west-2.amazonaws.com/5555555555/fake"].size).to eq(1)
+    expect(subject.client.storage).to be
+    expect(subject.client.storage["https://sqs.us-west-2.amazonaws.com/5555555555/fake"].size).to eq(1)
 
-    result_body = client.storage["https://sqs.us-west-2.amazonaws.com/5555555555/fake"].first[:message_body]
+    result_body = subject.client.storage["https://sqs.us-west-2.amazonaws.com/5555555555/fake"].first[:message_body]
     result_json = JSON.parse(result_body)
     expect(result_json.keys.first).to eq('s3://adventist-preprocess.s3.us-west-1.amazonaws.com/preprocess/files/ocr_color.tiff')
     expect(result_json.values.first).to eq(['s3://adventist-preprocess.s3.us-west-1.amazonaws.com/preprocess/{{dir_parts[-1..-1]}}/{{ filename }}'])
