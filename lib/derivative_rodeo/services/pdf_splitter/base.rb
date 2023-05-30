@@ -2,8 +2,6 @@
 
 require 'open3'
 require 'securerandom'
-require 'tmpdir'
-
 module DerivativeRodeo
   module Services
     ##
@@ -24,13 +22,12 @@ module DerivativeRodeo
       #        for an image "split" from the given PDF.  It must include "%d" as part of the
       #        declaration.  For example if the template is "hello-world-%d.png" then the first
       #        split page will be "hello-world-1.png".
-      # @param tmpdir [String] place to perform the "work" of splitting the PDF.
       #
       # @return [Enumerable, Utilities::PdfSplitter::Base, #each] see {Base#each}
-      def self.call(path, image_extension:, image_file_basename_template:, tmpdir: File.dirname(path))
+      def self.call(path, image_extension:, image_file_basename_template:)
         klass_name = "#{image_extension.to_s.classify}_page".classify
         klass = "DerivativeRodeo::Services::PdfSplitter::#{klass_name}".constantize
-        klass.new(path, tmpdir: tmpdir, image_file_basename_template: image_file_basename_template)
+        klass.new(path, image_file_basename_template: image_file_basename_template)
       end
 
       ##
@@ -52,14 +49,15 @@ module DerivativeRodeo
 
         def initialize(path,
                        image_file_basename_template:,
-                       # TODO: Do we need to provide the :tmpdir for the application?  Based on
-                       # implementation, no, this can be extracted from the provided path.
-                       tmpdir: Dir.mktmpdir,
                        pdf_pages_summary: PagesSummary.extract_from(path: path))
           @pdfpath = path
           @pdf_pages_summary = pdf_pages_summary
-          @tmpdir = tmpdir
-          @ghost_script_output_file_template = File.join(tmpdir, image_file_basename_template)
+          @ghost_script_output_file_template = File.join(File.dirname(path), image_file_basename_template)
+
+          # We need to ensure that this temporary directory exists so we can write the files to it.
+          # Fortunately, because this file space must be "local" tmp dir, we don't need to work
+          # through any of the location antics of {StorageLocations::BaseLocation}.
+          FileUtils.mkdir_p(File.dirname(@ghost_script_output_file_template))
         end
 
         attr_reader :ghost_script_output_file_template
@@ -82,8 +80,8 @@ module DerivativeRodeo
           !pdf_pages_summary.valid?
         end
 
-        attr_reader :pdf_pages_summary, :tmpdir, :basename, :pdfpath
-        private :pdf_pages_summary, :tmpdir, :basename, :pdfpath
+        attr_reader :pdf_pages_summary, :basename, :pdfpath
+        private :pdf_pages_summary, :basename, :pdfpath
 
         # @api private
         def gsdevice
