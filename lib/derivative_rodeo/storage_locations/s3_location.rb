@@ -139,7 +139,7 @@ module DerivativeRodeo
         @bucket ||= if use_actual_s3_bucket?
                       resource.bucket(bucket_name)
                     else
-                      faux_bucket
+                      self.class.faux_bucket
                     end
       end
 
@@ -152,9 +152,9 @@ module DerivativeRodeo
       #
       # @see .use_actual_s3_bucket
       # @return [AwsS3FauxBucket]
-      def faux_bucket
+      def self.faux_bucket
         # We are not requiring this file; except in the spec context.
-        AwsS3FauxBucket.new
+        @faux_bucket ||= AwsS3FauxBucket.new
       end
     end
   end

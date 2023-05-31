@@ -21,7 +21,7 @@ module DerivativeRodeo
       def self.read(url)
         HTTParty.get(url, logger: DerivativeRodeo.config.logger).body
       rescue StandardError => e
-        config.logger.error(%(#{e.message}\n#{e.backtrace.join("\n")}))
+        DerivativeRodeo.config.logger.error(%(#{e.message}\n#{e.backtrace.join("\n")}))
         raise e
       end
 
