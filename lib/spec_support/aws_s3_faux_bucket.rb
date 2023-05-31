@@ -34,18 +34,14 @@ class AwsS3FauxBucket
     attr_reader :storage, :key
 
     def upload_file(path)
-      @storage[:upload] = path
+      @storage[:upload] = File.read(path)
     end
 
     def download_file(path)
       return false unless @storage.key?(:upload)
-      storage_path = @storage.fetch(:upload)
+      content = @storage.fetch(:upload)
       File.open(path, 'wb') do |f|
-        if File.file?(storage_path)
-          f.puts File.read(storage_path)
-        else
-          f.puts DerivativeRodeo::Servce::UrlService.read(storage_path)
-        end
+        f.puts(content)
       end
     end
   end
