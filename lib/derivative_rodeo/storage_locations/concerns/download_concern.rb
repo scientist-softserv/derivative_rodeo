@@ -43,7 +43,7 @@ module DerivativeRodeo
       # @param url [String]
       #
       # @return [String]
-      def read(url)
+      def get(url)
         HTTParty.get(url, logger: config.logger)
       rescue => e
         config.logger.error(%(#{e.message}\n#{e.backtrace.join("\n")}))
@@ -51,13 +51,11 @@ module DerivativeRodeo
       end
 
       ##
-      # @param url [String]
-      #
       # @return [URI] when the URL resolves successfully
       # @return [FalseClass] when the URL's head request is not successful or we've exhausted our
       #         remaining redirects.
-      def exists?(url)
-        HTTParty.head(url, logger: config.logger)
+      def exist?
+        HTTParty.head(file_uri, logger: config.logger)
       rescue => e
         config.logger.error(%(#{e.message}\n#{e.backtrace.join("\n")}))
         false
