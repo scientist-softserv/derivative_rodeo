@@ -8,6 +8,36 @@ RSpec.describe DerivativeRodeo::Generators::ThumbnailGenerator do
     it { is_expected.to eq("thumbnail.jpeg") }
   end
 
+  context '.dimensions_by_type' do
+    subject { described_class.dimensions_by_type }
+    it { is_expected.to be_a(Hash) }
+  end
+
+  context '.dimensions_fallback' do
+    subject { described_class.dimensions_fallback }
+    it { is_expected.to eq("200x150>") }
+    it { is_expected.to be_a String }
+  end
+
+  describe '.dimensions_for' do
+    subject { described_class.dimensions_for(filename: filename) }
+
+    context "given a file ending in '.pdf'" do
+      let(:filename) { "really-cool.pdf" }
+      it { is_expected.to eq described_class.dimensions_by_type.fetch(:pdf) }
+    end
+
+    context "given a file without an extension" do
+      let(:filename) { "aint-no-extension-here" }
+      it { is_expected.to eq described_class.dimensions_fallback }
+    end
+
+    context "given a file ending in '.tiff'" do
+      let(:filename) { "muppet-man.tiff" }
+      it { is_expected.to eq described_class.dimensions_fallback }
+    end
+  end
+
   describe "#generated_files" do
     context 'for a PDF' do
       it 'creates a thumbnail.jpeg file' do
