@@ -50,13 +50,8 @@ module DerivativeRodeo
       #
       # @see .dimensions_by_type
       # @see .dimensions_fallback
-      #
-      # @note TODO: This is a very quick and dirty and assumptive type detector.  For the 2023-05-31
-      #       use case it is likely adequate (e.g. if it ends in .pdf we'll have a configured
-      #       match).  In other words, we'd love someone else to be sniffing out mime-types rather
-      #       than doing it here.
       def self.dimensions_for(filename:)
-        type = filename.split(".")&.last&.to_sym
+        type = DerivativeRodeo::Services::MimeTypeService.hyrax_type(filename: filename)
         dimensions_by_type.fetch(type, dimensions_fallback)
       end
 

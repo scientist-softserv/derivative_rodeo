@@ -22,18 +22,13 @@ RSpec.describe DerivativeRodeo::Generators::ThumbnailGenerator do
   describe '.dimensions_for' do
     subject { described_class.dimensions_for(filename: filename) }
 
-    context "given a file ending in '.pdf'" do
-      let(:filename) { "really-cool.pdf" }
+    context "given a PDF" do
+      let(:filename) { Fixtures.path_for("minimal-2-page.pdf") }
       it { is_expected.to eq described_class.dimensions_by_type.fetch(:pdf) }
     end
 
-    context "given a file without an extension" do
-      let(:filename) { "aint-no-extension-here" }
-      it { is_expected.to eq described_class.dimensions_fallback }
-    end
-
-    context "given a file ending in '.tiff'" do
-      let(:filename) { "muppet-man.tiff" }
+    context "given a TIFF" do
+      let(:filename) { Fixtures.path_for("4.1.07.tiff") }
       it { is_expected.to eq described_class.dimensions_fallback }
     end
   end
