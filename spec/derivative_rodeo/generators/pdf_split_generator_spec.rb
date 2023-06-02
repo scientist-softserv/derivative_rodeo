@@ -16,6 +16,24 @@ RSpec.describe DerivativeRodeo::Generators::PdfSplitGenerator do
     its(:output_extension) { is_expected.to eq('tiff') }
   end
 
+  describe '.filename_for_a_derived_page_from_a_pdf?' do
+    subject { described_class.filename_for_a_derived_page_from_a_pdf?(filename: filename, extension: extension) }
+    [
+      ["hello--page-a.tiff", 'tiff', false],
+      ["hello--page-1.tiff", nil, true], # It uses filename's extension
+      ["hello--page-1.tiff", '.tiff', true],
+      ["hello-page-1.tiff", '.tiff', false], # Does not have leading double dash
+      ["hello--page-1.png", '.tiff', false], # Wrong file extension
+      ["hello--page-1.tiffany", '.tiff', false] # Additional words at end of filename
+    ].each do |given_filename, given_extension, expected_result|
+      context "for filename: #{given_filename.inspect} and extension: #{given_extension.inspect}" do
+        let(:filename) { given_filename }
+        let(:extension) { given_extension }
+        it { is_expected.to eq(expected_result) }
+      end
+    end
+  end
+
   describe '#generated_files' do
     context 'when given an already split PDF' do
       it 'uses the already split components' do

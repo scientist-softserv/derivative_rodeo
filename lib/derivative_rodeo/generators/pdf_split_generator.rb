@@ -17,6 +17,27 @@ module DerivativeRodeo
       include CopyFileConcern
 
       ##
+      # A helper method for downstream implementations to ask if this file is perhaps split from a
+      # PDF.
+      #
+      # @param filename [String]
+      # @param extension [String] the extension (either with or without the leading period); if none
+      #        is provided use the extension of the given :filename.
+      # @return [TrueClass] when the file name likely represents a file split from a PDF.
+      # @return [FalseClass] when the file name does not, by convention, represent a file split from
+      #         a PDF.
+      #
+      # @see #image_file_basename_template
+      def self.filename_for_a_derived_page_from_a_pdf?(filename:, extension: nil)
+        extension ||= File.extname(filename)
+
+        # Strip the leading period from the extension.
+        extension = extension[1..-1] if extension.start_with?('.')
+        regexp = %r{--page-\d+\.#{extension}$}
+        !!regexp.match(filename)
+      end
+
+      ##
       # @param basename [String] The given PDF file's base name (e.g. "hello.pdf" would have a base name of
       #        "hello").
       #
@@ -29,6 +50,7 @@ module DerivativeRodeo
       # each split image.  Further there is an interaction in this
       #
       # @see #existing_page_locations
+      # @see .filename_for_a_derived_page_from_a_pdf?
       def image_file_basename_template(basename:)
         "#{basename}/pages/#{basename}--page-%d.#{output_extension}"
       end
