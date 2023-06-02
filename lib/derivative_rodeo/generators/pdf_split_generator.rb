@@ -30,7 +30,7 @@ module DerivativeRodeo
       #
       # @see #existing_page_locations
       def image_file_basename_template(basename:)
-        "#{basename}/pages/#{basename}-%d.#{output_extension}"
+        "#{basename}/pages/#{basename}--page-%d.#{output_extension}"
       end
 
       ##
