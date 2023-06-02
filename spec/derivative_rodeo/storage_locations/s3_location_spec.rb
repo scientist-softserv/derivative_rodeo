@@ -5,16 +5,34 @@ RSpec.describe DerivativeRodeo::StorageLocations::S3Location do
   let(:short_path) { file_path.split('/')[-2..-1].join('/') }
   let(:args) { "s3://fake-bucket.s3.eu-west-1.amazonaws.com/#{short_path}" }
 
-  subject { described_class.new(args) }
+  subject(:instance) { described_class.new(args) }
 
   before do
     # Let's use a FakeBucket instead!
-    subject.use_actual_s3_bucket = false
+    instance.use_actual_s3_bucket = false
 
     DerivativeRodeo.config do |config|
       config.aws_s3_bucket = 'fake-bucket'
       config.aws_s3_access_key_id = "FAKEFAKEFAKE"
       config.aws_s3_secret_access_key = "FAKEFAKEFAKEFAKER"
+    end
+  end
+
+  context '.adapter_prefix' do
+    context 'when no bucket is given' do
+      subject { described_class.adapter_prefix }
+
+      it 'uses the default config.aws_s3_bucket' do
+        expect(subject).to eq("s3://fake-bucket.s3.us-east-1.amazonaws.com")
+      end
+    end
+
+    context 'when given a bucket' do
+      subject { described_class.adapter_prefix(bucket_name: "wonky-tonky") }
+
+      it 'uses the given bucket_name' do
+        expect(subject).to eq("s3://wonky-tonky.s3.us-east-1.amazonaws.com")
+      end
     end
   end
 

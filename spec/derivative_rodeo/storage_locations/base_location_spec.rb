@@ -11,6 +11,11 @@ RSpec.describe DerivativeRodeo::StorageLocations::BaseLocation do
     expect { described_class.new }.to raise_error(ArgumentError)
   end
 
+  context 'class methods' do
+    subject { described_class }
+    its(:config) { is_expected.to be_a(DerivativeRodeo::Configuration) }
+  end
+
   its(:config) { is_expected.to be_a(DerivativeRodeo::Configuration) }
 
   it "should set the file_uri on initialize" do

@@ -32,10 +32,11 @@ module DerivativeRodeo
       end
 
       ##
-      # @param config [DerivativeRodeo::Configuration]
+      # @param bucket_name [String, NilClass] when given, use this as the bucket, otherwise, def
+      #
       # @return [String]
-      def self.adapter_prefix(config: DerivativeRodeo.config)
-        "#{scheme}://#{config.aws_s3_bucket}.s3.#{config.aws_s3_region}.amazonaws.com"
+      def self.adapter_prefix(bucket_name: config.aws_s3_bucket)
+        "#{scheme}://#{bucket_name}.s3.#{config.aws_s3_region}.amazonaws.com"
       end
 
       ##

@@ -42,6 +42,8 @@ module DerivativeRodeo
 
       class << self
         alias scheme location_name
+
+        delegate :config, to: DerivativeRodeo
       end
 
       ##
