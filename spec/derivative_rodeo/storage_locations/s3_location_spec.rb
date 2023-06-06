@@ -83,22 +83,22 @@ RSpec.describe DerivativeRodeo::StorageLocations::S3Location do
   xit "write additional write cases"
   xit "write cases or mark private the rest of the methods"
 
-  describe '#globbed_tail_locations' do
+  describe '#matching_locations_in_file_dir' do
     it 'searched the bucket' do
       # Because we instantiated the subject as a location to the :file_path (e.g. let(:file_path))
       # we are encoding where things are relative to this file.  In other words, this logic is
       # mirroring the generator logic that says where we're writing derivatives relative to their
       # original file/input file.
-      bucket_dir = "files/#{File.basename(file_path, '.tiff')}"
+      bucket_dir = "files"
 
-      basename = File.basename(__FILE__)
-      key = File.join(bucket_dir, "pages", basename)
+      original_basename_no_ext = File.basename(file_path, '.tiff')
+      key = File.join(bucket_dir, "#{original_basename_no_ext}--page-1.tiff")
       subject.bucket.object(key).upload_file(__FILE__)
 
-      non_matching_key = File.join(bucket_dir, "missing", basename)
+      non_matching_key = File.join(bucket_dir, "#{original_basename_no_ext}-skip--page-1.tiff")
       subject.bucket.object(non_matching_key).upload_file(__FILE__)
 
-      locations = subject.globbed_tail_locations(tail_glob: "ocr_color/pages/*.rb")
+      locations = subject.matching_locations_in_file_dir(tail_regexp: %r{#{original_basename_no_ext}--page-\d+\.tiff$})
 
       expect(locations.size).to eq(1)
     end

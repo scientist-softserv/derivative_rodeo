@@ -35,8 +35,16 @@ module DerivativeRodeo
         file_uri
       end
 
-      def globbed_tail_locations(tail_glob:)
-        Dir.glob(File.join(file_dir, tail_glob))
+      ##
+      # @return [Enumerable<DerivativeRodeo::StorageLocations::FileLocation>]
+      #
+      # @see Generators::PdfSplitGenerator#image_file_basename_template
+      #
+      # @param tail_regexp [Regexp]
+      def matching_locations_in_file_dir(tail_regexp:)
+        Dir.glob(File.join(file_dir, "*")).each_with_object([]) do |filename, accumulator|
+          accumulator << derived_file_from(template: "file://#{filename}") if tail_regexp.match(filename)
+        end
       end
     end
   end

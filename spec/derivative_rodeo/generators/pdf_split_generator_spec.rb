@@ -44,7 +44,7 @@ RSpec.describe DerivativeRodeo::Generators::PdfSplitGenerator do
             output_location = DerivativeRodeo::StorageLocations::FileLocation.build(from_uri: input_uris.first, template: output_location_template)
 
             # Let's fake a nice TIFF being in a pre-processed location.
-            pre_existing_tiff_path = File.join(output_location.file_dir, output_location.file_basename, "pages/1.tiff")
+            pre_existing_tiff_path = File.join(output_location.file_dir, "#{output_location.file_basename}--page-1.tiff")
             FileUtils.mkdir_p(File.dirname(pre_existing_tiff_path))
             File.open(pre_existing_tiff_path, "w+") do |f|
               f.puts "🤠🐮🐴 A muppet man parading as a TIFF."

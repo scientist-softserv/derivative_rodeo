@@ -52,7 +52,7 @@ module DerivativeRodeo
       # @see #existing_page_locations
       # @see .filename_for_a_derived_page_from_a_pdf?
       def image_file_basename_template(basename:)
-        "#{basename}/pages/#{basename}--page-%d.#{output_extension}"
+        "#{basename}--page-%d.#{output_extension}"
       end
 
       ##
@@ -62,21 +62,21 @@ module DerivativeRodeo
       # @param input_location [StorageLocations::BaseLocation]
       #
       # @return [Enumerable<StorageLocations::BaseLocation>] the files at the given :input_location
-      #         with :tail_glob.
+      #         with :tail_regexp.
       #
       # @note There is relation to {Generators::BaseGenerator#destination} and this method.
       #
       # @note The tail_glob is in relation to the {#image_file_basename_template}
       def existing_page_locations(input_location:)
         # See image_file_basename_template
-        tail_glob = "#{input_location.file_basename}/pages/*.#{output_extension}"
+        tail_regexp = %r{#{input_location.file_basename}--page-\d+\.#{output_extension}$}
 
-        output_locations = input_location.derived_file_from(template: output_location_template).globbed_tail_locations(tail_glob: tail_glob)
+        output_locations = input_location.derived_file_from(template: output_location_template).matching_locations_in_file_dir(tail_regexp: tail_regexp)
         return output_locations if output_locations.count.positive?
 
         return [] if preprocessed_location_template.blank?
 
-        input_location.derived_file_from(template: preprocessed_location_template).globbed_tail_loations(tail_glob: tail_glob)
+        input_location.derived_file_from(template: preprocessed_location_template).globbed_tail_loations(tail_regexp: tail_regexp)
       end
 
       ##
@@ -101,20 +101,22 @@ module DerivativeRodeo
       def with_each_requisite_location_and_tmp_file_path
         input_files.each do |input_location|
           input_location.with_existing_tmp_path do |input_tmp_file_path|
-            ## We want a single call for a directory listing of the image_file_basename_template
-            generated_files = existing_page_locations(input_location: input_location)
+            existing_locations = existing_page_locations(input_location: input_location)
 
-            if generated_files.count.zero?
-              generated_files = Services::PdfSplitter.call(
+            if existing_locations.count.positive?
+              existing_locations.each do |location|
+                yield(location, location.file_path)
+              end
+            else
+              # We're going to need to create the files and "cast" them to locations.
+              Services::PdfSplitter.call(
                 input_tmp_file_path,
                 image_extension: output_extension,
                 image_file_basename_template: image_file_basename_template(basename: input_location.file_basename)
-              )
-            end
-
-            generated_files.each do |image_path|
-              image_location = StorageLocations::FileLocation.new("file://#{image_path}")
-              yield(image_location, image_path)
+              ).each do |image_path|
+                image_location = StorageLocations::FileLocation.new("file://#{image_path}")
+                yield(image_location, image_path)
+              end
             end
           end
         end
