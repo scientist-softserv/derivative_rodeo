@@ -65,31 +65,19 @@ module DerivativeRodeo
       ##
       # @return [Enumerable<DerivativeRodeo::StorageLocations::S3Location>]
       #
-      # @note S3 allows searching on a prefix but does not allow for "wildcard" searches.  We can
-      #       use the components of the file_path to fake that behavior.
+      # @note S3 allows searching on a prefix but does not allow for "wildcard" searches.
       #
       # @see Generators::PdfSplitGenerator#image_file_basename_template
-      def globbed_tail_locations(tail_glob:)
-        # file_path = "s3://blah/1234/hello-world/pages/*.tiff"
-        #
-        # NOTE: Should we be storing our files as such?  The pattern we need is
-        # :parent_identifier/:file_set_identifier/files There are probably cases where a work has
-        # more than one PDF (that we intend to split); we don't want to trample on those split files
-        # and miscolate two PDFs.
-        #
-        # file_path = "s3://blah/1234/hello-world/hello-world.pdf
-        globname = File.join(file_dir, tail_glob)
-        regexp = %r{#{File.extname(globname)}$}
-
-        # NOTE: We're making some informed guesses, needing to include the fully qualified template
-        # based on both the key of the item in the bucket as well as the bucket's host.
+      #
+      # @param tail_regexp [Regexp]
+      def matching_locations_in_file_dir(tail_regexp:)
         uri = URI.parse(file_uri)
         scheme_and_host = "#{uri.scheme}://#{uri.host}"
 
-        bucket.objects(prefix: File.dirname(globname)).flat_map do |object|
-          if object.key.match(regexp)
+        bucket.objects(prefix: file_dir).each_with_object([]) do |object, accumulator|
+          if tail_regexp.match(object.key)
             template = File.join(scheme_and_host, object.key)
-            derived_file_from(template: template)
+            accumulator << derived_file_from(template: template)
           end
         end
       end

@@ -39,7 +39,6 @@ module DerivativeRodeo
       #        {Services::ConvertUriViaTemplateService} with the given
       #        :preprocessed_location_template.
       def initialize(input_uris:, output_location_template:, preprocessed_location_template: nil)
-        # NOTE: Are we using this preprocessed_location_template?  Wondering?
         @input_uris = Array.wrap(input_uris)
         @output_location_template = output_location_template
         @preprocessed_location_template = preprocessed_location_template
