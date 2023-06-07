@@ -46,11 +46,11 @@ module DerivativeRodeo
       #     from_uris: ["file:///path1/A/file.pdf", "aws:///path2/B/file.pdf"],
       #     template: "file:///dest1/{{dir_parts[-1..-1]}}/{{ filename }}")
       #   => ["file:///dest1/A/file.pdf", "aws:///dest1/B/file.pdf"]
-      def self.call(from_uri:, template:, adapter: nil, separator: "/")
-        new(from_uri: from_uri, template: template, adapter: adapter, separator: separator).call
+      def self.call(from_uri:, template:, adapter: nil, separator: "/", **options)
+        new(from_uri: from_uri, template: template, adapter: adapter, separator: separator, **options).call
       end
 
-      def initialize(from_uri:, template:, adapter: nil, separator: "/")
+      def initialize(from_uri:, template:, adapter: nil, separator: "/", **options)
         @from_uri = from_uri
         @template = template
         @adapter = adapter
@@ -60,9 +60,10 @@ module DerivativeRodeo
         @from_scheme, @path = uri.split("://")
         @parts = @path.split(separator)
         @dir_parts = @parts[0..-2]
-        @filename = @parts[-1]
-        @basename = File.basename(@filename, ".*")
-        @extension = File.extname(@filename)
+        @filename = options[:filename] || @parts[-1]
+        @basename = options[:basename] || File.basename(@filename, ".*")
+        @extension = options[:extension] || File.extname(@filename)
+        @extension = ".#{@extension}" unless @extension.start_with?(".")
 
         @template_without_query, @template_query = template.split("?")
       end

@@ -17,10 +17,15 @@ RSpec.describe DerivativeRodeo::Services::ConvertUriViaTemplateService do
       { from_uri: "file:///path1/A/file1.pdf",
         template: "file:///dest1/{{dir_parts[-1..-1]}}/{{basename}}/derived{{extension}}",
         adapter: DerivativeRodeo::StorageLocations::FileLocation,
-        expected: "file:///dest1/A/file1/derived.pdf" }
+        expected: "file:///dest1/A/file1/derived.pdf" },
+      { from_uri: "file:///path1/A/file1.pdf",
+        template: "file:///dest1/{{dir_parts[-1..-1]}}/{{basename}}/derived{{extension}}",
+        extension: "hello",
+        adapter: DerivativeRodeo::StorageLocations::FileLocation,
+        expected: "file:///dest1/A/file1/derived.hello" }
     ].each do |hash|
-      context "with from_uri: #{hash.fetch(:from_uri).inspect}, template: #{hash.fetch(:template).inspect}, adapter: #{hash.fetch(:adapter)}" do
-        let(:kwargs) { hash.slice(:from_uri, :template, :adapter) }
+      context "with #{hash.except(:expected)}" do
+        let(:kwargs) { hash.except(:expected) }
 
         it { is_expected.to eq(hash.fetch(:expected)) }
       end

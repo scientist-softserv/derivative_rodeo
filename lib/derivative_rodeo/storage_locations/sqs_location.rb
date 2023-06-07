@@ -181,6 +181,7 @@ module DerivativeRodeo
       end
 
       def output_json(uri)
+        # TODO: Add ability to handle a pre-process-template given to an SQS, and pass that along to the generator when applicable.
         key = DerivativeRodeo::Services::ConvertUriViaTemplateService.call(from_uri: uri, template: template, adapter: self)
         { key => [template] }.to_json
       end
