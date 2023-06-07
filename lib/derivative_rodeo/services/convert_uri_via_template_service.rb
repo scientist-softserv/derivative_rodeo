@@ -63,6 +63,8 @@ module DerivativeRodeo
         @filename = options[:filename] || @parts[-1]
         @basename = options[:basename] || File.basename(@filename, ".*")
         @extension = options[:extension] || File.extname(@filename)
+        # When a generator specifies "same" we want to use the given file's extension
+        @extension = File.extname(@filename) if @extension == DerivativeRodeo::StorageLocations::SAME
         @extension = ".#{@extension}" unless @extension.start_with?(".")
 
         @template_without_query, @template_query = template.split("?")
