@@ -168,12 +168,12 @@ module DerivativeRodeo
       #
       # @see [StorageLocations::BaseLocation#exist?]
       def destination(input_location)
-        output_location = input_location.derived_file_from(template: output_location_template)
+        output_location = input_location.derived_file_from(template: output_location_template, extension: output_extension)
 
         return output_location if output_location.exist?
         return output_location unless preprocessed_location_template
 
-        preprocessed_location = input_location.derived_file_from(template: preprocessed_location_template)
+        preprocessed_location = input_location.derived_file_from(template: preprocessed_location_template, extension: output_extension)
         # We only want the location if it exists
         return preprocessed_location if preprocessed_location&.exist?
 

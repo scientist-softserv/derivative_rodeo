@@ -101,10 +101,10 @@ module DerivativeRodeo
       # @param service [#call, Module<DerivativeRodeo::Services::ConvertUriViaTemplateService>]
       #
       # @return [StorageLocations::BaseLocation]
-      def self.build(from_uri:, template:, service: DerivativeRodeo::Services::ConvertUriViaTemplateService)
+      def self.build(from_uri:, template:, service: DerivativeRodeo::Services::ConvertUriViaTemplateService, **options)
         # HACK: Ensuring that we have the correct scheme.  Maybe this is a hack?
         from_uri = "#{scheme}://#{from_uri}" unless from_uri.start_with?("#{scheme}://")
-        to_uri = service.call(from_uri: from_uri, template: template, adapter: self)
+        to_uri = service.call(from_uri: from_uri, template: template, adapter: self, **options)
         new(to_uri)
       end
 
@@ -203,9 +203,9 @@ module DerivativeRodeo
       # @return [StorageLocations::BaseLocation]
       #
       # @see DerivativeRodeo::Services::ConvertUriViaTemplateService
-      def derived_file_from(template:)
+      def derived_file_from(template:, **options)
         klass = DerivativeRodeo::StorageLocations::BaseLocation.load_location(template)
-        klass.build(from_uri: file_path, template: template)
+        klass.build(from_uri: file_path, template: template, **options)
       end
 
       ##
