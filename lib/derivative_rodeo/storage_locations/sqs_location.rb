@@ -13,6 +13,8 @@ module DerivativeRodeo
     # Location to download and upload files to Sqs
     # It uploads a file_uri to the queue, not the contents of that file
     # reading from the queue is not currently implemented
+    #
+    # rubocop:disable Metrics/ClassLength
     class SqsLocation < BaseLocation
       ##
       # @!group Class Attributes
@@ -85,11 +87,14 @@ module DerivativeRodeo
         batch = []
         Dir.glob("#{File.dirname(tmp_file_path)}/**/**").each.with_index do |fp, i|
           batch << { id: SecureRandom.uuid, message_body: output_json("file://#{fp}") }
-          if (i % batch_size).zero?
+          if (i + 1 % batch_size).zero?
             add_batch(messages: batch)
             batch = []
           end
         end
+
+        # Ensure we're flushing the batched up queue as part of completing the write.
+        add_batch(messages: batch) if batch.present?
         file_uri
       end
 
@@ -202,5 +207,6 @@ module DerivativeRodeo
         @file_uri_parts
       end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end
