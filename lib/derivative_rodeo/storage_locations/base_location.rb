@@ -231,6 +231,7 @@ module DerivativeRodeo
       def with_new_extension(extension)
         return file_path if extension == StorageLocations::SAME
 
+        # NOTE: May need to revisit this
         "#{file_path.split('.')[0]}.#{extension}"
       end
 

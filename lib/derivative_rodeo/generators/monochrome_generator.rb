@@ -5,7 +5,8 @@ module DerivativeRodeo
     ##
     # Take images an ensures that we have a monochrome derivative of those images.
     class MonochromeGenerator < BaseGenerator
-      # TODO: Can we assume a tiff?
+      # @see DerivativeRodeo::Services::ConvertUriViaTemplateService for the interaction of the
+      #      magic ".mono" suffix
       self.output_extension = 'mono.tiff'
 
       ##
