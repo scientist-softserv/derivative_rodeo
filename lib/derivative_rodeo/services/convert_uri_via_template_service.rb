@@ -50,6 +50,7 @@ module DerivativeRodeo
         new(from_uri: from_uri, template: template, adapter: adapter, separator: separator, **options).call
       end
 
+      # rubocop:disable Metrics/MethodLength
       def initialize(from_uri:, template:, adapter: nil, separator: "/", **options)
         @from_uri = from_uri
         @template = template
@@ -62,6 +63,13 @@ module DerivativeRodeo
         @dir_parts = @parts[0..-2]
         @filename = options[:filename] || @parts[-1]
         @basename = options[:basename] || File.basename(@filename, ".*")
+
+        ##
+        # HACK: Because the HocrGenerator has `.mono.tiff` and we are not interested in carrying
+        # forward the `.mono` suffix as that makes it hard to find the preprocessed word
+        # coordinates, alto, and plain text.  This ensures files derived from the .mono are findable
+        # in IIIF Print.
+        @basename = @basename.sub(/\.mono\z/, '')
         @extension = options[:extension] || File.extname(@filename)
         # When a generator specifies "same" we want to use the given file's extension
         @extension = File.extname(@filename) if @extension == DerivativeRodeo::StorageLocations::SAME
@@ -69,6 +77,7 @@ module DerivativeRodeo
 
         @template_without_query, @template_query = template.split("?")
       end
+      # rubocop:enable Metrics/MethodLength
 
       def call
         to_uri = template_without_query.gsub(DIR_PARTS_REPLACEMENT_REGEXP) do |text|
