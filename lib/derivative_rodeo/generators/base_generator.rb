@@ -101,6 +101,7 @@ module DerivativeRodeo
           @generated_files << if generated_file.exist?
                                 generated_file
                               else
+                                logger.info("input_location file_uri #{input_location.file_uri} :: Generating output_location file_uri #{generated_file.file_uri} via build_step.")
                                 build_step(input_location: input_location, output_location: generated_file, input_tmp_file_path: input_tmp_file_path)
                               end
         end
@@ -167,20 +168,33 @@ module DerivativeRodeo
       #         {#output_location_template} or {#preprocessed_location_template}.
       #
       # @see [StorageLocations::BaseLocation#exist?]
+      # rubocop:disable Metrics/MethodLength
       def destination(input_location)
         output_location = input_location.derived_file_from(template: output_location_template, extension: output_extension)
 
-        return output_location if output_location.exist?
-        return output_location unless preprocessed_location_template
+        if output_location.exist?
+          logger.info("input_location file_uri #{input_location.file_uri} :: Found output_location file_uri #{output_location.file_uri}.")
+          return output_location
+        end
+
+        unless preprocessed_location_template
+          logger.info("input_location file_uri #{input_location.file_uri} :: No file exists at preprocessed_location nor output_location; moving on to generation.")
+          return output_location
+        end
 
         preprocessed_location = input_location.derived_file_from(template: preprocessed_location_template, extension: output_extension)
         # We only want the location if it exists
-        return preprocessed_location if preprocessed_location&.exist?
+        if preprocessed_location&.exist?
+          logger.info("input_location file_uri #{input_location.file_uri} :: Preprocessed_location file_uri #{output_location.file_uri}.")
+          return preprocessed_location
+        end
 
+        logger.info("input_location file_uri #{input_location.file_uri} :: No file exists at preprocessed_location nor output_location; moving on to generation.")
         # NOTE: The file does not exist at the output_location; but we pass this information along so
         # that the #build_step knows where to write the file.
         output_location
       end
+      # rubocop:enable Metrics/MethodLength
 
       ##
       # A bit of indirection to create a common interface for running a shell command.
