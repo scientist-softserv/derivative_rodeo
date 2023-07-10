@@ -82,6 +82,7 @@ module DerivativeRodeo
       #
       # @see #build_step
       # @see #with_each_requisite_location_and_tmp_file_path
+      # rubocop:disable Metrics/MethodLength
       def generated_files
         # TODO: Examples please
         return @generated_files if defined?(@generated_files)
@@ -101,12 +102,16 @@ module DerivativeRodeo
           @generated_files << if generated_file.exist?
                                 generated_file
                               else
-                                logger.info("input_location file_uri #{input_location.file_uri} :: Generating output_location file_uri #{generated_file.file_uri} via build_step.")
+                                log_message = "#{self.class}#generated_files :: " \
+                                          "input_location file_uri #{input_location.file_uri} :: " \
+                                          "Generating output_location file_uri #{generated_file.file_uri} via build_step."
+                                logger.info(log_message)
                                 build_step(input_location: input_location, output_location: generated_file, input_tmp_file_path: input_tmp_file_path)
                               end
         end
         @generated_files
       end
+      # rubocop:enable Metrics/MethodLength
 
       ##
       # @return [Array<String>]
@@ -169,31 +174,53 @@ module DerivativeRodeo
       #
       # @see [StorageLocations::BaseLocation#exist?]
       # rubocop:disable Metrics/MethodLength
+      # rubocop:disable Metrics/AbcSize
       def destination(input_location)
         output_location = input_location.derived_file_from(template: output_location_template, extension: output_extension)
 
         if output_location.exist?
-          logger.info("input_location file_uri #{input_location.file_uri} :: Found output_location file_uri #{output_location.file_uri}.")
+          log_message = "#{self.class}#destination :: " \
+                        "input_location file_uri #{input_location.file_uri} :: " \
+                        "Found output_location file_uri #{output_location.file_uri}."
+          logger.info(log_message)
+
           return output_location
         end
 
         unless preprocessed_location_template
-          logger.info("input_location file_uri #{input_location.file_uri} :: No file exists at preprocessed_location nor output_location; moving on to generation.")
+          log_message = "#{self.class}#destination :: " \
+                        "input_location file_uri #{input_location.file_uri} :: " \
+                        "No preprocessed_location_template provided " \
+                        "nor does a file exist at output_location file_uri #{output_location.file_uri};" \
+                        " moving on to generation via #{self.class}#build_step."
+          logger.info(log_message)
+
           return output_location
         end
 
         preprocessed_location = input_location.derived_file_from(template: preprocessed_location_template, extension: output_extension)
         # We only want the location if it exists
         if preprocessed_location&.exist?
-          logger.info("input_location file_uri #{input_location.file_uri} :: Preprocessed_location file_uri #{output_location.file_uri}.")
+          log_message = "#{self.class}#destination :: " \
+                        "input_location file_uri #{input_location.file_uri} :: " \
+                        "Found preprocessed_location file_uri #{output_location.file_uri}."
+          logger.info(log_message)
+
           return preprocessed_location
         end
 
-        logger.info("input_location file_uri #{input_location.file_uri} :: No file exists at preprocessed_location nor output_location; moving on to generation.")
+        log_message = "#{self.class}#destination :: " \
+                      "input_location file_uri #{input_location.file_uri} :: " \
+                      "No file exists at preprocessed_location file_uri #{preprocessed_location.file_uri} " \
+                      "nor output_location file_uri #{output_location.file_uri}; " \
+                      "moving on to generation via #{self.class}#build_step."
+        logger.info(log_message)
+
         # NOTE: The file does not exist at the output_location; but we pass this information along so
         # that the #build_step knows where to write the file.
         output_location
       end
+      # rubocop:enable Metrics/AbcSize
       # rubocop:enable Metrics/MethodLength
 
       ##
