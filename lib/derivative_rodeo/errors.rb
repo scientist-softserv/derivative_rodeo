@@ -35,7 +35,7 @@ module DerivativeRodeo
     ##
     # Raised when AWS bucket does not exist or is not accessible by current permissions
     class BucketMissingError < Error
-      def initialize
+      def initialize(file_uri:)
         super("Bucket part missing #{file_uri}")
       end
     end

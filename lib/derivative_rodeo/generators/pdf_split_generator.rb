@@ -76,7 +76,7 @@ module DerivativeRodeo
 
         return [] if preprocessed_location_template.blank?
 
-        input_location.derived_file_from(template: preprocessed_location_template).globbed_tail_loations(tail_regexp: tail_regexp)
+        input_location.derived_file_from(template: preprocessed_location_template).matching_locations_in_file_dir(tail_regexp: tail_regexp)
       end
 
       ##
