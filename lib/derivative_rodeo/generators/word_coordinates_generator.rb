@@ -33,6 +33,11 @@ module DerivativeRodeo
         File.open(path_to_coordinate, "w+") do |file|
           file.puts service.call(hocr_html).to_json
         end
+      rescue => e
+        message = "🤠🐮 #{self.class}##{__method__} encountered `#{e.class}' error “#{e}” for path_to_hocr: #{path_to_hocr.inspect} and path_to_coordinate: #{path_to_coordinate.inspect}"
+        exception = RuntimeError.new(message)
+        exception.set_backtrace(e.backtrace)
+        raise exception
       end
     end
   end

@@ -120,7 +120,7 @@ module DerivativeRodeo
       def bucket_name
         @bucket_name ||= file_uri.match(%r{s3://(.+)\.s3})&.[](1)
       rescue StandardError
-        raise Errors::BucketMissingError
+        raise Errors::BucketMissingError.new(file_uri: file_uri)
       end
 
       # @see .use_actual_s3_bucket
