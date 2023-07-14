@@ -87,6 +87,10 @@ module DerivativeRodeo
         # TODO: Examples please
         return @generated_files if defined?(@generated_files)
 
+        logger.info("🤠🐮 Starting #{self.class}#generated_files with " \
+                    "input_uris: #{input_uris.inspect}, " \
+                    "output_location_template: #{output_location_template.inspect}, and " \
+                    "preprocessed_location_template: #{preprocessed_location_template.inspect}.")
         # As much as I would like to use map or returned values; given the implementations it's
         # better to explicitly require that; reducing downstream implementation headaches.
         #
