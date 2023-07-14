@@ -82,6 +82,8 @@ module DerivativeRodeo
       ##
       # @api public
       #
+      # @param splitter [#call]
+      #
       # Take the given PDF(s) and into one image per page.  Remember that the URL should account for
       # the page number.
       #
@@ -98,22 +100,27 @@ module DerivativeRodeo
       # @see BaseGenerator#with_each_requisite_location_and_tmp_file_path for further discussion
       #
       # rubocop:disable Metrics/MethodLength
-      def with_each_requisite_location_and_tmp_file_path
+      # rubocop:disable Metrics/AbcSize
+      def with_each_requisite_location_and_tmp_file_path(splitter: Services::PdfSplitter)
         input_files.each do |input_location|
           input_location.with_existing_tmp_path do |input_tmp_file_path|
             existing_locations = existing_page_locations(input_location: input_location)
 
             if existing_locations.count.positive?
-              existing_locations.each do |location|
+              logger.info("#{self.class}##{__method__} found #{existing_locations.count} file(s) at existing split location for #{input_location.file_uri.inspect}.")
+              existing_locations.each_with_index do |location, index|
+                logger.info("#{self.class}##{__method__} found ##{index} split file #{location.file_path.inspect} for #{input_location.file_uri.inspect}.")
                 yield(location, location.file_path)
               end
             else
+              logger.info("#{self.class}##{__method__} did not find at existing location split files for #{input_location.file_uri.inspect}.  Proceeding with #{splitter}.call")
               # We're going to need to create the files and "cast" them to locations.
-              Services::PdfSplitter.call(
+              splitter.call(
                 input_tmp_file_path,
                 image_extension: output_extension,
                 image_file_basename_template: image_file_basename_template(basename: input_location.file_basename)
-              ).each do |image_path|
+              ).each_with_index do |image_path, index|
+                logger.info("#{self.class}##{__method__} generated (via #{splitter}.call) ##{index} split file #{image_path.inspect} for #{input_location.file_uri.inspect}.")
                 image_location = StorageLocations::FileLocation.new("file://#{image_path}")
                 yield(image_location, image_path)
               end
@@ -121,6 +128,7 @@ module DerivativeRodeo
           end
         end
       end
+      # rubocop:enable Metrics/AbcSize
       # rubocop:enable Metrics/MethodLength
     end
   end
