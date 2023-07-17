@@ -202,7 +202,9 @@ module DerivativeRodeo
           return output_location
         end
 
-        preprocessed_location = input_location.derived_file_from(template: preprocessed_location_template, extension: output_extension)
+        template = derive_preprocessed_template_from(input_location: input_location, preprocessed_location_template: preprocessed_location_template)
+
+        preprocessed_location = input_location.derived_file_from(template: template, extension: output_extension)
         # We only want the location if it exists
         if preprocessed_location&.exist?
           log_message = "#{self.class}#destination :: " \
@@ -226,6 +228,22 @@ module DerivativeRodeo
       end
       # rubocop:enable Metrics/AbcSize
       # rubocop:enable Metrics/MethodLength
+
+      ##
+      # Some generators (e.g. {PdfSplitGenerator}) need to cooerce the location template based on
+      # the input location.  Most often, however, the given :preprocessed_location_template is
+      # adequate and would be the typical returned value.
+      #
+      # @param input_location [StorageLocations::BaseLocation]
+      # @param preprocessed_location_template [String]
+      #
+      # @return [String]
+      #
+      # rubocop:disable Lint/UnusedMethodArgument
+      def derive_preprocessed_template_from(input_location:, preprocessed_location_template:)
+        preprocessed_location_template
+      end
+      # rubocop:enable Lint/UnusedMethodArgument
 
       ##
       # A bit of indirection to create a common interface for running a shell command.

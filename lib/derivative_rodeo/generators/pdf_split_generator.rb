@@ -130,6 +130,16 @@ module DerivativeRodeo
       end
       # rubocop:enable Metrics/AbcSize
       # rubocop:enable Metrics/MethodLength
+
+      ##
+      # We're working with an input location with a filename basename of "123.ARCHIVAL--page-1.tiff"
+      # The :preprocessed_location_template, due to constraints, likely ends with the original PDF's
+      # filename (e.g. "123.ARCHIVAL.pdf")
+      #
+      # And since the template doesn't have a concept of page number, we introduce this kludge.
+      def derive_preprocessed_template_from(input_location:, preprocessed_location_template:)
+        File.join(File.dirname(preprocessed_location_template), input_location.file_name)
+      end
     end
   end
 end
