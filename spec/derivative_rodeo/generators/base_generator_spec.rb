@@ -52,7 +52,7 @@ RSpec.describe DerivativeRodeo::Generators::BaseGenerator do
     end
 
     context 'when the output does not exist and the preprocessed location exists' do
-      it 'returns the file at the preprocessed location' do
+      it 'copies the file from the preprocessed location to the output location' do
         Fixtures.with_temporary_directory do |output_location_dir|
           Fixtures.with_temporary_directory do |preprocessed_location_dir|
             output_location = File.join(output_location_dir, File.basename(__FILE__))
@@ -71,12 +71,12 @@ RSpec.describe DerivativeRodeo::Generators::BaseGenerator do
             )
 
             input_file = DerivativeRodeo::StorageLocations::BaseLocation.from_uri(input_uri)
-            destination = instance.destination(input_file)
+            expect do
+              destination = instance.destination(input_file)
 
-            expect(destination.file_path).to eq(preprocessed_location)
-            expect(destination.exist?).to be_truthy
-
-            expect(File.exist?(output_location)).to be_falsey
+              expect(destination.file_path).to eq(output_location)
+              expect(destination.exist?).to be_truthy
+            end.to change { File.exist?(output_location) }.from(false).to(true)
           end
         end
       end

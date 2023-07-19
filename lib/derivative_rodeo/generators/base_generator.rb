@@ -11,11 +11,21 @@ module DerivativeRodeo
     ##
     # The Base Generator defines the interface and common methods.
     #
+    # Fundamentally, they are about ensuring the files end up at the specified location, based on
+    # the given:
+    #
+    # - {#input_uris}
+    # - {#output_location_template}
+    # - {#preprocessed_location_template}
+    #
     # In extending a BaseGenerator you:
     #
     # - must assign an {.output_extension}
     # - must impliment a {#build_step} method
     # - may override {#with_each_requisite_location_and_tmp_file_path}
+    #
+    # {#generated_files} is "where the magic happens"
+    # rubocop:disable Metrics/ClassLength
     class BaseGenerator
       ##
       # @!group Class Attributes
@@ -26,9 +36,27 @@ module DerivativeRodeo
       class_attribute :output_extension
       # @!endgroup Class Attributes
 
-      attr_reader :input_uris,
-                  :output_location_template,
-                  :preprocessed_location_template
+      ##
+      # @!group Attributes
+      #
+      # The "original" files that we'll be processing (via {#generated_files})
+      # @return [Array<String>]
+      attr_reader :input_uris
+
+      ##
+      # The template that defines where we'll be writing the {#input_uris} (via {#generated_files})
+      # @return [String]
+      # @see DerivativeRodeo::Services::ConvertUriViaTemplateService
+      attr_reader :output_location_template
+
+      ##
+      # The template that defines where we might find existing processed files for the given
+      # {#input_uris} (via {#generated_files})
+      #
+      # @return [String, NilClass]
+      # @see DerivativeRodeo::Services::ConvertUriViaTemplateService
+      attr_reader :preprocessed_location_template
+      # @!endgroup Attributes
 
       ##
       # @param input_uris [Array<String>]
@@ -78,6 +106,15 @@ module DerivativeRodeo
       ##
       # @api public
       #
+      # Based on the {#input_uris} ensure that we have files at the given output location (as
+      # derived from the {#output_location_template}).  We ensure that by:
+      #
+      # - Checking if a file already exists at the output location
+      # - Copying a preprocessed file to the output location if a preprocessed file exists
+      # - Generating the file based on the input location
+      #
+      # @note This is the method where the magic happens!
+      #
       # @return [Array<StorageLocations::BaseLocation>]
       #
       # @see #build_step
@@ -102,15 +139,15 @@ module DerivativeRodeo
         # BaseLocation is like the Ruby `File` (Pathname) "File.exist?(path) :: location.exist?"
         # "file:///Users/jfriesen/.profile"
         with_each_requisite_location_and_tmp_file_path do |input_location, input_tmp_file_path|
-          generated_file = destination(input_location)
-          @generated_files << if generated_file.exist?
-                                generated_file
+          output_location = destination(input_location)
+          @generated_files << if output_location.exist?
+                                output_location
                               else
                                 log_message = "#{self.class}#generated_files :: " \
                                           "input_location file_uri #{input_location.file_uri} :: " \
-                                          "Generating output_location file_uri #{generated_file.file_uri} via build_step."
+                                          "Generating output_location file_uri #{output_location.file_uri} via build_step."
                                 logger.info(log_message)
-                                build_step(input_location: input_location, output_location: generated_file, input_tmp_file_path: input_tmp_file_path)
+                                build_step(input_location: input_location, output_location: output_location, input_tmp_file_path: input_tmp_file_path)
                               end
         end
         @generated_files
@@ -167,9 +204,13 @@ module DerivativeRodeo
       end
 
       ##
-      # Returns the location destination for the given :input_file.  The file at the location
-      # destination might exist or might not.  In the case of non-existence, then the {#build_step}
-      # will create the file.
+      # Returns the output location for the given :input_location.  The file at the location
+      # destination might exist or might not.  In the case where we have a
+      # {#preprocessed_location_template}, we'll also check the preprocessed location for the file,
+      # and if it exists there copy it to the target output location.
+      #
+      # In the case of non-existence, then the {#build_step} will create
+      # the file.
       #
       # @param input_location [StorageLocations::BaseLocation]
       #
@@ -195,8 +236,8 @@ module DerivativeRodeo
           log_message = "#{self.class}#destination :: " \
                         "input_location file_uri #{input_location.file_uri} :: " \
                         "No preprocessed_location_template provided " \
-                        "nor does a file exist at output_location file_uri #{output_location.file_uri};" \
-                        " moving on to generation via #{self.class}#build_step."
+                        "nor does a file exist at output_location file_uri #{output_location.file_uri}; " \
+                        "moving on to generation via #{self.class}#build_step."
           logger.info(log_message)
 
           return output_location
@@ -206,13 +247,20 @@ module DerivativeRodeo
 
         preprocessed_location = input_location.derived_file_from(template: template, extension: output_extension)
         # We only want the location if it exists
-        if preprocessed_location&.exist?
+        if preprocessed_location.exist?
           log_message = "#{self.class}#destination :: " \
                         "input_location file_uri #{input_location.file_uri} :: " \
                         "Found preprocessed_location file_uri #{output_location.file_uri}."
           logger.info(log_message)
 
-          return preprocessed_location
+          # Let's make sure we reap the fruits of the pre-processing; and don't worry that generator
+          # will also write some logs.
+          output_location = CopyGenerator.new(
+            input_uris: [preprocessed_location.file_uri],
+            output_location_template: output_location.file_uri
+          ).generated_files.first
+
+          return output_location
         end
 
         log_message = "#{self.class}#destination :: " \
@@ -259,6 +307,7 @@ module DerivativeRodeo
         result
       end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end
 
