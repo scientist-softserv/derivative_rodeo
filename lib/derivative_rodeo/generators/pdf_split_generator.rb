@@ -66,7 +66,7 @@ module DerivativeRodeo
       #
       # @note There is relation to {Generators::BaseGenerator#destination} and this method.
       #
-      # @note The tail_glob is in relation to the {#image_file_basename_template}
+      # @note The tail_regexp is in relation to the {#image_file_basename_template}
       def existing_page_locations(input_location:)
         # See image_file_basename_template
         tail_regexp = %r{#{input_location.file_basename}--page-\d+\.#{output_extension}$}

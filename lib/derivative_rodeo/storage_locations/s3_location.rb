@@ -73,7 +73,10 @@ module DerivativeRodeo
       def matching_locations_in_file_dir(tail_regexp:)
         uri = URI.parse(file_uri)
         scheme_and_host = "#{uri.scheme}://#{uri.host}"
-
+        logger.debug("#{self.class}##{__method__} searching for matching files for " \
+                    "scheme_and_host: #{scheme_and_host.inspect} " \
+                    "file_dir: #{file_dir.inspect} " \
+                    "with tail_regexp: #{tail_regexp.inspect}.")
         bucket.objects(prefix: file_dir).each_with_object([]) do |object, accumulator|
           if tail_regexp.match(object.key)
             template = File.join(scheme_and_host, object.key)
