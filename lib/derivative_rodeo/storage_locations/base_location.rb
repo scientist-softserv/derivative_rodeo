@@ -46,6 +46,8 @@ module DerivativeRodeo
         delegate :config, to: DerivativeRodeo
       end
 
+      delegate :logger, to: DerivativeRodeo
+
       ##
       # @param location_name [String]
       #

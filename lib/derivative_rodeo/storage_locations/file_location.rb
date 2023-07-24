@@ -42,6 +42,9 @@ module DerivativeRodeo
       #
       # @param tail_regexp [Regexp]
       def matching_locations_in_file_dir(tail_regexp:)
+        logger.debug("#{self.class}##{__method__} searching for matching files in " \
+                    "file_dir: #{file_dir.inspect} " \
+                    "with tail_regexp: #{tail_regexp.inspect}.")
         Dir.glob(File.join(file_dir, "*")).each_with_object([]) do |filename, accumulator|
           accumulator << derived_file_from(template: "file://#{filename}") if tail_regexp.match(filename)
         end
