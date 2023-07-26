@@ -250,7 +250,7 @@ module DerivativeRodeo
         if preprocessed_location.exist?
           log_message = "#{self.class}#destination :: " \
                         "input_location file_uri #{input_location.file_uri} :: " \
-                        "Found preprocessed_location file_uri #{output_location.file_uri}."
+                        "Found preprocessed_location file_uri #{preprocessed_location.file_uri}."
           logger.info(log_message)
 
           # Let's make sure we reap the fruits of the pre-processing; and don't worry that generator
