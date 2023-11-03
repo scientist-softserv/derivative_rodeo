@@ -23,8 +23,8 @@ module DerivativeRodeo
       delegate :config, to: DerivativeRodeo
 
       def with_existing_tmp_path(&block)
-        with_tmp_path(lambda { |_file_path, tmp_file_path, exist|
-          raise Errors::FileMissingError unless exist
+        with_tmp_path(lambda { |file_path, tmp_file_path, exist|
+          raise Errors::FileMissingError.with_info(method: __method__, context: self, file_path: file_path, tmp_file_path: tmp_file_path) unless exist
 
           response = get(file_uri)
           File.open(tmp_file_path, 'wb') { |fp| fp.write(response.body) }
