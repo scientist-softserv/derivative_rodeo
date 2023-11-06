@@ -43,6 +43,9 @@ module DerivativeRodeo
     ##
     # Raised when trying to write a tmp file that does not exist
     class FileMissingError < Error
+      def self.with_info(**info)
+        new(info.inspect)
+      end
     end
 
     ##

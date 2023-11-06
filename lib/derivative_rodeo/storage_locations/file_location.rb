@@ -16,7 +16,7 @@ module DerivativeRodeo
 
       def with_existing_tmp_path(&block)
         with_tmp_path(lambda { |file_path, tmp_file_path, exist|
-          raise Errors::FileMissingError unless exist
+          raise Errors::FileMissingError.with_info(method: __method__, context: self, file_path: file_path, tmp_file_path: tmp_file_path) unless exist
 
           FileUtils.cp(file_path, tmp_file_path)
         }, &block)
