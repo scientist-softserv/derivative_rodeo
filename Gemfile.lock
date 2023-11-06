@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    derivative-rodeo (0.5.0)
+    derivative-rodeo (0.5.1)
       activesupport (>= 5)
       aws-sdk-s3
       aws-sdk-sqs
