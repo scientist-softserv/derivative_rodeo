@@ -46,7 +46,7 @@ module DerivativeRodeo
         delegate :config, to: DerivativeRodeo
       end
 
-      delegate :logger, to: DerivativeRodeo
+      delegate :config, :logger, to: DerivativeRodeo
 
       ##
       # @param location_name [String]
@@ -123,16 +123,14 @@ module DerivativeRodeo
       ##
       # @param file_uri [String] a URI to the file's location; this is **not** a templated URI (as
       #        described in {DerivativeRodeo::Services::ConvertUriViaTemplateService}
-      # @param config [DerivativeRodeo::Configuration]
-      def initialize(file_uri, config: DerivativeRodeo.config)
+      def initialize(file_uri)
         @file_uri = file_uri
-        @config = config
       end
 
       attr_accessor :tmp_file_path
       private :tmp_file_path=, :tmp_file_path
 
-      attr_reader :config, :file_uri
+      attr_reader :file_uri
 
       ##
       # @param auto_write_file [Boolean] Provided as a testing helper method.
