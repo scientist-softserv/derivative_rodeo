@@ -47,7 +47,7 @@ module DerivativeRodeo
       # @return [String] the path to the tmp file
       def with_existing_tmp_path(&block)
         with_tmp_path(lambda { |file_path, tmp_file_path, exist|
-                        raise Errors::FileMissingError unless exist
+                        raise Errors::FileMissingError.with_info(method: __method__, context: self, file_path: file_path, tmp_file_path: tmp_file_path) unless exist
                         obj = bucket.object(file_path)
                         obj.download_file(tmp_file_path)
                       }, &block)
