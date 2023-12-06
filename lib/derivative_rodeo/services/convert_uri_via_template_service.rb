@@ -7,6 +7,7 @@ module DerivativeRodeo
     # A service to convert an array of :from_uris to :to_uris via a :template.
     #
     # @see .call
+    # @see .coerce_pre_requisite_template_from
     class ConvertUriViaTemplateService
       DIR_PARTS_REPLACEMENT_REGEXP = %r{\{\{\s*dir_parts\[(?<left>\-?\d+)\.\.(?<right>\-?\d+)\]\s*\}\}}.freeze
       FILENAME_REPLACEMENT_REGEXP = %r{\{\{\s*filename\s*\}\}}.freeze
@@ -15,6 +16,15 @@ module DerivativeRodeo
       SCHEME_REPLACEMENT_REGEXP = %r{\{\{\s*scheme* \}\}}.freeze
       SCHEME_FOR_URI_REGEXP = %r{^(?<from_scheme>[^:]+)://}.freeze
       attr_accessor :from_uri, :template, :adapter, :separator, :uri, :from_scheme, :path, :parts, :dir_parts, :filename, :basename, :extension, :template_without_query, :template_query
+
+      ##
+      # @!group Class Attributes
+      #
+      # @!attribute separator [r|w]
+      #   @return [String] the directory seperator character; default: "/"
+      class_attribute :separator, default: '/', instance_accessor: false
+      # @!endgroup Class Attributes
+      ##
 
       ##
       # Convert the given :from_uris to a different list of uris based on the given :template.
@@ -32,7 +42,7 @@ module DerivativeRodeo
       # @param from_uri [String] Of the form "scheme://dir/parts/basename.extension"
       # @param template [String] Another URI that may contain path_parts or scheme template values.
       # @param adapter [StorageLocations::Location]
-      # @param separator [String]
+      # @param options [Hash<Symbol, Object>]
       #
       # @return [String]
       #
@@ -46,16 +56,31 @@ module DerivativeRodeo
       #     from_uris: ["file:///path1/A/file.pdf", "aws:///path2/B/file.pdf"],
       #     template: "file:///dest1/{{dir_parts[-1..-1]}}/{{ filename }}")
       #   => ["file:///dest1/A/file.pdf", "aws:///dest1/B/file.pdf"]
-      def self.call(from_uri:, template:, adapter: nil, separator: "/", **options)
-        new(from_uri: from_uri, template: template, adapter: adapter, separator: separator, **options).call
+      def self.call(from_uri:, template:, adapter: nil, **options)
+        new(from_uri: from_uri, template: template, adapter: adapter, **options).call
+      end
+
+      ##
+      # There are generators that have requisite files necessary for processing.
+      #
+      # For example, before we run `tesseract` on an image, we would like to make sure it is
+      # monochrome.  Hence the interplay between the {Generators::HocrGenerator} and the
+      # {Generators::MonochromeGenerator}.
+      #
+      # @param template [String]
+      # @return [String]
+      #
+      # @see Generators::BaseGenerator#with_each_requisite_location_and_tmp_file_path
+      def self.coerce_pre_requisite_template_from(template:)
+        template.split(separator)[0..-2].join(separator) + "#{separator}{{ basename }}{{ extension }}"
       end
 
       # rubocop:disable Metrics/MethodLength
-      def initialize(from_uri:, template:, adapter: nil, separator: "/", **options)
+      def initialize(from_uri:, template:, adapter: nil, **options)
         @from_uri = from_uri
         @template = template
         @adapter = adapter
-        @separator = separator
+        @separator = options.fetch(:separator) { self.class.separator }
 
         @uri, _query = from_uri.split("?")
         @from_scheme, @path = uri.split("://")

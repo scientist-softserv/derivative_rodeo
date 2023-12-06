@@ -187,6 +187,7 @@ module DerivativeRodeo
       #
       # @see Generators::HocrGenerator
       # @see Generators::PdfSplitGenerator
+      # @see Services::ConvertUriViaTemplateService.coerce_pre_requisite_template_from
       def with_each_requisite_location_and_tmp_file_path
         input_files.each do |input_location|
           input_location.with_existing_tmp_path do |tmp_file_path|

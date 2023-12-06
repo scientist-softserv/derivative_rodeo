@@ -65,7 +65,8 @@ module DerivativeRodeo
       #
       # @see BaseGenerator#with_each_requisite_location_and_tmp_file_path for further discussion
       def with_each_requisite_location_and_tmp_file_path(builder: MonochromeGenerator)
-        mono_location_template = output_location_template.gsub(self.class.output_extension, builder.output_extension)
+        mono_location_template = Services::ConvertUriViaTemplateService.coerce_pre_requisite_template_from(template: output_location_template)
+
         requisite_files ||= builder.new(input_uris: input_uris, output_location_template: mono_location_template).generated_files
         requisite_files.each do |input_location|
           input_location.with_existing_tmp_path do |tmp_file_path|
