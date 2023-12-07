@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../services/extract_word_coordinates_from_hocr_sgml_service'
+require_relative 'hocr_generator'
 
 module DerivativeRodeo
   module Generators
@@ -12,6 +13,8 @@ module DerivativeRodeo
       self.output_extension = "alto.xml"
 
       class_attribute :service, default: Services::ExtractWordCoordinatesFromHocrSgmlService
+
+      include HocrGenerator::RequiresExistingFile
 
       ##
       # @param output_location [StorageLocations::BaseLocation]

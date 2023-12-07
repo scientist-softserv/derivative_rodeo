@@ -3,6 +3,10 @@
 require 'spec_helper'
 
 RSpec.describe DerivativeRodeo::Services::ConvertUriViaTemplateService do
+  describe '.separator' do
+    subject { described_class.separator }
+    it { is_expected.to eq('/') }
+  end
   describe '.call' do
     subject { described_class.call(**kwargs) }
     [
@@ -38,6 +42,18 @@ RSpec.describe DerivativeRodeo::Services::ConvertUriViaTemplateService do
         let(:kwargs) { hash.except(:expected) }
 
         it { is_expected.to eq(hash.fetch(:expected)) }
+      end
+    end
+  end
+
+  describe '.coerce_pre_requisite_template_from' do
+    subject { described_class.coerce_pre_requisite_template_from(template: template) }
+    [
+      ["file://path/one/text.png", "file://path/one/{{ basename }}{{ extension }}"]
+    ].each do |given_template, expected_template|
+      context "given #{given_template.inspect}" do
+        let(:template) { given_template }
+        it { is_expected.to eq expected_template }
       end
     end
   end

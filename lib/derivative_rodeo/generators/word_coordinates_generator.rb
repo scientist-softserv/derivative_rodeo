@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative 'hocr_generator'
 module DerivativeRodeo
   module Generators
     ##
@@ -8,6 +9,8 @@ module DerivativeRodeo
     # @note Assumes that we're receiving a HOCR file (generated via {HocrGenerator}).
     class WordCoordinatesGenerator < BaseGenerator
       self.output_extension = "coordinates.json"
+
+      include HocrGenerator::RequiresExistingFile
 
       ##
       # @param output_location [StorageLocations::BaseLocation]

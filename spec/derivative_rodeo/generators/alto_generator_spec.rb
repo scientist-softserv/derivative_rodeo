@@ -15,12 +15,13 @@ RSpec.describe DerivativeRodeo::Generators::AltoGenerator do
   describe "#generated_files" do
     it "derives a valid alto xml from the given hocr file" do
       generated_file = nil
-      Fixtures.with_file_uris_for("ocr_mono_text_hocr.html") do |hocr_uris, from_tmp_dir|
+      Fixtures.with_file_uris_for("ocr_mono.tiff") do |hocr_uris, from_tmp_dir|
         template = "file://#{from_tmp_dir}/{{ basename }}.alto.xml"
+
         instance = described_class.new(input_uris: hocr_uris, output_location_template: template)
         generated_file = instance.generated_files.first
         expect(generated_file.exist?).to be_truthy
-        expect(generated_file.file_path).to end_with("/ocr_mono_text_hocr.alto.xml")
+        expect(generated_file.file_path).to end_with("/ocr_mono.alto.xml")
 
         # Check that the XML is well-formed
         doc = nil

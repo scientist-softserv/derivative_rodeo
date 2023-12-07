@@ -17,6 +17,7 @@
       - [Registered Generators](#registered-generators)
     - [Storage Locations](#storage-locations)
       - [Supported Storage Locations](#supported-storage-locations)
+      - [Templates](#templates)
   - [Development](#development)
     - [Logging in Test Environment](#logging-in-test-environment)
   - [Contributing](#contributing)
@@ -34,9 +35,11 @@ The `DerivativeRodeo` "moves" files from one storage location (e.g. *input*) to 
 
 ## Process Life Cycle
 
-In the case of a *input* storage location, we expect that the underlying file pointed at by the *input* storage location exists.  After all we can't move what we don't have.
+In the case of a *input* storage location (e.g. `input_location`), we expect that the underlying file pointed at by the *input* storage location exists.  After all we can't move what we don't have.
 
-In the case of a *output* storage location, we expect that the underlying file will exist after the generator has completed.  The *output* storage location *could* already exist or we might need to generate the file for the *output* location.
+In the case of a *output* storage location (e.g. `output_location`), we expect that the underlying file will exist after the generator has completed.  The *output* storage location *could* already exist or we might need to generate the file for the *output* location.
+
+There is also the concept of the *pre\_processed* storage location; when the *pre\_processed* storage location exists for the given input, copy that *pre\_processed* file to the *output* location.  And skip running the derivative generator on the *input* storage location.  In other words, if we've already done the derivation elsewhere, use that.
 
 During the generator's process, we need to have a working copy of both the *input* and *output* file.  This is done by creating a temporary file.
 
@@ -223,6 +226,24 @@ Storage locations follow a [URI pattern](https://en.wikipedia.org/wiki/Uniform_R
 - `file://` :: “local” file system storage
 - `s3://` :: <abbr title="Amazon Web Service">AWS</abbr>’s <abbr title="Simple Storage Service">S3</abbr> storage system
 - `sqs://` :: <abbr title="Amazon Web Service">AWS</abbr>’s <abbr title="Simple Queue Service">SQS</abbr>
+
+#### Templates
+
+Throughout the code you'll see reference to the following concepts:
+
+- `input_location_template`
+- `output_location_template`
+- `preprocessed_location_template`
+
+In [Process Life Cycle](#process-life-cycle) we discussed the `input_location`, `output_location`, and `preprocessed_location`.  The concept of the template provides a flexibility in mapping a location to another location
+
+Examples of mapping one file path to another are:
+
+- I want to copy `https://hello.com/world/GUID/file.jpg` to `file:///tmp/GUID/file.jpg`.
+- I want to transform `file:///tmp/GUID/file.jpg` to `file:///tmp/GUID/file.hocr`; that is run OCR on an image and write a `.hocr` file.
+- I want to use the `file:///tmp/GUID/file.hocr` to generate a `file:///tmp/GUID/file.coordinates.json`; that is convert the HOCR file to a coordinates.json file.
+
+See [DerivativeRodeo::Service::ConvertUriViaTemplateService](./lib/derivative_rodeo/services/convert_uri_via_template_service.rb) for more details.
 
 ## Development
 

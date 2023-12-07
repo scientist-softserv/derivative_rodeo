@@ -65,7 +65,8 @@ module DerivativeRodeo
       #
       # @see BaseGenerator#with_each_requisite_location_and_tmp_file_path for further discussion
       def with_each_requisite_location_and_tmp_file_path(builder: MonochromeGenerator)
-        mono_location_template = output_location_template.gsub(self.class.output_extension, builder.output_extension)
+        mono_location_template = Services::ConvertUriViaTemplateService.coerce_pre_requisite_template_from(template: output_location_template)
+
         requisite_files ||= builder.new(input_uris: input_uris, output_location_template: mono_location_template).generated_files
         requisite_files.each do |input_location|
           input_location.with_existing_tmp_path do |tmp_file_path|
@@ -106,6 +107,32 @@ module DerivativeRodeo
 
         # TODO: capture output in case of exceptions; perhaps delegate that to the #run method.
         run(cmd)
+      end
+
+      ##
+      # A mixin for generators that rely on hocr files.
+      #
+      # @see #with_each_requisite_location_and_tmp_file_path
+      module RequiresExistingFile
+        ##
+        # @param builder [Class, #generated_files]
+        #
+        # When a generator depends on a hocr file, this method will ensure that we have the requisite
+        # hocr file.
+        #
+        # @yieldparam file [StorageLocations::BaseLocation]
+        # @yieldparam tmp_path [String]
+        #
+        # @see BaseGenerator#with_each_requisite_location_and_tmp_file_path for further discussion
+        def with_each_requisite_location_and_tmp_file_path(builder: HocrGenerator)
+          prereq_output_location_template = Services::ConvertUriViaTemplateService.coerce_pre_requisite_template_from(template: output_location_template)
+          requisite_files ||= builder.new(input_uris: input_uris, output_location_template: prereq_output_location_template).generated_files
+          requisite_files.each do |input_location|
+            input_location.with_existing_tmp_path do |tmp_file_path|
+              yield(input_location, tmp_file_path)
+            end
+          end
+        end
       end
     end
   end
